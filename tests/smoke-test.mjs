@@ -39,6 +39,7 @@ requiredPages.forEach(function (page) {
   check(html.includes('id="main-content"'), page + " is missing the main-content landmark.");
   check(html.includes("assets/js/main.js"), page + " is missing the shared main script.");
   check(!/onclick=|onchange=|onsubmit=/.test(html), page + " contains inline JavaScript instead of event listeners.");
+  check(!/assets\/(?:css|js)\/[^"?]+\.(?:css|js)"/.test(html), page + " has an unversioned CSS or JavaScript asset that can go stale after deployment.");
 
   const ids = Array.from(html.matchAll(/\sid="([^"]+)"/g), function (match) { return match[1]; });
   check(new Set(ids).size === ids.length, page + " contains duplicate static IDs.");

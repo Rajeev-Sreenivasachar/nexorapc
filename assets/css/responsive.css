@@ -19,7 +19,12 @@
     background: #080808;
     flex-direction: column;
     align-items: flex-start;
+    gap: 5px;
+    border-width: 0 0 1px;
+    border-radius: 0;
   }
+  .nav-links a { width: 100%; padding: 11px 14px; border-radius: 8px; }
+  .nav-links a.active { padding-left: 28px; }
   .nav-links.open { display: flex; }
   .menu-toggle { display: inline-flex; }
   .hero-grid, .product-detail, .feature-band, .shop-layout, .builder-layout, .cart-layout, .assistant-layout, .support-layout { grid-template-columns: 1fr; }
@@ -47,7 +52,7 @@
   .section-heading { align-items: flex-start; flex-direction: column; }
   .hero h1 { font-size: 49px; letter-spacing: -3px; }
   .hardware-stage { min-height: 300px; padding: 18px; }
-  .stage-core img { width: 120px; }
+  .stage-core img { width: 78px; }
   .stage-metrics div { padding-inline: 6px; }
   .price-filter-grid { grid-template-columns: 1fr; }
   .hero-tag { right: 7px; }
