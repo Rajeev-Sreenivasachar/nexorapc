@@ -101,9 +101,11 @@ if (Array.isArray(products)) {
 
 const shopHtml = readFileSync(join(root, "shop.html"), "utf8");
 const shopScript = readFileSync(join(root, "assets", "js", "shop.js"), "utf8");
+const homeScript = readFileSync(join(root, "assets", "js", "home.js"), "utf8");
 check(shopHtml.includes('id="minimum-price"') && shopHtml.includes('id="maximum-price"'), "Shop needs minimum and maximum price fields.");
 check(shopHtml.includes('id="load-more"') && shopScript.includes("const PAGE_SIZE = 24"), "Shop needs Load More pagination.");
 check(readFileSync(join(root, "assets", "js", "main.js"), "utf8").includes('matches("[data-product-image]")'), "Missing product images need a shared fallback handler.");
+check(!homeScript.includes('category-card reveal'), "Dynamically inserted category cards must not start hidden after reveal observers are registered.");
 
 const apiCatalogContext = {};
 vm.createContext(apiCatalogContext);

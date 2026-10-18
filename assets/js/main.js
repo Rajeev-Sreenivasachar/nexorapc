@@ -131,7 +131,7 @@
     const favicon = document.createElement("link");
     favicon.rel = "icon";
     favicon.type = "image/svg+xml";
-    favicon.href = "assets/images/favicon.svg?v=20261018-2";
+    favicon.href = "assets/images/favicon.svg?v=20261018-3";
     document.head.appendChild(favicon);
   }
 
@@ -155,7 +155,7 @@
       <header class="site-header">
         <div class="container nav-shell">
           <a class="logo" href="index.html" aria-label="Nexora home">
-            <img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261018-2" alt="" width="38" height="38">
+            <img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261018-3" alt="" width="38" height="38">
             <span class="logo-wordmark">nexora</span>
           </a>
           <nav class="nav-links" id="main-nav" aria-label="Main navigation">
@@ -191,7 +191,7 @@
         <div class="container footer-grid">
           <div class="footer-brand">
             <a class="logo" href="index.html" aria-label="Nexora home">
-              <img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261018-2" alt="" width="38" height="38">
+              <img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261018-3" alt="" width="38" height="38">
               <span class="logo-wordmark">nexora</span>
             </a>
             <p>Research PC hardware, compare reference prices, and plan a compatible build with clear data sources.</p>

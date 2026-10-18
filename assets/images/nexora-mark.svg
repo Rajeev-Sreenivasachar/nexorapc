@@ -1,11 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">Nexora mark</title>
-  <desc id="desc">A compact green letter N built from three forward-leaning geometric shapes.</desc>
-  <g fill="#63E68A">
-    <path d="M8 12h11l7 9v31H8z"/>
-    <path d="M19 12h12l25 40H44L19 24z"/>
-    <path d="M45 12h11v32l-11-15z"/>
-    <path d="M4 6h25l5 7H4z" opacity=".72"/>
-    <path d="M35 51h25v7H40z" opacity=".72"/>
-  </g>
+  <desc id="desc">A clean geometric green letter N.</desc>
+  <path fill="#63E68A" d="M10 54V10h11l22 28V10h11v44H43L21 26v28z"/>
 </svg>

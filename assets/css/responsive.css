@@ -52,10 +52,11 @@
   .section-heading { align-items: flex-start; flex-direction: column; }
   .hero h1 { font-size: 49px; letter-spacing: -3px; }
   .hardware-stage { min-height: 300px; padding: 18px; }
-  .stage-core img { width: 78px; }
+  .build-preview { padding-inline: 4px; }
+  .build-preview h2 { font-size: 31px; }
+  .preview-checks { grid-template-columns: 1fr; }
   .stage-metrics div { padding-inline: 6px; }
   .price-filter-grid { grid-template-columns: 1fr; }
-  .hero-tag { right: 7px; }
   .trust-strip .container { justify-content: flex-start; padding: 18px 0; }
   .category-grid, .product-grid, .filter-panel, .form-grid { grid-template-columns: 1fr; }
   .feature-band { padding: 28px; }

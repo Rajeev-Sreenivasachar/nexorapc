@@ -12,7 +12,7 @@
     }).length;
 
     return `
-      <a class="category-card reveal" href="shop.html?category=${category.id}">
+      <a class="category-card" href="shop.html?category=${category.id}">
         <span class="category-code">${category.shortName}</span>
         <div><h3>${category.name}</h3><p>${count} products →</p></div>
       </a>`;
