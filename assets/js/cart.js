@@ -40,10 +40,10 @@
       const product = window.Nexora.getProduct(item.id);
       return `
         <article class="cart-item">
-          <img src="${product.image}" alt="${product.imageAlt}">
+          <div class="cart-image"><span class="image-placeholder" aria-hidden="true"><strong>${product.category.toUpperCase()}</strong></span><img data-product-image src="${product.image}" alt="${product.imageAlt}"></div>
           <div>
             <h2><a href="product.html?id=${product.id}">${product.name}</a></h2>
-            <p>${window.Nexora.formatMoney(product.price)} each · demo price</p>
+            <p>${window.Nexora.formatMoney(product.price)} each · dated reference</p>
             <div class="quantity-control" aria-label="Quantity for ${product.name}">
               <button type="button" data-cart-decrease="${product.id}" aria-label="Decrease quantity">−</button>
               <span>${item.quantity}</span>
@@ -51,14 +51,18 @@
             </div>
           </div>
           <div class="cart-item-total">
-            <strong>${window.Nexora.formatMoney(product.price * item.quantity)}</strong>
+            <strong>${product.price === null ? "Price unavailable" : window.Nexora.formatMoney(product.price * item.quantity)}</strong>
             <button class="remove-button" type="button" data-cart-remove="${product.id}">Remove</button>
           </div>
         </article>`;
     }).join("");
 
+    const unavailableCount = cart.filter(function (item) {
+      return window.Nexora.getProduct(item.id).price === null;
+    }).length;
     const subtotal = cart.reduce(function (total, item) {
-      return total + window.Nexora.getProduct(item.id).price * item.quantity;
+      const price = window.Nexora.getProduct(item.id).price;
+      return total + (price === null ? 0 : price * item.quantity);
     }, 0);
     const tax = subtotal * estimatedTaxRate;
     const total = subtotal + tax;
@@ -68,7 +72,8 @@
       <div class="summary-line"><span>Subtotal</span><strong>${window.Nexora.formatMoney(subtotal)}</strong></div>
       <div class="summary-line"><span>Estimated tax (7%)</span><strong>${window.Nexora.formatMoney(tax)}</strong></div>
       <div class="summary-line total"><span>Estimated total</span><strong>${window.Nexora.formatMoney(total)}</strong></div>
-      <p class="notice">This estimate does not create an order. Checkout and payment are intentionally unavailable.</p>
+      ${unavailableCount ? `<p class="notice"><strong>Incomplete total:</strong> ${unavailableCount} cart ${unavailableCount === 1 ? "item has" : "items have"} no confirmed reference price and ${unavailableCount === 1 ? "is" : "are"} excluded.</p>` : ""}
+      <p class="notice">Reference prices may have changed. This estimate does not create an order; checkout and payment are intentionally unavailable.</p>
       <button class="button button-secondary button-wide" id="clear-cart" type="button">Clear cart</button>`;
 
     document.getElementById("clear-cart").addEventListener("click", function () {

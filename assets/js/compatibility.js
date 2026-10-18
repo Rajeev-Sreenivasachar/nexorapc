@@ -47,6 +47,8 @@
 
     if (!cpu || !cooler) {
       addCheck(checks, "unknown", "Cooler socket: unable to verify until a CPU and cooler are selected.");
+    } else if (!Array.isArray(cooler.compatibility.coolerSockets) || cooler.compatibility.coolerSockets.length === 0) {
+      addCheck(checks, "unknown", "Cooler socket: mounting-kit support was not verified in the catalog. Check the manufacturer page for " + cpu.compatibility.socket + " support.");
     } else if (cooler.compatibility.coolerSockets.includes(cpu.compatibility.socket)) {
       addCheck(checks, "compatible", "Cooler socket: compatible — the cooler lists " + cpu.compatibility.socket + " support.");
     } else {

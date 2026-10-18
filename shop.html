@@ -12,7 +12,7 @@
 <body data-page="shop">
   <div data-site-header></div>
   <main id="main-content">
-    <header class="page-header"><div class="container"><span class="eyebrow">Component catalog</span><h1>Shop PC parts.</h1><p>Search real product names, compare specifications, and add demonstration items to your saved cart. Prices are examples, not live market quotes.</p></div></header>
+    <header class="page-header"><div class="container"><span class="eyebrow">Expanded component catalog</span><h1>Find the right hardware.</h1><p>Search real component models, compare sourced reference prices, and filter a catalog built for practical PC planning.</p></div></header>
     <section class="section">
       <div class="container shop-layout">
         <aside class="panel filter-panel" aria-label="Product filters">
@@ -20,7 +20,11 @@
           <div class="field"><label for="shop-search">Search</label><input id="shop-search" type="search" placeholder="Product or brand"></div>
           <div class="field"><label for="category-filter">Category</label><select id="category-filter"><option value="all">All categories</option></select></div>
           <div class="field"><label for="brand-filter">Brand</label><select id="brand-filter"><option value="all">All brands</option></select></div>
-          <div class="field"><label for="price-filter">Maximum demo price</label><input id="price-filter" type="range" min="50" max="650" step="25" value="650"><output class="range-output" id="price-output" for="price-filter">Up to $650</output></div>
+          <div class="price-filter-grid">
+            <div class="field"><label for="minimum-price">Minimum price</label><input id="minimum-price" type="number" min="0" step="25" inputmode="numeric" placeholder="$0"></div>
+            <div class="field"><label for="maximum-price">Maximum price</label><input id="maximum-price" type="number" min="0" step="25" inputmode="numeric" placeholder="No maximum"></div>
+          </div>
+          <label class="check-field"><input id="include-unpriced" type="checkbox" checked> Include products with unavailable prices</label>
           <button class="button button-secondary button-wide" id="clear-filters" type="button">Clear filters</button>
         </aside>
         <div>
@@ -30,6 +34,7 @@
           </div>
           <div class="product-grid" id="shop-products"></div>
           <div class="empty-state" id="shop-empty" hidden><h2>No products match.</h2><p>Try a broader search or clear the filters.</p><button class="button button-primary" type="button" data-clear-filters>Clear filters</button></div>
+          <div class="load-more-wrap"><button class="button button-secondary" id="load-more" type="button">Load more products</button></div>
         </div>
       </div>
     </section>

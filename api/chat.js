@@ -1,27 +1,10 @@
+import { catalog } from "./catalog.js";
+
 const requestHistory = new Map();
 const WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS = 8;
 const ALLOWED_USES = new Set(["gaming", "school", "productivity", "video"]);
 const ALLOWED_PERFORMANCE = new Set(["value", "balanced", "performance"]);
-
-const catalog = [
-  ["AMD Ryzen 5 7600", "cpu", 199.99, "AM5, DDR5, 65 W"],
-  ["Intel Core i5-14600K", "cpu", 289.99, "LGA1700, DDR5, up to 181 W"],
-  ["NVIDIA GeForce RTX 4070 SUPER", "gpu", 599.99, "12 GB GDDR6X, 220 W, 650 W recommended PSU"],
-  ["AMD Radeon RX 7800 XT", "gpu", 499.99, "16 GB GDDR6, 263 W, 700 W recommended PSU"],
-  ["MSI PRO B650-S WiFi", "motherboard", 169.99, "AM5, DDR5, ATX"],
-  ["ASUS TUF Gaming Z790-Plus WiFi D4", "motherboard", 229.99, "LGA1700, DDR4, ATX"],
-  ["Corsair Vengeance 32 GB DDR5-6000", "ram", 109.99, "32 GB, DDR5"],
-  ["Kingston FURY Beast 32 GB DDR4-3200", "ram", 94.99, "32 GB, DDR4"],
-  ["Samsung 990 PRO 2 TB", "storage", 179.99, "2 TB, PCIe 4.0 NVMe"],
-  ["Kingston NV2 1 TB", "storage", 64.99, "1 TB, PCIe 4.0 NVMe"],
-  ["Corsair RM750e", "psu", 119.99, "750 W, 80 PLUS Gold"],
-  ["MSI MAG A850GL PCIE5", "psu", 139.99, "850 W, 80 PLUS Gold"],
-  ["Corsair 4000D Airflow", "case", 104.99, "ATX / Micro-ATX / Mini-ITX"],
-  ["NZXT H5 Flow", "case", 94.99, "ATX / Micro-ATX / Mini-ITX"],
-  ["Thermalright Peerless Assassin 120 SE", "cooling", 39.99, "AM5 / LGA1700"],
-  ["Corsair H100x RGB Elite", "cooling", 99.99, "AM5 / LGA1700, 240 mm"]
-];
 
 function sendJson(response, status, body) {
   response.status(status).setHeader("Content-Type", "application/json");
@@ -54,15 +37,19 @@ export default async function handler(request, response) {
   if (!ALLOWED_USES.has(profile.use) || !ALLOWED_PERFORMANCE.has(profile.performance)) return sendJson(response, 400, { error: "Invalid recommendation preferences." });
 
   const existingParts = typeof profile.existingParts === "string" ? profile.existingParts.trim().slice(0, 500) : "None listed";
+  const compactCatalog = catalog.map(function (product) {
+    return [product.name, product.category, product.price, product.checked, product.compatibility];
+  });
   const prompt = [
     "You are the Nexora PC recommendation assistant for a student demonstration site.",
-    "Recommend only products in the provided catalog. Use exact names and listed demo prices. Do not invent specifications, inventory, benchmarks, discounts, or compatibility.",
-    "Stay near the budget when possible, explain trade-offs briefly, and note that demo prices are not current market prices.",
-    "Check CPU socket, DDR type, ATX case support, cooler socket, and PSU wattage using only the catalog text.",
+    "Recommend only products in the provided catalog. Use exact product names. Do not invent products, specifications, inventory, benchmarks, discounts, or compatibility.",
+    "Prices are dated USD reference snapshots, not live offers. State the checked date and clearly label any unavailable price. Never claim Nexora has stock.",
+    "Stay near the budget when possible and explain trade-offs briefly.",
+    "Check CPU socket, DDR type, case form-factor support, cooler socket when known, and PSU wattage using only the catalog data. If data is missing, say it must be verified.",
     "Write a concise plain-text answer suitable for a beginner. Mention exact product names so the website can create links.",
     "User profile: budget $" + budget + ", main use " + profile.use + ", goal " + profile.performance + ", existing parts: " + existingParts + ".",
     "User question: " + message,
-    "Catalog: " + JSON.stringify(catalog)
+    "Catalog fields are [name, category, price-or-null, price-check-date, compatibility]. Catalog: " + JSON.stringify(compactCatalog)
   ].join("\n");
 
   const controller = new AbortController();

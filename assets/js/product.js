@@ -19,15 +19,21 @@
   detailMount.innerHTML = `
     <div class="product-detail">
       <div class="product-detail-image">
-        <img src="${product.image}" alt="${product.imageAlt}">
-        <span class="image-note">Representative category photo · see credits</span>
+        <span class="image-placeholder" aria-hidden="true"><strong>${product.category.toUpperCase()}</strong><small>Add ${product.id}.png</small></span>
+        <img data-product-image src="${product.image}" alt="${product.imageAlt}">
       </div>
       <div class="product-detail-copy">
         <span class="eyebrow">${product.brand} · ${product.category}</span>
         <h1>${product.name}</h1>
         <p>${product.description}</p>
-        <div class="detail-price"><small>Demonstration price</small>${window.Nexora.formatMoney(product.price)}</div>
-        <p class="notice"><strong>Availability:</strong> ${product.availability}. This is sample catalog data and does not represent live inventory.</p>
+        <div class="detail-price"><small>Dated reference price</small>${window.Nexora.formatMoney(product.price)}</div>
+        <div class="source-panel">
+          <p><strong>Model:</strong> ${product.modelNumber}</p>
+          <p><strong>Last price checked:</strong> ${window.Nexora.formatCheckedDate(product.priceChecked)}</p>
+          <p><strong>Price source:</strong> <a class="text-link" href="${product.priceSourceUrl}" target="_blank" rel="noreferrer">${product.priceSource}</a></p>
+          <p><strong>Current listing:</strong> <a class="text-link" href="${product.listingUrl}" target="_blank" rel="noreferrer">Check retailer</a></p>
+        </div>
+        <p class="notice"><strong>Availability:</strong> ${product.availability}. Nexora does not claim to own or stock this product. Confirm the current price and specifications before buying.</p>
         <table class="spec-table"><caption class="sr-only">Product specifications</caption><tbody>${specifications}</tbody></table>
         <div class="purchase-row">
           <div class="field"><label for="product-quantity">Quantity</label><input class="quantity-input" id="product-quantity" type="number" min="1" max="10" value="1"></div>

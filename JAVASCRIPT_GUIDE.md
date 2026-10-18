@@ -110,7 +110,9 @@ An object groups named values:
   id: "amd-ryzen-5-7600",
   name: "AMD Ryzen 5 7600",
   category: "cpu",
-  price: 199.99,
+  price: 196.97,
+  priceChecked: "2025-07-23",
+  listingUrl: "https://www.newegg.com/p/pl?d=Ryzen%205%207600",
   compatibility: {
     socket: "AM5",
     memoryType: "DDR5",
@@ -129,7 +131,8 @@ An object groups named values:
 let products = window.NEXORA_PRODUCTS.filter(function (product) {
   return (!query || searchText.includes(query)) &&
     (categorySelect.value === "all" || product.category === categorySelect.value) &&
-    product.price <= maximumPrice;
+    (brandSelect.value === "all" || product.brand === brandSelect.value) &&
+    priceMatches;
 });
 ```
 
@@ -147,7 +150,7 @@ products.sort(function (a, b) {
 });
 ```
 
-A negative number keeps `a` before `b`. A positive number moves `b` before `a`. Subtracting prices therefore sorts from low to high.
+A negative number keeps `a` before `b`. A positive number moves `b` before `a`. Subtracting prices therefore sorts from low to high. The real code uses `Infinity` for unavailable prices so they appear after confirmed prices instead of being treated as `$0`.
 
 Names use:
 
@@ -263,7 +266,7 @@ Security limits in the file:
 
 - POST requests only
 - message, budget, and allowed-option validation
-- catalog snapshot instead of unrelated browser data
+- compact server-side copy of the 185-product catalog instead of unrelated browser data
 - eight-request-per-minute best-effort in-memory limit
 - 15-second timeout
 - generic errors that do not expose the key
@@ -298,14 +301,17 @@ Inspect the relevant object’s `compatibility` fields. Do not “fix” the res
 
 ## 16. Adding a product
 
-1. Verify the specifications using the manufacturer’s official page.
+1. Verify the exact model and specifications using the manufacturer’s official page.
 2. Add a new object to `window.NEXORA_PRODUCTS`.
 3. Give it a unique lowercase ID with hyphens.
 4. Use one of the existing category IDs.
-5. Add visible `specs`.
-6. Add only compatibility fields that are known.
-7. Test the shop, product page, cart, and builder category.
-8. Add or update image attribution in `credits.html`.
+5. Add the price source, exact listing URL, and check date. Use `price: null` when it cannot be confirmed.
+6. Add visible `specs` and only compatibility fields that are known.
+7. Add the same compact record to `api/catalog.js`.
+8. Put the matching PNG in `assets/images/products/`, or let the placeholder remain.
+9. Test the shop, product page, cart, builder category, and Gemini prompt catalog.
+
+See `PRODUCT_GUIDE.md` and `IMAGE_GUIDE.md` for the complete checklists.
 
 ## 17. Creating a new feature
 
@@ -325,8 +331,8 @@ Avoid putting unrelated code into `main.js`. Give a complicated page its own scr
 
 ## Suggested demonstration flow
 
-1. Open the homepage and state clearly that prices and availability are demonstrations.
-2. Open the shop, search for `Corsair`, filter a category, change the maximum price, and sort the results.
+1. Open the homepage and state clearly that prices are dated references and availability must be checked with the retailer.
+2. Open the shop, search for `Corsair`, combine category and brand filters, set a price range, change sorting, and load more results.
 3. Open a product with its `id` URL and add more than one to the cart.
 4. Refresh the cart to prove `localStorage` persistence, change quantity, and explain `.reduce()`.
 5. Open the builder and deliberately pair an AM5 CPU with the LGA1700 motherboard.
@@ -374,7 +380,15 @@ No. It checks five explicit rules and reports unknown states. Physical clearance
 
 ### What would you improve next?
 
-Verify every product against official sources, replace representative category photos with properly licensed exact-product images, add automated browser tests, and use durable server-side rate limiting.
+Replace each dated snapshot with a freshly verified exact retailer listing, add properly licensed exact-product images, expand automated browser tests, and use durable server-side rate limiting.
+
+## Expanded catalog and images
+
+The current catalog contains 185 products. `shop.js` renders only 24 at first and increases `visibleCount` when the visitor selects **Load more products**. Filtering still runs against the full array, so result counts stay accurate.
+
+Every product has a unique local image path. The shared `error` listener in `main.js` hides an image that cannot load, then leaves the CSS placeholder visible underneath. Adding the correctly named file later makes the real image appear without a code change.
+
+Prices can be numbers or `null`. `formatMoney()` turns `null` into “Price unavailable.” The cart and builder add only confirmed numeric prices and show an incomplete-total warning when any selected part has no price.
 
 ## Originality and honesty
 

@@ -19,10 +19,17 @@
   }
 
   function formatMoney(value) {
+    if (!Number.isFinite(value)) return "Price unavailable";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD"
     }).format(value);
+  }
+
+  function formatCheckedDate(value) {
+    if (!value) return "Not recorded";
+    const date = new Date(value + "T00:00:00");
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   }
 
   function getProduct(productId) {
@@ -100,16 +107,16 @@
     return `
       <article class="product-card">
         <a class="product-image-wrap" href="product.html?id=${encodeURIComponent(product.id)}" aria-label="View ${product.name}">
-          <img class="product-image" src="${product.image}" alt="${product.imageAlt}" loading="lazy">
-          <span class="image-note">Representative photo</span>
+          <span class="image-placeholder" aria-hidden="true"><strong>${category ? category.shortName : "PART"}</strong><small>Image ready</small></span>
+          <img class="product-image" data-product-image src="${product.image}" alt="${product.imageAlt}" loading="lazy">
         </a>
         <div class="product-info">
-          <span class="eyebrow">${category ? category.name : product.category}</span>
+          <div class="product-card-topline"><span class="eyebrow">${category ? category.name : product.category}</span><span class="brand-label">${product.brand}</span></div>
           <h3><a href="product.html?id=${encodeURIComponent(product.id)}">${product.name}</a></h3>
           <p>${product.description}</p>
           <div class="product-meta">
-            <span class="demo-price"><small>Demo price</small>${formatMoney(product.price)}</span>
-            <span class="stock-label">${product.availability}</span>
+            <span class="demo-price"><small>Reference price</small>${formatMoney(product.price)}</span>
+            <span class="stock-label">${product.price === null ? "Check retailer" : "Checked " + formatCheckedDate(product.priceChecked)}</span>
           </div>
           <div class="product-actions">
             <a class="button button-secondary button-small" href="product.html?id=${encodeURIComponent(product.id)}">Details</a>
@@ -135,7 +142,7 @@
 
     mount.innerHTML = `
       <a class="skip-link" href="#main-content">Skip to main content</a>
-      <div class="topbar">FBLA student demonstration · prices and availability are examples</div>
+      <div class="topbar">Reference prices are dated snapshots · verify price and availability with the linked retailer</div>
       <header class="site-header">
         <div class="container nav-shell">
           <a class="logo" href="index.html" aria-label="Nexora home">nexora<span>.</span></a>
@@ -146,7 +153,7 @@
             }).join("")}
           </nav>
           <div class="nav-actions">
-            <button class="icon-button" id="search-toggle" type="button" aria-label="Open product search" aria-expanded="false">⌕</button>
+            <button class="icon-button" id="search-toggle" type="button" aria-label="Open product search" aria-expanded="false">Search</button>
             <a class="cart-link" href="cart.html" aria-label="Open shopping cart">
               Cart <span data-cart-count>0</span>
             </a>
@@ -172,7 +179,7 @@
         <div class="container footer-grid">
           <div class="footer-brand">
             <a class="logo" href="index.html">nexora<span>.</span></a>
-            <p>PC parts, compatibility tools, and recommendations built as an FBLA programming demonstration.</p>
+            <p>Research PC hardware, compare reference prices, and plan a compatible build with clear data sources.</p>
           </div>
           <div><h2>Build</h2><a href="shop.html">Shop components</a><a href="builder.html">PC Builder</a><a href="assistant.html">AI Assistant</a></div>
           <div><h2>Project</h2><a href="about.html">About Nexora</a><a href="support.html">Support</a><a href="credits.html">Image credits</a></div>
@@ -180,7 +187,7 @@
         </div>
         <div class="container footer-bottom">
           <span>© <span data-current-year></span> Nexora</span>
-          <span>Student demonstration — no payments or real orders</span>
+          <span>Student demonstration — no inventory claims, payments, or real orders</span>
         </div>
       </footer>`;
   }
@@ -259,6 +266,12 @@
     if (button) addToCart(button.dataset.addCart, Number(button.dataset.quantity) || 1);
   });
 
+  document.addEventListener("error", function (event) {
+    if (!event.target.matches || !event.target.matches("[data-product-image]")) return;
+    event.target.hidden = true;
+    event.target.closest(".product-image-wrap, .product-detail-image")?.classList.add("image-missing");
+  }, true);
+
   window.addEventListener("storage", updateCartCount);
   window.addEventListener("pageshow", updateCartCount);
 
@@ -269,6 +282,7 @@
     readJson: readJson,
     writeJson: writeJson,
     formatMoney: formatMoney,
+    formatCheckedDate: formatCheckedDate,
     getProduct: getProduct,
     getCart: getCart,
     saveCart: saveCart,

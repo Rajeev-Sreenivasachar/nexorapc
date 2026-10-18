@@ -38,11 +38,15 @@
   function renderSummary() {
     const selected = Object.values(currentBuild).map(window.Nexora.getProduct).filter(Boolean);
     const compatibility = checkCompatibility();
-    const total = selected.reduce(function (sum, product) { return sum + product.price; }, 0);
+    const productsWithoutPrice = selected.filter(function (product) { return product.price === null; });
+    const total = selected.reduce(function (sum, product) { return sum + (product.price === null ? 0 : product.price); }, 0);
 
     document.getElementById("selected-count").textContent = selected.length + " / 8";
     document.getElementById("power-estimate").textContent = selected.length ? compatibility.estimatedDraw + " W" : "—";
-    document.getElementById("build-total").textContent = window.Nexora.formatMoney(total);
+    document.getElementById("build-total").textContent = window.Nexora.formatMoney(total) + (productsWithoutPrice.length ? " + unpriced parts" : "");
+    document.getElementById("build-price-note").textContent = productsWithoutPrice.length
+      ? productsWithoutPrice.length + " selected " + (productsWithoutPrice.length === 1 ? "part has" : "parts have") + " no confirmed reference price, so this total is incomplete."
+      : "All selected parts have dated reference prices. Verify them before purchasing.";
     checksMount.innerHTML = compatibility.checks.map(function (check) {
       return `<li class="compatibility-item ${check.status}">${check.message}</li>`;
     }).join("");

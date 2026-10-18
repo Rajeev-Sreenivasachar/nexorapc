@@ -46,24 +46,46 @@
 
   function fallbackRecommendation(profile) {
     const budget = Number(profile.budget);
-    const performanceBuild = budget >= 1700 || profile.performance === "performance";
-    const valueBuild = budget < 1100 || profile.performance === "value";
-    const cpu = performanceBuild ? window.Nexora.getProduct("intel-core-i5-14600k") : window.Nexora.getProduct("amd-ryzen-5-7600");
-    const motherboard = cpu.compatibility.socket === "AM5" ? window.Nexora.getProduct("msi-pro-b650-s-wifi") : window.Nexora.getProduct("asus-tuf-z790-plus-wifi");
-    const gpu = performanceBuild ? window.Nexora.getProduct("amd-radeon-rx-7800-xt") : window.Nexora.getProduct("nvidia-rtx-4070-super");
-    const ram = cpu.compatibility.socket === "LGA1700" ? window.Nexora.getProduct("kingston-fury-beast-32gb-ddr4") : window.Nexora.getProduct("corsair-vengeance-32gb-ddr5");
-    const storage = valueBuild ? window.Nexora.getProduct("kingston-nv2-1tb") : window.Nexora.getProduct("samsung-990-pro-2tb");
-    const psu = performanceBuild ? window.Nexora.getProduct("msi-mag-a850gl") : window.Nexora.getProduct("corsair-rm750e");
-    const computerCase = window.Nexora.getProduct("corsair-4000d-airflow");
-    const cooler = window.Nexora.getProduct("thermalright-peerless-assassin-120-se");
+    function priced(category, filter) {
+      return window.NEXORA_PRODUCTS.filter(function (product) {
+        return product.category === category && product.price !== null && (!filter || filter(product));
+      }).sort(function (a, b) { return a.price - b.price; });
+    }
+
+    function nearBudget(category, target, filter) {
+      const options = priced(category, filter);
+      return options.filter(function (product) { return product.price <= target; }).pop() || options[0];
+    }
+
+    const performanceMultiplier = profile.performance === "performance" ? 1.18 : profile.performance === "value" ? 0.82 : 1;
+    const supportedSockets = new Set(window.NEXORA_PRODUCTS.filter(function (product) { return product.category === "motherboard"; }).map(function (product) { return product.compatibility.socket; }));
+    const cpu = nearBudget("cpu", budget * 0.19 * performanceMultiplier, function (product) {
+      return supportedSockets.has(product.compatibility.socket);
+    });
+    const gpu = nearBudget("gpu", budget * 0.39 * performanceMultiplier);
+    const motherboard = nearBudget("motherboard", budget * 0.14, function (product) {
+      return product.compatibility.socket === cpu.compatibility.socket;
+    });
+    const ram = nearBudget("ram", budget * 0.09, function (product) {
+      return product.compatibility.memoryType === motherboard.compatibility.memoryType;
+    });
+    const storage = nearBudget("storage", budget * 0.09);
+    const psu = priced("psu", function (product) {
+      return product.compatibility.wattage >= (gpu.compatibility.recommendedPsu || 550);
+    })[0];
+    const computerCase = priced("case", function (product) {
+      return product.compatibility.caseSupport.includes(motherboard.compatibility.formFactor);
+    })[0];
+    const cooler = priced("cooling")[0];
     const parts = [cpu, motherboard, gpu, ram, storage, psu, computerCase, cooler];
-    const total = parts.reduce(function (sum, product) { return sum + product.price; }, 0);
+    const missingPrice = parts.some(function (product) { return !product || product.price === null; });
+    const total = parts.reduce(function (sum, product) { return sum + (product && product.price !== null ? product.price : 0); }, 0);
 
     return "Rule-based recommendation (Gemini was unavailable):\n\n" +
-      parts.map(function (product) { return "• " + product.name + " — " + window.Nexora.formatMoney(product.price); }).join("\n") +
-      "\n\nEstimated demo total: " + window.Nexora.formatMoney(total) + ". " +
-      (total <= budget ? "This stays within your approximate budget." : "This is above your budget, so start by choosing the Kingston NV2 and the lower-cost performance option.") +
-      " The CPU, motherboard, RAM, case, cooler, and PSU metadata pass Nexora’s basic checks. Review exact dimensions and manufacturer documentation before buying real hardware.";
+      parts.filter(Boolean).map(function (product) { return "• " + product.name + " — " + window.Nexora.formatMoney(product.price); }).join("\n") +
+      "\n\nEstimated reference total: " + window.Nexora.formatMoney(total) + (missingPrice ? " plus any unavailable prices" : "") + ". " +
+      (total <= budget ? "This stays within your approximate budget." : "This is above your budget; lower the GPU or CPU target first, then compare the next cheaper catalog option.") +
+      " Prices are dated snapshots. The CPU, motherboard, RAM, case, and PSU metadata pass Nexora’s basic checks; cooler mounting support still needs manufacturer verification.";
   }
 
   function profileData() {

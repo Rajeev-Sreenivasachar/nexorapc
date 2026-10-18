@@ -2,18 +2,20 @@
 
 Nexora is a responsive PC component catalog, cart, build planner, compatibility checker, and recommendation assistant created as an FBLA Introduction to Programming project.
 
-The store is a demonstration. It does not process payments, create orders, track live inventory, or claim current market prices.
+The store is a demonstration. It does not process payments, create orders, track live inventory, or claim that dated reference prices are guaranteed current offers.
 
 ## Main features
 
-- Search, category, brand, maximum-price, and sorting controls
+- 185 real component models across eight build categories
+- Fast search, category and brand filters, minimum/maximum price fields, sorting, result counts, and Load More pagination
 - Reusable product pages driven by an `id` URL parameter
-- Persistent cart with quantity controls and calculated estimates
+- Persistent cart with quantity controls and incomplete-total warnings
 - Eight-part PC Builder with saved builds
 - Compatibility checks for CPU socket, memory type, case fit, cooler socket, and PSU capacity
 - Secure Vercel serverless function for Gemini recommendations
 - Clearly labeled local rule-based recommendations when Gemini is unavailable
 - Responsive navigation, keyboard focus states, semantic labels, and reduced-motion support
+- Per-product source metadata, price-check dates, retailer re-check links, and missing-image placeholders
 
 ## Project structure
 
@@ -31,6 +33,7 @@ nexorapc/
 ├── terms.html
 ├── credits.html
 ├── api/chat.js               # Server-side Gemini request
+├── api/catalog.js            # Compact catalog supplied to Gemini
 ├── assets/css/
 │   ├── style.css
 │   └── responsive.css
@@ -45,7 +48,10 @@ nexorapc/
 │   ├── builder.js
 │   ├── assistant.js
 │   └── support.js
+├── assets/images/products/   # Add exact-model product PNGs here
 ├── docs/FBLA_ALIGNMENT.md
+├── IMAGE_GUIDE.md
+├── PRODUCT_GUIDE.md
 └── JAVASCRIPT_GUIDE.md
 ```
 
@@ -76,15 +82,23 @@ For local Vercel development, create an untracked `.env.local` file based on `.e
 GEMINI_API_KEY=your_key_here
 ```
 
-For Vercel, add `GEMINI_API_KEY` in the project’s Environment Variables settings. `api/chat.js` reads `process.env.GEMINI_API_KEY` on the server. It validates the request, limits message length, applies a best-effort per-instance rate limit, times out slow requests, and sends only the recommendation profile plus a small catalog snapshot.
+For Vercel, add `GEMINI_API_KEY` in the project’s Environment Variables settings. `api/chat.js` reads `process.env.GEMINI_API_KEY` on the server. It validates the request, limits message length, applies a best-effort per-instance rate limit, times out slow requests, and sends the recommendation profile plus a compact copy of `api/catalog.js`.
 
 The default model is `gemini-2.5-flash`. It can be changed with the optional `GEMINI_MODEL` server environment variable after checking Google’s current official model documentation.
 
 ## Add or update products
 
-Edit the `window.NEXORA_PRODUCTS` array in `assets/js/products.js`. Every product needs a unique `id`, display information, a demonstration price, specifications, and the structured compatibility fields that apply to its category.
+Edit the `window.NEXORA_PRODUCTS` array in `assets/js/products.js`. Every product needs a unique `id`, exact model designation, source metadata, image path, specifications, and the structured compatibility fields that apply to its category. Use `price: null` when a price cannot be confirmed.
 
 Do not guess specifications from the product name. Check the manufacturer’s official page, then update both the visible `specs` and machine-readable `compatibility` values.
+
+Read [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md) before changing the catalog and [`IMAGE_GUIDE.md`](IMAGE_GUIDE.md) before adding images.
+
+## Catalog pricing method
+
+The expanded catalog was seeded from the public `docyx/pc-part-dataset` snapshot dated July 23, 2025. Of the 185 products, 183 USD prices remain clearly labeled dated snapshots. Two SAPPHIRE GPU listings were re-checked directly on Newegg on October 18, 2026 and store the exact listing URL and model number. No value is described as a guaranteed live offer. Every product provides a source date and retailer re-check link; unverified availability is shown as “Check retailer.”
+
+When a team member verifies an exact current retailer listing, replace the snapshot metadata with the retailer name, exact listing URL, current USD price, new check date, and `priceStatus: "verified-retailer"`. Never silently refresh only the number.
 
 ## Deploy through Vercel
 
