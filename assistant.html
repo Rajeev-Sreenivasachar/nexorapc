@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Get PC component recommendations from the Nexora catalog.">
+  <title>PC Recommendation Assistant | Nexora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body data-page="assistant">
+  <div data-site-header></div>
+  <main id="main-content">
+    <header class="page-header"><div class="container"><span class="eyebrow">Catalog-aware guidance</span><h1>Find the right parts.</h1><p>Share your budget and goals. Gemini can recommend products from Nexora’s catalog, while a local rule-based tool keeps basic recommendations available if the API is offline.</p></div></header>
+    <section class="section">
+      <div class="container assistant-layout">
+        <aside class="panel assistant-setup">
+          <h2>Your priorities</h2>
+          <div class="field"><label for="assistant-budget">Approximate budget</label><input id="assistant-budget" type="number" min="500" max="5000" step="50" value="1400"></div>
+          <div class="field"><label for="assistant-use">Main use</label><select id="assistant-use"><option value="gaming">Gaming</option><option value="school">School and everyday work</option><option value="productivity">Productivity and programming</option><option value="video">Video editing and creative work</option></select></div>
+          <div class="field"><label for="assistant-performance">Performance goal</label><select id="assistant-performance"><option value="value">Best value</option><option value="balanced" selected>Balanced</option><option value="performance">Higher performance</option></select></div>
+          <div class="field"><label for="assistant-existing">Parts you already own</label><textarea id="assistant-existing" placeholder="Example: I already have a case and 750 W PSU"></textarea></div>
+          <p class="notice"><strong>Privacy:</strong> messages are sent to the Gemini API only when the secure serverless function is available. Do not enter private information.</p>
+        </aside>
+        <section class="panel chat-shell" aria-label="Recommendation conversation">
+          <div class="chat-log" id="chat-log" aria-live="polite"></div>
+          <form class="chat-form" id="chat-form">
+            <label class="sr-only" for="chat-input">Ask for a PC recommendation</label>
+            <textarea id="chat-input" maxlength="1200" required placeholder="What games, apps, or performance are you aiming for?"></textarea>
+            <button class="button button-primary" id="chat-submit" type="submit">Ask Nexora</button>
+          </form>
+          <p class="assistant-status" id="assistant-status"></p>
+        </section>
+      </div>
+    </section>
+  </main>
+  <div data-site-footer></div>
+  <script src="assets/js/products.js"></script><script src="assets/js/main.js"></script><script src="assets/js/assistant.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Search and filter the Nexora PC component demonstration catalog.">
+  <title>Shop Components | Nexora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body data-page="shop">
+  <div data-site-header></div>
+  <main id="main-content">
+    <header class="page-header"><div class="container"><span class="eyebrow">Component catalog</span><h1>Shop PC parts.</h1><p>Search real product names, compare specifications, and add demonstration items to your saved cart. Prices are examples, not live market quotes.</p></div></header>
+    <section class="section">
+      <div class="container shop-layout">
+        <aside class="panel filter-panel" aria-label="Product filters">
+          <h2>Filter products</h2>
+          <div class="field"><label for="shop-search">Search</label><input id="shop-search" type="search" placeholder="Product or brand"></div>
+          <div class="field"><label for="category-filter">Category</label><select id="category-filter"><option value="all">All categories</option></select></div>
+          <div class="field"><label for="brand-filter">Brand</label><select id="brand-filter"><option value="all">All brands</option></select></div>
+          <div class="field"><label for="price-filter">Maximum demo price</label><input id="price-filter" type="range" min="50" max="650" step="25" value="650"><output class="range-output" id="price-output" for="price-filter">Up to $650</output></div>
+          <button class="button button-secondary button-wide" id="clear-filters" type="button">Clear filters</button>
+        </aside>
+        <div>
+          <div class="shop-toolbar">
+            <p id="results-count" aria-live="polite"></p>
+            <div class="field"><label class="sr-only" for="sort-products">Sort products</label><select id="sort-products"><option value="featured">Sort: Featured</option><option value="price-low">Price: Low to high</option><option value="price-high">Price: High to low</option><option value="name">Name: A to Z</option></select></div>
+          </div>
+          <div class="product-grid" id="shop-products"></div>
+          <div class="empty-state" id="shop-empty" hidden><h2>No products match.</h2><p>Try a broader search or clear the filters.</p><button class="button button-primary" type="button" data-clear-filters>Clear filters</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div data-site-footer></div>
+  <script src="assets/js/products.js"></script><script src="assets/js/main.js"></script><script src="assets/js/shop.js"></script>
+</body>
+</html>

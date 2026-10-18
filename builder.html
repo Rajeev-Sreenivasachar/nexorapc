@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Plan a PC build and check basic component compatibility with Nexora.">
+  <title>PC Builder | Nexora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body data-page="builder">
+  <div data-site-header></div>
+  <main id="main-content">
+    <header class="page-header"><div class="container"><span class="eyebrow">Eight-part planner</span><h1>Build your PC.</h1><p>Select components, compare the total, and review the checks Nexora can actually verify. Missing data is reported honestly instead of being treated as compatible.</p></div></header>
+    <section class="section">
+      <div class="container builder-layout">
+        <div>
+          <div class="builder-slots" id="builder-slots"></div>
+          <div class="panel" style="margin-top:18px">
+            <div class="section-heading" style="margin-bottom:18px"><div><span class="eyebrow">Saved builds</span><h2 style="font-size:24px">Return to an idea later.</h2></div></div>
+            <div class="form-grid"><div class="field"><label for="build-name">Build name</label><input id="build-name" maxlength="40" placeholder="Example: 1440p gaming PC"></div><div class="field" style="align-self:end"><button class="button button-primary" id="save-build" type="button">Save current build</button></div></div>
+            <div id="saved-builds" style="margin-top:18px"></div>
+          </div>
+        </div>
+        <aside class="panel builder-summary">
+          <span class="eyebrow">Live summary</span><h2>Current build</h2>
+          <div class="summary-line"><span>Selected parts</span><strong id="selected-count">0 / 8</strong></div>
+          <div class="summary-line"><span>Estimated system draw</span><strong id="power-estimate">—</strong></div>
+          <div class="summary-line total"><span>Demo total</span><strong id="build-total">$0.00</strong></div>
+          <h3 style="font-size:14px;margin-top:24px">Compatibility checks</h3>
+          <ul class="compatibility-list" id="compatibility-list"></ul>
+          <button class="button button-primary button-wide" id="add-build-cart" type="button">Add selected parts to cart</button>
+          <button class="button button-secondary button-wide" id="reset-build" type="button">Reset build</button>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <div data-site-footer></div>
+  <script src="assets/js/products.js"></script><script src="assets/js/compatibility.js"></script><script src="assets/js/main.js"></script><script src="assets/js/builder.js"></script>
+</body>
+</html>

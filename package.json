@@ -1,0 +1,9 @@
+{
+  "name": "nexorapc",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Nexora FBLA PC component storefront demonstration",
+  "scripts": {
+    "test": "node tests/smoke-test.mjs"
+  }
+}
