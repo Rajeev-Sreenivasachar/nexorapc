@@ -36,7 +36,9 @@
 
 @media (max-width: 580px) {
   .topbar { font-size: 9px; }
-  .logo { font-size: 25px; }
+  .nav-shell { gap: 12px; }
+  .logo { gap: 7px; font-size: 24px; }
+  .logo-mark { width: 32px; height: 32px; }
   .icon-button { min-width: 38px; padding-inline: 8px; }
   #search-toggle { display: none; }
   .cart-link { padding-inline: 10px; }
@@ -45,7 +47,7 @@
   .section-heading { align-items: flex-start; flex-direction: column; }
   .hero h1 { font-size: 49px; letter-spacing: -3px; }
   .hardware-stage { min-height: 300px; padding: 18px; }
-  .stage-core span { font-size: 84px; }
+  .stage-core img { width: 120px; }
   .stage-metrics div { padding-inline: 6px; }
   .price-filter-grid { grid-template-columns: 1fr; }
   .hero-tag { right: 7px; }

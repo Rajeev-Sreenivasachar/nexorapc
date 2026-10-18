@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Nexora mark</title>
+  <desc id="desc">A geometric green letter N framed by four circuit-like corner pieces.</desc>
+  <g fill="none" stroke="#63E68A" stroke-linecap="square" stroke-linejoin="miter">
+    <path stroke-width="4" d="M7 24V13l6-6h11M40 7h11l6 6v11M57 40v11l-6 6H40M24 57H13l-6-6V40"/>
+    <path stroke-width="6" d="M19 44V20l26 24V20"/>
+  </g>
+  <g fill="#63E68A">
+    <rect x="5" y="29" width="4" height="6"/>
+    <rect x="55" y="29" width="4" height="6"/>
+  </g>
+</svg>

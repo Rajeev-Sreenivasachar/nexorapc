@@ -126,6 +126,15 @@
       </article>`;
   }
 
+  function ensureBrandMetadata() {
+    if (document.querySelector('link[rel~="icon"]')) return;
+    const favicon = document.createElement("link");
+    favicon.rel = "icon";
+    favicon.type = "image/svg+xml";
+    favicon.href = "assets/images/favicon.svg";
+    document.head.appendChild(favicon);
+  }
+
   function renderHeader() {
     const mount = document.querySelector("[data-site-header]");
     if (!mount) return;
@@ -145,7 +154,10 @@
       <div class="topbar">Reference prices are dated snapshots · verify price and availability with the linked retailer</div>
       <header class="site-header">
         <div class="container nav-shell">
-          <a class="logo" href="index.html" aria-label="Nexora home">nexora<span>.</span></a>
+          <a class="logo" href="index.html" aria-label="Nexora home">
+            <img class="logo-mark" src="assets/images/nexora-mark.svg" alt="" width="38" height="38">
+            <span class="logo-wordmark">nexora</span>
+          </a>
           <nav class="nav-links" id="main-nav" aria-label="Main navigation">
             ${links.map(function (link) {
               const active = page === link[0] ? ' class="active" aria-current="page"' : "";
@@ -178,7 +190,10 @@
       <footer class="site-footer">
         <div class="container footer-grid">
           <div class="footer-brand">
-            <a class="logo" href="index.html">nexora<span>.</span></a>
+            <a class="logo" href="index.html" aria-label="Nexora home">
+              <img class="logo-mark" src="assets/images/nexora-mark.svg" alt="" width="38" height="38">
+              <span class="logo-wordmark">nexora</span>
+            </a>
             <p>Research PC hardware, compare reference prices, and plan a compatible build with clear data sources.</p>
           </div>
           <div><h2>Build</h2><a href="shop.html">Shop components</a><a href="builder.html">PC Builder</a><a href="assistant.html">AI Assistant</a></div>
@@ -251,6 +266,7 @@
     elements.forEach(function (element) { observer.observe(element); });
   }
 
+  ensureBrandMetadata();
   renderHeader();
   renderFooter();
   setupNavigation();
