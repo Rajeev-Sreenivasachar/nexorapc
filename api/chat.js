@@ -1,10 +1,7 @@
-import { catalog } from "./catalog.js";
-
 const requestHistory = new Map();
 const WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS = 8;
-const ALLOWED_USES = new Set(["gaming", "school", "productivity", "video"]);
-const ALLOWED_PERFORMANCE = new Set(["value", "balanced", "performance"]);
+const MAX_HISTORY_MESSAGES = 8;
 
 function sendJson(response, status, body) {
   response.status(status).setHeader("Content-Type", "application/json");
@@ -22,63 +19,80 @@ function isRateLimited(request) {
   return recent.length > MAX_REQUESTS;
 }
 
+function sanitizeHistory(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(-MAX_HISTORY_MESSAGES).flatMap(function (item) {
+    if (!item || !["user", "assistant"].includes(item.role) || typeof item.text !== "string") return [];
+    const text = item.text.trim().slice(0, 1200);
+    if (!text) return [];
+    return [{ role: item.role === "assistant" ? "model" : "user", parts: [{ text: text }] }];
+  });
+}
+
+async function readRequestBody(request) {
+  if (request.body && typeof request.body === "object") return request.body;
+  if (typeof request.body === "string") {
+    try { return JSON.parse(request.body); } catch (error) { return {}; }
+  }
+
+  let raw = "";
+  try {
+    for await (const chunk of request) {
+      raw += chunk.toString("utf8");
+      if (raw.length > 20000) return {};
+    }
+    return raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    return {};
+  }
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") return sendJson(response, 405, { error: "Method not allowed" });
   if (isRateLimited(request)) return sendJson(response, 429, { error: "Too many requests. Please wait a minute." });
   if (!process.env.GEMINI_API_KEY) return sendJson(response, 503, { error: "Gemini is not configured." });
 
-  const body = request.body && typeof request.body === "object" ? request.body : {};
+  const body = await readRequestBody(request);
   const message = typeof body.message === "string" ? body.message.trim() : "";
-  const profile = body.profile && typeof body.profile === "object" ? body.profile : {};
-  const budget = Number(profile.budget);
-
   if (!message || message.length > 1200) return sendJson(response, 400, { error: "Message must be between 1 and 1200 characters." });
-  if (!Number.isFinite(budget) || budget < 500 || budget > 5000) return sendJson(response, 400, { error: "Budget must be between 500 and 5000." });
-  if (!ALLOWED_USES.has(profile.use) || !ALLOWED_PERFORMANCE.has(profile.performance)) return sendJson(response, 400, { error: "Invalid recommendation preferences." });
 
-  const existingParts = typeof profile.existingParts === "string" ? profile.existingParts.trim().slice(0, 500) : "None listed";
-  const compactCatalog = catalog.map(function (product) {
-    return [product.name, product.category, product.price, product.checked, product.compatibility];
-  });
-  const prompt = [
-    "You are the Nexora PC recommendation assistant for a student demonstration site.",
-    "Recommend only products in the provided catalog. Use exact product names. Do not invent products, specifications, inventory, benchmarks, discounts, or compatibility.",
-    "Prices are dated USD reference snapshots, not live offers. State the checked date and clearly label any unavailable price. Never claim Nexora has stock.",
-    "Stay near the budget when possible and explain trade-offs briefly.",
-    "Check CPU socket, DDR type, case form-factor support, cooler socket when known, and PSU wattage using only the catalog data. If data is missing, say it must be verified.",
-    "Write a concise plain-text answer suitable for a beginner. Mention exact product names so the website can create links.",
-    "User profile: budget $" + budget + ", main use " + profile.use + ", goal " + profile.performance + ", existing parts: " + existingParts + ".",
-    "User question: " + message,
-    "Catalog fields are [name, category, price-or-null, price-check-date, compatibility]. Catalog: " + JSON.stringify(compactCatalog)
-  ].join("\n");
+  const systemInstruction = [
+    "You are Nexora AI, the embedded PC hardware assistant for Nexora, a student-built PC shopping and planning demonstration.",
+    "Help beginners and enthusiasts with component recommendations, build planning, hardware specifications, CPU and GPU comparisons, compatibility checks, and other PC questions.",
+    "The Nexora storefront inventory is currently unavailable and marked Coming Soon. Never claim a product is in stock, for sale, discounted, or available through Nexora.",
+    "The Thanksgiving 20% off banner is a design placeholder only. Never describe that discount as active.",
+    "Do not invent current prices, stock, benchmark results, or compatibility. Clearly say when price, availability, BIOS support, physical clearance, power requirements, or compatibility has not been verified.",
+    "For compatibility questions, ask for exact model numbers when needed and remind the visitor to verify the motherboard support list, case clearance, PSU connectors and capacity, RAM support, and cooler mounting hardware.",
+    "Prefer concise, practical plain text. Do not use markdown tables. Keep most answers under 350 words unless the visitor asks for detail."
+  ].join(" ");
+  const contents = sanitizeHistory(body.history);
+  contents.push({ role: "user", parts: [{ text: message }] });
 
   const controller = new AbortController();
-  const timeout = setTimeout(function () { controller.abort(); }, 15000);
-
+  const timeout = setTimeout(function () { controller.abort(); }, 18000);
   try {
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
     const apiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
       body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: contents,
         generationConfig: { temperature: 0.35, maxOutputTokens: 900 }
       }),
       signal: controller.signal
     });
-
     if (!apiResponse.ok) {
       console.error("Gemini request failed with status", apiResponse.status);
-      return sendJson(response, 502, { error: "The recommendation service is temporarily unavailable." });
+      return sendJson(response, 502, { error: "The AI service is temporarily unavailable." });
     }
-
     const data = await apiResponse.json();
     const reply = data?.candidates?.[0]?.content?.parts?.map(function (part) { return part.text || ""; }).join("").trim();
-    if (!reply) return sendJson(response, 502, { error: "The recommendation service returned an empty response." });
+    if (!reply) return sendJson(response, 502, { error: "The AI service returned an empty response." });
     return sendJson(response, 200, { reply: reply.slice(0, 5000) });
   } catch (error) {
     console.error("Gemini request error", error.name);
-    return sendJson(response, 502, { error: "The recommendation service is temporarily unavailable." });
+    return sendJson(response, 502, { error: "The AI service is temporarily unavailable." });
   } finally {
     clearTimeout(timeout);
   }

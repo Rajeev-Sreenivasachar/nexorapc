@@ -29,6 +29,11 @@
   }
 
   function renderCart() {
+    if (!window.Nexora.inventoryPublic) {
+      cartMount.innerHTML = `<div class="empty-state"><span class="eyebrow">Store update</span><h2>Cart access is paused.</h2><p>Nexora inventory is coming soon, so saved catalog items are temporarily hidden. Your browser data has not been deleted.</p><a class="button button-primary" href="builder.html">Plan a PC build</a></div>`;
+      summaryMount.innerHTML = `<h2>Store coming soon</h2><p>There are no public products, live prices, or checkout options right now.</p><button class="button button-secondary button-wide" type="button" data-open-prebuilt>Preview prebuilts</button>`;
+      return;
+    }
     const cart = validCart();
     if (!cart.length) {
       cartMount.innerHTML = `<div class="empty-state"><h2>Your cart is empty.</h2><p>Add a component from the catalog. It will stay saved after a refresh on this device.</p><a class="button button-primary" href="shop.html">Shop components</a></div>`;

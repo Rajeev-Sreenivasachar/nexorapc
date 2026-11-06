@@ -3,121 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#000000">
-  <meta name="description" content="Explore PC components, plan compatible builds, and get practical recommendations with Nexora.">
-  <link rel="icon" href="assets/images/favicon.svg?v=20261018-3" type="image/svg+xml">
-  <title>Nexora | PC Components & Custom Builds</title>
+  <meta name="theme-color" content="#050806">
+  <meta name="description" content="Plan PC builds, understand hardware, and prepare for Nexora's upcoming component store.">
+  <link rel="icon" href="assets/images/favicon.svg?v=20261106-1" type="image/svg+xml">
+  <title>Nexora | Smarter PC Planning</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261018-3">
-  <link rel="stylesheet" href="assets/css/responsive.css?v=20261018-3">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261106-1">
 </head>
 <body data-page="home">
   <div data-site-header></div>
-
   <main id="main-content">
-    <section class="hero">
+    <section class="hero home-hero">
       <div class="container hero-grid">
         <div class="hero-copy reveal">
-          <span class="kicker">Hardware for what’s next</span>
-          <h1>Build Better.<br><em>Game Bigger.</em></h1>
-          <p>Nexora makes it easier to compare PC parts, plan a compatible setup, and understand why each component belongs in your build.</p>
+          <span class="kicker">PC building, without the guesswork</span>
+          <h1>Build smarter.<br><em>Know every part.</em></h1>
+          <p>Nexora helps you plan compatible PCs, understand confusing hardware specs, and make informed component choices before you spend a dollar.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="shop.html">Shop components →</a>
-            <a class="button button-secondary" href="builder.html">Build your PC</a>
+            <a class="button button-primary" href="builder.html">Start a PC build →</a>
+            <button class="button button-secondary" type="button" data-open-ai>Ask Nexora AI</button>
           </div>
-          <div class="hero-facts">
-            <div><strong id="catalog-product-count">185 parts</strong><small>Structured hardware catalog</small></div>
-            <div><strong>5 checks</strong><small>Compatibility rules</small></div>
-            <div><strong>Dated prices</strong><small>Sources shown per product</small></div>
-          </div>
+          <p class="hero-note"><span aria-hidden="true"></span> Component and prebuilt inventory is coming soon.</p>
         </div>
         <div class="hero-visual reveal">
-          <div class="hardware-stage" aria-label="Nexora PC Builder compatibility preview">
-            <div class="stage-header"><span>BUILD WORKSPACE / 01</span><span class="status-dot">READY TO CONFIGURE</span></div>
+          <div class="hardware-stage" aria-label="Nexora PC planning workspace preview">
+            <div class="stage-header"><span>NEXORA / BUILD DESK</span><span class="status-dot">PLANNER ONLINE</span></div>
             <div class="build-preview">
-              <span class="build-preview-kicker">Compatibility workspace</span>
-              <h2>Choose parts.<br><em>Check the fit.</em></h2>
+              <span class="build-preview-kicker">A clearer way to build</span>
+              <h2>Pick the parts.<br><em>Understand the fit.</em></h2>
               <div class="preview-checks">
-                <div><span>01</span><strong>CPU + board</strong><small>Socket check</small></div>
-                <div><span>02</span><strong>RAM + board</strong><small>Memory check</small></div>
-                <div><span>03</span><strong>Board + case</strong><small>Form-factor check</small></div>
-                <div><span>04</span><strong>System + PSU</strong><small>Power estimate</small></div>
+                <div><span>01</span><strong>Socket match</strong><small>CPU + motherboard</small></div>
+                <div><span>02</span><strong>Memory support</strong><small>RAM + motherboard</small></div>
+                <div><span>03</span><strong>Physical fit</strong><small>Board + case</small></div>
+                <div><span>04</span><strong>Power headroom</strong><small>System + PSU</small></div>
               </div>
             </div>
-            <div class="stage-metrics"><div><strong>8</strong><small>part categories</small></div><div><strong>185</strong><small>catalog products</small></div><div><strong>5</strong><small>build checks</small></div></div>
+            <div class="stage-metrics"><div><strong>Plan</strong><small>your parts</small></div><div><strong>Check</strong><small>the basics</small></div><div><strong>Save</strong><small>your build</small></div></div>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="trust-strip">
-      <div class="container">
-        <span class="trust-item">Real component models</span>
-        <span class="trust-item">Dated reference prices</span>
-        <span class="trust-item">Builds saved in your browser</span>
-      </div>
-    </div>
+    <div class="trust-strip"><div class="container"><span class="trust-item">Compatibility-first planning</span><span class="trust-item">Plain-language hardware help</span><span class="trust-item">Honest verification warnings</span></div></div>
 
     <section class="section">
       <div class="container">
-        <div class="section-heading reveal">
-          <div><span class="eyebrow">Start exploring</span><h2>Hardware, organized.</h2><p>Eight focused categories backed by one catalog across the shop, cart, builder, and assistant.</p></div>
-          <a class="text-link" href="shop.html">View every component →</a>
-        </div>
-        <div class="category-grid" id="home-categories"></div>
-      </div>
-    </section>
-
-    <section class="section section-alt">
-      <div class="container">
-        <div class="section-heading reveal">
-          <div><span class="eyebrow">Notable components</span><h2>A sharper starting point.</h2><p>Popular product lines across budget, midrange, and premium builds. Reference prices are dated—not live offers.</p></div>
-          <a class="text-link" href="shop.html">Browse the catalog →</a>
-        </div>
-        <div class="product-grid" id="featured-products"></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container feature-band reveal">
-        <div>
-          <span class="eyebrow">PC Builder</span>
-          <h2>Compatibility checks that explain themselves.</h2>
-          <p>Select eight core parts, see the total, save builds, and get clear compatible, incompatible, or unable-to-verify results.</p>
-          <a class="button button-primary" href="builder.html">Open PC Builder →</a>
-        </div>
-        <div class="feature-list" aria-label="Builder features">
-          <div>CPU socket ↔ motherboard socket</div>
-          <div>RAM type ↔ motherboard memory support</div>
-          <div>Motherboard size ↔ case support</div>
-          <div>Estimated load ↔ power-supply capacity</div>
+        <div class="section-heading reveal"><div><span class="eyebrow">What you can do now</span><h2>Useful before the store even opens.</h2><p>The shopping inventory is paused, but the tools that help you make better hardware decisions are ready.</p></div></div>
+        <div class="service-grid">
+          <article class="service-card reveal"><span class="service-number">01</span><h3>Plan a complete build</h3><p>Choose core components, save different ideas, and see what Nexora can and cannot verify.</p><a class="text-link" href="builder.html">Open the builder →</a></article>
+          <article class="service-card reveal"><span class="service-number">02</span><h3>Ask a hardware question</h3><p>Get help with specs, comparisons, budgets, upgrade paths, and compatibility questions.</p><button class="text-link button-link" type="button" data-open-ai>Open Nexora AI →</button></article>
+          <article class="service-card reveal"><span class="service-number">03</span><h3>Explore prebuilts</h3><p>See what Nexora's planned prebuilt experience will prioritize before inventory launches.</p><button class="text-link button-link" type="button" data-open-prebuilt>Preview prebuilts →</button></article>
         </div>
       </div>
     </section>
 
     <section class="section section-alt">
+      <div class="container launch-panel reveal">
+        <div><span class="eyebrow">Store update</span><h2>Inventory is being prepared.</h2><p>Product listings have been temporarily removed while the storefront is refined. The catalog system remains in the code and can return when the data is ready.</p></div>
+        <div class="launch-status" aria-label="Store launch status"><div><span>01</span><strong>Product data</strong><small>Internal system retained</small></div><div><span>02</span><strong>Storefront</strong><small>Coming soon</small></div><div><span>03</span><strong>Checkout</strong><small>Not available</small></div></div>
+        <a class="button button-secondary" href="shop.html">View store status</a>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="container feature-band reveal">
-        <div>
-          <span class="eyebrow">Recommendation assistant</span>
-          <h2>Tell us what the PC needs to do.</h2>
-          <p>The assistant uses your budget and goals to recommend only parts in the Nexora catalog. If Gemini is unavailable, a clearly labeled rule-based recommender steps in.</p>
-          <a class="button button-primary" href="assistant.html">Get recommendations →</a>
-        </div>
-        <div class="feature-list" aria-label="Assistant questions">
-          <div>Budget and performance target</div>
-          <div>Gaming, school, productivity, or editing</div>
-          <div>Existing parts you want to reuse</div>
-          <div>Trade-offs explained in plain language</div>
-        </div>
+        <div><span class="eyebrow">Why Nexora</span><h2>Less spec-sheet chaos. More confident decisions.</h2><p>Nexora brings planning, comparisons, compatibility guidance, and beginner-friendly explanations into one focused workspace.</p><a class="button button-primary" href="about.html">About Nexora →</a></div>
+        <div class="feature-list" aria-label="Nexora principles"><div>Explain the reason behind a recommendation</div><div>Say when compatibility still needs verification</div><div>Never present placeholder prices as live offers</div><div>Keep the experience focused and easy to use</div></div>
       </div>
     </section>
   </main>
-
   <div data-site-footer></div>
-  <script src="assets/js/products.js?v=20261018-3"></script>
-  <script src="assets/js/main.js?v=20261018-3"></script>
-  <script src="assets/js/home.js?v=20261018-3"></script>
+  <script src="assets/js/products.js?v=20261106-1"></script>
+  <script src="assets/js/main.js?v=20261106-1"></script>
+  <script src="assets/js/assistant.js?v=20261106-1"></script>
 </body>
 </html>

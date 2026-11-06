@@ -44,7 +44,7 @@ The shared catalog lives in `assets/js/products.js`. The shop, homepage, product
 6. If the price cannot be verified, use `price: null` and `priceStatus: "unavailable"`.
 7. Add compatibility fields only when they are verified. Missing data should produce an “unable to verify” result, not a guess.
 8. Give the product a unique image path that matches its ID.
-9. Add the same compact product record to `api/catalog.js` so Gemini can recommend it.
+9. Keep the compact record in `api/catalog.js` synchronized for a future catalog-aware assistant mode.
 10. Run `node tests/smoke-test.mjs`.
 
 ## Update a price

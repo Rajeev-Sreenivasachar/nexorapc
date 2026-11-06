@@ -1,130 +1,101 @@
 (function () {
   "use strict";
 
-  const log = document.getElementById("chat-log");
-  const form = document.getElementById("chat-form");
-  const input = document.getElementById("chat-input");
-  const submitButton = document.getElementById("chat-submit");
-  const status = document.getElementById("assistant-status");
+  const AI_HISTORY_KEY = "nexora_ai_history_v2";
+  const Nexora = window.Nexora;
+  if (!Nexora) return;
 
-  function productsMentioned(text) {
-    return window.NEXORA_PRODUCTS.filter(function (product) {
-      return text.toLowerCase().includes(product.name.toLowerCase());
-    }).slice(0, 8);
-  }
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = `
+    <button class="ai-launcher" id="ai-launcher" type="button" aria-label="Open Nexora AI assistant" aria-controls="ai-panel" aria-expanded="false"><span aria-hidden="true">N</span><strong>Ask AI</strong></button>
+    <section class="ai-panel" id="ai-panel" role="dialog" aria-label="Nexora AI assistant" hidden>
+      <header class="ai-panel-header"><div><span class="ai-status-dot" aria-hidden="true"></span><strong>Nexora AI</strong><small>PC guidance, not live inventory data</small></div><button type="button" id="ai-close" aria-label="Close AI assistant">×</button></header>
+      <div class="ai-quick-prompts" aria-label="Suggested questions"><button type="button" data-ai-prompt="Help me plan a gaming PC for my budget.">Plan a build</button><button type="button" data-ai-prompt="Explain the difference between a CPU and a GPU.">Explain hardware</button><button type="button" data-ai-prompt="What should I verify before checking PC part compatibility?">Check compatibility</button></div>
+      <div class="ai-log" id="ai-log" aria-live="polite" aria-relevant="additions"></div>
+      <form class="ai-form" id="ai-form"><label class="sr-only" for="ai-input">Ask Nexora AI a PC question</label><textarea id="ai-input" maxlength="1200" rows="2" required placeholder="Ask about parts, builds, specs, or compatibility…"></textarea><button class="button button-primary" id="ai-submit" type="submit">Send</button></form>
+      <div class="ai-disclaimer" id="ai-status">AI can be wrong. Verify prices, availability, and compatibility before buying.</div>
+    </section>`;
+  document.body.appendChild(wrapper);
 
-  function appendMessage(role, text) {
+  const launcher = document.getElementById("ai-launcher");
+  const panel = document.getElementById("ai-panel");
+  const closeButton = document.getElementById("ai-close");
+  const form = document.getElementById("ai-form");
+  const input = document.getElementById("ai-input");
+  const submit = document.getElementById("ai-submit");
+  const log = document.getElementById("ai-log");
+  const status = document.getElementById("ai-status");
+  let closeTimer = 0;
+  let history = Nexora.readJson(AI_HISTORY_KEY, []);
+  if (!Array.isArray(history)) history = [];
+  history = history.filter(function (item) { return item && ["user", "assistant"].includes(item.role) && typeof item.text === "string"; }).slice(-12);
+
+  function appendMessage(role, text, save) {
     const message = document.createElement("div");
-    message.className = "chat-message " + role;
-
+    message.className = "ai-message " + role;
     const label = document.createElement("span");
-    label.className = "message-label";
     label.textContent = role === "user" ? "You" : "Nexora";
-
-    const copy = document.createElement("span");
+    const copy = document.createElement("p");
     copy.textContent = text;
     message.append(label, copy);
-
-    const matches = productsMentioned(text);
-    if (role === "assistant" && matches.length) {
-      const links = document.createElement("div");
-      links.style.marginTop = "12px";
-      matches.forEach(function (product) {
-        const link = document.createElement("a");
-        link.className = "text-link";
-        link.href = "product.html?id=" + encodeURIComponent(product.id);
-        link.textContent = "View " + product.name + " →";
-        link.style.display = "block";
-        links.appendChild(link);
-      });
-      message.appendChild(links);
-    }
-
     log.appendChild(message);
     log.scrollTop = log.scrollHeight;
-  }
-
-  function fallbackRecommendation(profile) {
-    const budget = Number(profile.budget);
-    function priced(category, filter) {
-      return window.NEXORA_PRODUCTS.filter(function (product) {
-        return product.category === category && product.price !== null && (!filter || filter(product));
-      }).sort(function (a, b) { return a.price - b.price; });
+    if (save) {
+      history.push({ role: role, text: text.slice(0, 5000) });
+      history = history.slice(-12);
+      Nexora.writeJson(AI_HISTORY_KEY, history);
     }
-
-    function nearBudget(category, target, filter) {
-      const options = priced(category, filter);
-      return options.filter(function (product) { return product.price <= target; }).pop() || options[0];
-    }
-
-    const performanceMultiplier = profile.performance === "performance" ? 1.18 : profile.performance === "value" ? 0.82 : 1;
-    const supportedSockets = new Set(window.NEXORA_PRODUCTS.filter(function (product) { return product.category === "motherboard"; }).map(function (product) { return product.compatibility.socket; }));
-    const cpu = nearBudget("cpu", budget * 0.19 * performanceMultiplier, function (product) {
-      return supportedSockets.has(product.compatibility.socket);
-    });
-    const gpu = nearBudget("gpu", budget * 0.39 * performanceMultiplier);
-    const motherboard = nearBudget("motherboard", budget * 0.14, function (product) {
-      return product.compatibility.socket === cpu.compatibility.socket;
-    });
-    const ram = nearBudget("ram", budget * 0.09, function (product) {
-      return product.compatibility.memoryType === motherboard.compatibility.memoryType;
-    });
-    const storage = nearBudget("storage", budget * 0.09);
-    const psu = priced("psu", function (product) {
-      return product.compatibility.wattage >= (gpu.compatibility.recommendedPsu || 550);
-    })[0];
-    const computerCase = priced("case", function (product) {
-      return product.compatibility.caseSupport.includes(motherboard.compatibility.formFactor);
-    })[0];
-    const cooler = priced("cooling")[0];
-    const parts = [cpu, motherboard, gpu, ram, storage, psu, computerCase, cooler];
-    const missingPrice = parts.some(function (product) { return !product || product.price === null; });
-    const total = parts.reduce(function (sum, product) { return sum + (product && product.price !== null ? product.price : 0); }, 0);
-
-    return "Rule-based recommendation (Gemini was unavailable):\n\n" +
-      parts.filter(Boolean).map(function (product) { return "• " + product.name + " — " + window.Nexora.formatMoney(product.price); }).join("\n") +
-      "\n\nEstimated reference total: " + window.Nexora.formatMoney(total) + (missingPrice ? " plus any unavailable prices" : "") + ". " +
-      (total <= budget ? "This stays within your approximate budget." : "This is above your budget; lower the GPU or CPU target first, then compare the next cheaper catalog option.") +
-      " Prices are dated snapshots. The CPU, motherboard, RAM, case, and PSU metadata pass Nexora’s basic checks; cooler mounting support still needs manufacturer verification.";
   }
 
-  function profileData() {
-    return {
-      budget: Number(document.getElementById("assistant-budget").value),
-      use: document.getElementById("assistant-use").value,
-      performance: document.getElementById("assistant-performance").value,
-      existingParts: document.getElementById("assistant-existing").value.trim().slice(0, 500)
-    };
+  if (history.length) history.forEach(function (item) { appendMessage(item.role, item.text, false); });
+  else appendMessage("assistant", "hey — ask me about PC parts, build planning, specs, comparisons, or compatibility. i’ll call out anything that still needs real-world verification.", false);
+
+  function open() {
+    window.clearTimeout(closeTimer);
+    panel.hidden = false;
+    launcher.setAttribute("aria-expanded", "true");
+    window.setTimeout(function () { panel.classList.add("open"); input.focus(); }, 10);
   }
 
-  appendMessage("assistant", "Tell me what you want the computer to handle. I’ll stay inside Nexora’s catalog and explain the trade-offs.");
+  function close() {
+    if (panel.hidden) return;
+    panel.classList.remove("open");
+    launcher.setAttribute("aria-expanded", "false");
+    closeTimer = window.setTimeout(function () { panel.hidden = true; launcher.focus(); }, 180);
+  }
+
+  launcher.addEventListener("click", function () { if (panel.hidden) open(); else close(); });
+  closeButton.addEventListener("click", close);
+  document.querySelectorAll("[data-open-ai]").forEach(function (button) { button.addEventListener("click", open); });
+  document.querySelectorAll("[data-ai-prompt]").forEach(function (button) {
+    button.addEventListener("click", function () { input.value = button.dataset.aiPrompt; input.focus(); });
+  });
+  document.addEventListener("keydown", function (event) { if (event.key === "Escape" && !panel.hidden) close(); });
 
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const message = input.value.trim();
     if (!message) return;
-    const profile = profileData();
-    appendMessage("user", message);
+    const priorHistory = history.slice(-8);
+    appendMessage("user", message, true);
     input.value = "";
-    submitButton.disabled = true;
-    status.textContent = "Checking the catalog…";
-
+    input.disabled = true;
+    submit.disabled = true;
+    log.setAttribute("aria-busy", "true");
+    status.textContent = "Nexora is thinking…";
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: message, profile: profile })
-      });
-      if (!response.ok) throw new Error("Assistant request failed");
-      const data = await response.json();
-      if (!data.reply) throw new Error("Assistant response was empty");
-      appendMessage("assistant", data.reply);
-      status.textContent = "Gemini response · verify specifications before purchasing real parts.";
+      const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: message, history: priorHistory }) });
+      const data = await response.json().catch(function () { return {}; });
+      if (!response.ok || !data.reply) throw new Error(data.error || "Assistant request failed");
+      appendMessage("assistant", data.reply, true);
+      status.textContent = "Prices, availability, and compatibility are not live-verified.";
     } catch (error) {
-      appendMessage("assistant", fallbackRecommendation(profile));
-      status.textContent = "Gemini unavailable — the response above came from Nexora’s local rule-based recommender, not AI.";
+      appendMessage("assistant", "i couldn’t reach the AI service right now. the site is still usable, but this answer needs the Gemini server route and a valid server-side API key.", true);
+      status.textContent = "AI unavailable — no answer was generated.";
     } finally {
-      submitButton.disabled = false;
+      input.disabled = false;
+      submit.disabled = false;
+      log.removeAttribute("aria-busy");
       input.focus();
     }
   });
