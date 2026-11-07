@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "Nexora FBLA PC component storefront demonstration",
+  "description": "Nexora two-page website foundation",
   "scripts": {
     "test": "node tests/smoke-test.mjs"
   }
