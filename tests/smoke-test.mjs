@@ -115,7 +115,15 @@ check(!mainScript.includes("nexora_ai_history_v2") && !mainScript.includes('fetc
 check(!mainScript.includes("assistant.html"), "The removed assistant page must not remain in shared navigation.");
 check(indexHtml.includes("THANKSGIVING SALE") || mainScript.includes("THANKSGIVING SALE"), "The Thanksgiving promotional preview is missing.");
 check(indexHtml.includes('class="home-mosaic"') && indexHtml.includes('id="home-title"'), "Homepage needs the hardware mosaic hero and labeled headline.");
-check((indexHtml.match(/assets\/images\/home\//g) || []).length === 7, "Homepage mosaic should use seven local hardware images.");
+check((indexHtml.match(/class="mosaic-tile mosaic-tile-/g) || []).length === 7, "Homepage mosaic should use seven hardware images.");
+const mosaicStart = indexHtml.indexOf('class="home-mosaic"');
+const mosaicEnd = indexHtml.indexOf("</section>", mosaicStart);
+const mosaicMarkup = indexHtml.slice(mosaicStart, mosaicEnd);
+const whyNexoraIndex = indexHtml.indexOf("Why Nexora");
+const trustStripIndex = indexHtml.indexOf('class="trust-strip"');
+check(!mosaicMarkup.includes("data-open-ai"), "Homepage mosaic must not include an AI button.");
+check(whyNexoraIndex > mosaicEnd && whyNexoraIndex < trustStripIndex, "Why Nexora must appear directly after the homepage mosaic.");
+check(!indexHtml.includes("Store update") && !indexHtml.includes('class="container launch-panel'), "Homepage Store Update section must stay removed.");
 check(creditsHtml.includes("Homepage photography") && creditsHtml.includes("Unsplash License"), "Homepage photos need visible attribution on the credits page.");
 check(reviewsHtml.includes('id="reviews-empty"') && reviewsHtml.includes('id="review-form"'), "Reviews need an empty state and feedback form.");
 check(!reviewsHtml.includes("★★★★★"), "Reviews must not contain a seeded five-star rating.");

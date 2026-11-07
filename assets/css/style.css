@@ -584,8 +584,6 @@ p { color: var(--muted); }
 .home-mosaic-content > p { max-width: 620px; margin: 30px auto 0; color: #e2e6e3; font-size: 15px; line-height: 1.7; text-shadow: 0 2px 18px #000; }
 .mosaic-actions { margin-top: 26px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .mosaic-actions .button { min-width: 170px; min-height: 50px; }
-.mosaic-secondary { border: 1px solid rgb(255 255 255 / 46%); background: rgb(5 8 6 / 76%); color: #fff; backdrop-filter: blur(8px); }
-.mosaic-secondary:hover { border-color: #fff; background: #fff; color: #07100a; }
 .home-mosaic-meta { position: absolute; left: 22px; right: 22px; bottom: 18px; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 20px; color: #d2d8d3; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .home-mosaic-meta span { display: flex; align-items: center; gap: 8px; }
 .home-mosaic-meta i { width: 7px; height: 7px; border-radius: 50%; background: var(--warning); box-shadow: 0 0 0 4px rgb(240 207 125 / 13%); }
