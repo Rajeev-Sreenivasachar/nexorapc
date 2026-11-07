@@ -14,7 +14,7 @@ HTML gives each page its structure. CSS controls how it looks. JavaScript suppli
 - It calculates quantities, prices, estimated tax, and build totals.
 - It checks a few compatibility rules.
 - It validates the support form.
-- It sends recommendation questions to the secure serverless function.
+- It sends PC hardware questions and short conversation history to the secure serverless function.
 
 ## 2. What each JavaScript file controls
 
@@ -22,13 +22,14 @@ HTML gives each page its structure. CSS controls how it looks. JavaScript suppli
 | --- | --- |
 | `assets/js/products.js` | Product and category arrays, visible specifications, and compatibility metadata |
 | `assets/js/compatibility.js` | Five compatibility checks written separately so they can be tested without the page |
-| `assets/js/main.js` | Shared header/footer, cart helpers, money formatting, navigation, toast messages, and product-card HTML |
-| `assets/js/home.js` | Homepage categories and featured products |
-| `assets/js/shop.js` | Search, filters, sorting, URL parameters, and product results |
+| `assets/js/main.js` | Shared header/footer, global modals, cart helpers, navigation, toast messages, and product-card HTML |
+| `assets/js/assistant.js` | Floating AI chat, saved conversation history, suggested questions, and the secure `/api/chat` request |
+| `assets/js/home.js` | Retained homepage catalog rendering for a future inventory launch |
+| `assets/js/shop.js` | Retained search, filters, sorting, URL parameters, and product results for a future inventory launch |
 | `assets/js/product.js` | Product lookup, invalid-ID message, specifications, quantity, and related products |
 | `assets/js/cart.js` | Cart rows, quantity changes, removal, subtotal, estimated tax, and total |
 | `assets/js/builder.js` | Component slots, compatibility rules, power estimate, current build, and saved builds |
-| `assets/js/assistant.js` | Chat interface, secure API request, product links, and the local rule-based fallback |
+| `assets/js/reviews.js` | Empty state, genuine local review submissions, cards, and summary rating |
 | `assets/js/support.js` | Contact-form validation and email-draft creation |
 | `api/chat.js` | Server-only Gemini request, input validation, timeout, and basic rate limit |
 
@@ -41,10 +42,11 @@ At the bottom of `shop.html`:
 ```html
 <script src="assets/js/products.js"></script>
 <script src="assets/js/main.js"></script>
+<script src="assets/js/assistant.js"></script>
 <script src="assets/js/shop.js"></script>
 ```
 
-The browser loads them in that order. `products.js` creates `window.NEXORA_PRODUCTS`. `main.js` creates `window.Nexora`. Then `shop.js` can use both.
+The browser loads them in that order. `products.js` creates `window.NEXORA_PRODUCTS`. `main.js` creates `window.Nexora`. `assistant.js` adds the floating chat, and then `shop.js` can use the shared data and helpers.
 
 HTML IDs create specific connection points:
 
@@ -260,15 +262,15 @@ The browser sends the visitor’s question to `/api/chat`. It never receives the
 process.env.GEMINI_API_KEY
 ```
 
-It validates the message and profile, creates a limited prompt, then sends a server-to-server request with the key in the `x-goog-api-key` header.
+It validates the message and recent history, adds Nexora-specific safety context, then sends a server-to-server request with the key in the `x-goog-api-key` header.
 
 Security limits in the file:
 
 - POST requests only
-- message, budget, and allowed-option validation
-- compact server-side copy of the 185-product catalog instead of unrelated browser data
+- message and conversation-history validation
+- at most eight recent history messages, each length-limited on the server
 - eight-request-per-minute best-effort in-memory limit
-- 15-second timeout
+- 18-second request timeout
 - generic errors that do not expose the key
 
 The in-memory limit is basic. A production application would use a shared database or rate-limit service because serverless instances do not share memory.
@@ -277,7 +279,7 @@ The in-memory limit is basic. A production application would use a shared databa
 
 ### A page looks unstyled
 
-Check the paths to `assets/css/style.css` and `assets/css/responsive.css`.
+Check the path to `assets/css/style.css`. Responsive rules are included at the bottom of that same file.
 
 ### `NEXORA_PRODUCTS is undefined`
 

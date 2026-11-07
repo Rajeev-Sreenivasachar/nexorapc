@@ -6,7 +6,7 @@ import vm from "node:vm";
 const root = resolve(import.meta.dirname, "..");
 const requiredPages = [
   "index.html", "shop.html", "product.html", "cart.html", "builder.html",
-  "assistant.html", "about.html", "support.html", "privacy.html", "terms.html", "credits.html"
+  "reviews.html", "about.html", "support.html", "privacy.html", "terms.html", "credits.html"
 ];
 const requiredDocs = ["README.md", "JAVASCRIPT_GUIDE.md", "IMAGE_GUIDE.md", "PRODUCT_GUIDE.md"];
 const failures = [];
@@ -38,6 +38,7 @@ requiredPages.forEach(function (page) {
   check(/<title>[^<]+<\/title>/.test(html), page + " is missing a document title.");
   check(html.includes('id="main-content"'), page + " is missing the main-content landmark.");
   check(html.includes("assets/js/main.js"), page + " is missing the shared main script.");
+  check(html.includes("assets/js/assistant.js"), page + " is missing the shared assistant script.");
   check(!/onclick=|onchange=|onsubmit=/.test(html), page + " contains inline JavaScript instead of event listeners.");
   check(!/assets\/(?:css|js)\/[^"?]+\.(?:css|js)"/.test(html), page + " has an unversioned CSS or JavaScript asset that can go stale after deployment.");
 
@@ -100,12 +101,24 @@ if (Array.isArray(products)) {
 }
 
 const shopHtml = readFileSync(join(root, "shop.html"), "utf8");
-const shopScript = readFileSync(join(root, "assets", "js", "shop.js"), "utf8");
-const homeScript = readFileSync(join(root, "assets", "js", "home.js"), "utf8");
-check(shopHtml.includes('id="minimum-price"') && shopHtml.includes('id="maximum-price"'), "Shop needs minimum and maximum price fields.");
-check(shopHtml.includes('id="load-more"') && shopScript.includes("const PAGE_SIZE = 24"), "Shop needs Load More pagination.");
-check(readFileSync(join(root, "assets", "js", "main.js"), "utf8").includes('matches("[data-product-image]")'), "Missing product images need a shared fallback handler.");
-check(!homeScript.includes('category-card reveal'), "Dynamically inserted category cards must not start hidden after reveal observers are registered.");
+const mainScript = readFileSync(join(root, "assets", "js", "main.js"), "utf8");
+const assistantScript = readFileSync(join(root, "assets", "js", "assistant.js"), "utf8");
+const reviewsHtml = readFileSync(join(root, "reviews.html"), "utf8");
+const indexHtml = readFileSync(join(root, "index.html"), "utf8");
+const creditsHtml = readFileSync(join(root, "credits.html"), "utf8");
+check(shopHtml.includes("Product listings have been temporarily removed") || shopHtml.includes("temporarily removed the product listings"), "Shop needs a transparent Coming Soon inventory message.");
+check(!shopHtml.includes("assets/js/shop.js"), "The paused storefront must not render the product catalog.");
+check(mainScript.includes('const INVENTORY_PUBLIC = false'), "Public inventory must stay disabled while the store is Coming Soon.");
+check(mainScript.includes('matches("[data-product-image]")'), "Missing product images need a shared fallback handler.");
+check(assistantScript.includes("nexora_ai_history_v2") && assistantScript.includes('fetch("/api/chat"'), "The floating assistant needs persistent history and the secure server route.");
+check(!mainScript.includes("nexora_ai_history_v2") && !mainScript.includes('fetch("/api/chat"'), "Assistant behavior must stay in its separate JavaScript file.");
+check(!mainScript.includes("assistant.html"), "The removed assistant page must not remain in shared navigation.");
+check(indexHtml.includes("THANKSGIVING SALE") || mainScript.includes("THANKSGIVING SALE"), "The Thanksgiving promotional preview is missing.");
+check(indexHtml.includes('class="home-mosaic"') && indexHtml.includes('id="home-title"'), "Homepage needs the hardware mosaic hero and labeled headline.");
+check((indexHtml.match(/assets\/images\/home\//g) || []).length === 7, "Homepage mosaic should use seven local hardware images.");
+check(creditsHtml.includes("Homepage photography") && creditsHtml.includes("Unsplash License"), "Homepage photos need visible attribution on the credits page.");
+check(reviewsHtml.includes('id="reviews-empty"') && reviewsHtml.includes('id="review-form"'), "Reviews need an empty state and feedback form.");
+check(!reviewsHtml.includes("★★★★★"), "Reviews must not contain a seeded five-star rating.");
 
 const apiCatalogContext = {};
 vm.createContext(apiCatalogContext);
@@ -143,4 +156,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Smoke test passed: JavaScript parses, required pages and links exist, and catalog data is valid.");
+console.log("Smoke test passed: JavaScript parses, required pages and links exist, inventory is paused, and retained catalog data is valid.");

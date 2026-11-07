@@ -5,6 +5,12 @@
   const product = window.Nexora.getProduct(params.get("id"));
   const detailMount = document.getElementById("product-detail");
 
+  if (!window.Nexora.inventoryPublic) {
+    document.title = "Store Coming Soon | Nexora";
+    detailMount.innerHTML = `<div class="empty-state product-paused"><span class="eyebrow">Store update</span><h1>Product listings are temporarily unavailable.</h1><p>The catalog system is still in the project, but public product pages are hidden until inventory and pricing are ready to be verified.</p><div class="hero-actions"><a class="button button-primary" href="shop.html">View store status</a><a class="button button-secondary" href="builder.html">Open PC Builder</a></div></div>`;
+    return;
+  }
+
   if (!product) {
     document.title = "Product Not Found | Nexora";
     detailMount.innerHTML = `<div class="empty-state"><span class="eyebrow">Invalid product</span><h1>That component could not be found.</h1><p>The link may be old or the product ID may be incorrect.</p><a class="button button-primary" href="shop.html">Back to the shop</a></div>`;

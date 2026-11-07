@@ -50,7 +50,9 @@
     checksMount.innerHTML = compatibility.checks.map(function (check) {
       return `<li class="compatibility-item ${check.status}">${check.message}</li>`;
     }).join("");
-    document.getElementById("add-build-cart").disabled = selected.length === 0;
+    const cartButton = document.getElementById("add-build-cart");
+    cartButton.disabled = !window.Nexora.inventoryPublic || selected.length === 0;
+    cartButton.textContent = window.Nexora.inventoryPublic ? "Add selected parts to cart" : "Store inventory coming soon";
   }
 
   function saveCurrentState() {
@@ -98,6 +100,10 @@
   });
 
   document.getElementById("add-build-cart").addEventListener("click", function () {
+    if (!window.Nexora.inventoryPublic) {
+      window.Nexora.showToast("Store inventory is coming soon. Your saved build is still available.");
+      return;
+    }
     const cart = window.Nexora.getCart();
     Object.values(currentBuild).filter(Boolean).forEach(function (productId) {
       const existing = cart.find(function (item) { return item.id === productId; });

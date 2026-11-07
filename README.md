@@ -1,52 +1,52 @@
 # Nexora
 
-Nexora is a responsive PC component catalog, cart, build planner, compatibility checker, and recommendation assistant created as an FBLA Introduction to Programming project.
+Nexora is a responsive PC planning platform, compatibility checker, upcoming storefront, and AI hardware assistant created as an FBLA Introduction to Programming project.
 
 The store is a demonstration. It does not process payments, create orders, track live inventory, or claim that dated reference prices are guaranteed current offers.
 
 ## Main features
 
-- 185 real component models across eight build categories
-- Fast search, category and brand filters, minimum/maximum price fields, sorting, result counts, and Load More pagination
-- Reusable product pages driven by an `id` URL parameter
-- Persistent cart with quantity controls and incomplete-total warnings
+- Storewide Coming Soon state that hides product listings without deleting the catalog system
 - Eight-part PC Builder with saved builds
 - Compatibility checks for CPU socket, memory type, case fit, cooler socket, and PSU capacity
-- Secure Vercel serverless function for Gemini recommendations
-- Clearly labeled local rule-based recommendations when Gemini is unavailable
+- Floating AI chat available on every page with browser-persisted conversation history
+- Secure Vercel serverless function for Gemini hardware guidance
+- Empty-by-default reviews with genuine on-device submissions only
+- Accessible prebuilt-PC popup with an honest Coming Soon state
+- Dismissible Thanksgiving promotion preview clearly labeled as inactive
 - Responsive navigation, keyboard focus states, semantic labels, and reduced-motion support
-- Per-product source metadata, price-check dates, retailer re-check links, and missing-image placeholders
+- Retained product, cart, filtering, detail, and pricing code for a future inventory launch
 
 ## Project structure
 
 ```text
 nexorapc/
 ├── index.html                # Homepage
-├── shop.html                 # Searchable catalog
-├── product.html              # Product details from ?id=
-├── cart.html                 # Persistent cart
+├── shop.html                 # Store Coming Soon experience
+├── product.html              # Gated product details from ?id=
+├── cart.html                 # Gated persistent cart
 ├── builder.html              # Build planner and compatibility checks
-├── assistant.html            # Recommendation interface
+├── reviews.html              # Genuine local feedback
 ├── about.html
 ├── support.html
 ├── privacy.html
 ├── terms.html
 ├── credits.html
 ├── api/chat.js               # Server-side Gemini request
-├── api/catalog.js            # Compact catalog supplied to Gemini
+├── api/catalog.js            # Retained compact catalog data
 ├── assets/css/
-│   ├── style.css
-│   └── responsive.css
+│   └── style.css             # Shared styles and responsive rules
 ├── assets/js/
 │   ├── products.js           # Catalog and compatibility metadata
 │   ├── compatibility.js      # Pure compatibility-checking rules
-│   ├── main.js               # Shared layout, cart helpers, and utilities
+│   ├── main.js               # Shared layout, modals, cart helpers, and utilities
+│   ├── assistant.js          # Floating AI chat and secure API request
 │   ├── home.js
 │   ├── shop.js
 │   ├── product.js
 │   ├── cart.js
 │   ├── builder.js
-│   ├── assistant.js
+│   ├── reviews.js
 │   └── support.js
 ├── assets/images/products/   # Add exact-model product PNGs here
 ├── docs/FBLA_ALIGNMENT.md
@@ -63,7 +63,7 @@ The storefront pages have no build step. From the repository root, run a static 
 npx serve .
 ```
 
-Open the local URL printed in the terminal. The catalog, cart, and builder work without the Gemini endpoint. A plain static server cannot run `api/chat.js`, so the assistant will use its clearly labeled local fallback.
+Open the local URL printed in the terminal. The homepage, reviews, and builder work without the Gemini endpoint. A plain static server cannot run `api/chat.js`, so the floating assistant will clearly report that the AI service is unavailable.
 
 ### GitHub Codespaces
 
@@ -82,11 +82,15 @@ For local Vercel development, create an untracked `.env.local` file based on `.e
 GEMINI_API_KEY=your_key_here
 ```
 
-For Vercel, add `GEMINI_API_KEY` in the project’s Environment Variables settings. `api/chat.js` reads `process.env.GEMINI_API_KEY` on the server. It validates the request, limits message length, applies a best-effort per-instance rate limit, times out slow requests, and sends the recommendation profile plus a compact copy of `api/catalog.js`.
+For Vercel, add `GEMINI_API_KEY` in the project’s Environment Variables settings. `api/chat.js` reads `process.env.GEMINI_API_KEY` on the server. It validates each request, limits message and history length, applies a best-effort per-instance rate limit, and times out slow requests.
 
-The default model is `gemini-2.5-flash`. It can be changed with the optional `GEMINI_MODEL` server environment variable after checking Google’s current official model documentation.
+The default model is `gemini-3.8-flash`. It can be changed with the optional `GEMINI_MODEL` server environment variable after checking Google’s current official model documentation.
+
+The API key must be added in Vercel or an untracked local environment file. Never paste it into `main.js`, HTML, a commit, or a screenshot.
 
 ## Add or update products
+
+Public inventory is currently disabled by `INVENTORY_PUBLIC = false` in `assets/js/main.js`. Keep it disabled until listings, pricing, availability labels, cart behavior, and deployment are ready to be verified together.
 
 Edit the `window.NEXORA_PRODUCTS` array in `assets/js/products.js`. Every product needs a unique `id`, exact model designation, source metadata, image path, specifications, and the structured compatibility fields that apply to its category. Use `price: null` when a price cannot be confirmed.
 
