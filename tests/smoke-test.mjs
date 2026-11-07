@@ -122,7 +122,7 @@ const mosaicMarkup = indexHtml.slice(mosaicStart, mosaicEnd);
 const whyNexoraIndex = indexHtml.indexOf("Why Nexora");
 const trustStripIndex = indexHtml.indexOf('class="trust-strip"');
 check(!mosaicMarkup.includes("data-open-ai"), "Homepage mosaic must not include an AI button.");
-check(whyNexoraIndex > mosaicEnd && whyNexoraIndex < trustStripIndex, "Why Nexora must appear directly after the homepage mosaic.");
+check(trustStripIndex > mosaicEnd && trustStripIndex < whyNexoraIndex, "The homepage trust strip must appear between the mosaic and Why Nexora.");
 check(!indexHtml.includes("Store update") && !indexHtml.includes('class="container launch-panel'), "Homepage Store Update section must stay removed.");
 check(creditsHtml.includes("Homepage photography") && creditsHtml.includes("Exact supplied image URLs") && creditsHtml.includes("static.vecteezy.com"), "Homepage photos need their supplied source URLs on the credits page.");
 check(reviewsHtml.includes('id="reviews-empty"') && reviewsHtml.includes('id="review-form"'), "Reviews need an empty state and feedback form.");
