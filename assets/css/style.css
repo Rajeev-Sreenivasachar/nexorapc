@@ -86,7 +86,8 @@ p { color: var(--muted); }
   font-size: 11px;
   letter-spacing: .04em;
 }
-.site-header-stack {
+.site-header-stack { position: relative; }
+[data-site-header] {
   position: sticky;
   top: 0;
   z-index: 100;

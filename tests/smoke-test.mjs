@@ -102,6 +102,7 @@ if (Array.isArray(products)) {
 
 const shopHtml = readFileSync(join(root, "shop.html"), "utf8");
 const mainScript = readFileSync(join(root, "assets", "js", "main.js"), "utf8");
+const sharedStyles = readFileSync(join(root, "assets", "css", "style.css"), "utf8");
 const assistantScript = readFileSync(join(root, "assets", "js", "assistant.js"), "utf8");
 const reviewsHtml = readFileSync(join(root, "reviews.html"), "utf8");
 const indexHtml = readFileSync(join(root, "index.html"), "utf8");
@@ -112,6 +113,7 @@ check(mainScript.includes('const INVENTORY_PUBLIC = false'), "Public inventory m
 check(mainScript.includes('matches("[data-product-image]")'), "Missing product images need a shared fallback handler.");
 check(mainScript.includes('class="site-header-stack"'), "The sale banner and navbar should share one sticky header stack.");
 check(!mainScript.includes('id="dismiss-sale"'), "The persistent sale banner should not have a dismiss control.");
+check(sharedStyles.includes('[data-site-header]') && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The outer shared-header mount must own sticky positioning.");
 check(assistantScript.includes("nexora_ai_history_v2") && assistantScript.includes('fetch("/api/chat"'), "The floating assistant needs persistent history and the secure server route.");
 check(!mainScript.includes("nexora_ai_history_v2") && !mainScript.includes('fetch("/api/chat"'), "Assistant behavior must stay in its separate JavaScript file.");
 check(!mainScript.includes("assistant.html"), "The removed assistant page must not remain in shared navigation.");
