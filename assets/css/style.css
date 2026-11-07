@@ -86,10 +86,14 @@ p { color: var(--muted); }
   font-size: 11px;
   letter-spacing: .04em;
 }
-.site-header {
+.site-header-stack {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+.site-header {
+  position: relative;
+  z-index: 1;
   border-bottom: 1px solid var(--border);
   background: rgb(11 14 12 / 94%);
   backdrop-filter: blur(18px);
@@ -537,13 +541,11 @@ p { color: var(--muted); }
 
 /* 2026 storefront refresh */
 [hidden] { display: none !important; }
-.sale-banner { position: relative; z-index: 110; background: #147a37; color: #ffffff; }
+.sale-banner { position: relative; z-index: 2; background: #147a37; color: #ffffff; }
 .sale-banner-inner { min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 18px; }
 .sale-banner-inner > span { display: flex; align-items: baseline; justify-content: center; gap: 12px; text-align: center; }
 .sale-banner strong { font-size: 12px; letter-spacing: .045em; }
 .sale-banner small { color: #d8f6df; font-size: 10px; }
-.sale-banner button { position: absolute; right: 0; width: 30px; height: 30px; border: 0; border-radius: 6px; background: rgb(0 0 0 / 16%); color: #fff; font-size: 21px; line-height: 1; }
-.sale-banner button:hover { background: rgb(0 0 0 / 28%); }
 .site-header { background: rgb(5 8 6 / 96%); }
 .nav-shell { min-height: 76px; }
 .nav-links { border: 0; border-radius: 0; background: transparent; }
@@ -766,7 +768,7 @@ p { color: var(--muted); }
   .section { padding: 60px 0; }
   .section-heading { align-items: flex-start; flex-direction: column; }
   .hero h1 { font-size: 49px; letter-spacing: -3px; }
-  .sale-banner-inner { min-height: 52px; padding-right: 34px; }
+  .sale-banner-inner { min-height: 52px; }
   .sale-banner-inner > span { align-items: center; flex-direction: column; gap: 0; }
   .sale-banner strong { font-size: 10px; }
   .sale-banner small { font-size: 8px; }

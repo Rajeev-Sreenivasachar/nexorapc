@@ -4,7 +4,6 @@
   const CART_KEY = "nexora_cart";
   const BUILD_KEY = "nexora_current_build";
   const SAVED_BUILDS_KEY = "nexora_saved_builds";
-  const PROMO_DISMISSED_KEY = "nexora_thanksgiving_promo_dismissed";
   const INVENTORY_PUBLIC = false;
 
   function readJson(key, fallback) {
@@ -122,23 +121,24 @@
     ];
     mount.innerHTML = `
       <a class="skip-link" href="#main-content">Skip to main content</a>
-      <div class="sale-banner" id="sale-banner">
-        <div class="container sale-banner-inner"><span><strong>🦃 THANKSGIVING SALE — 20% OFF!</strong><small>Promotional preview — discount is not active yet.</small></span><button type="button" id="dismiss-sale" aria-label="Dismiss Thanksgiving sale preview">×</button></div>
-      </div>
-      <header class="site-header">
-        <div class="container nav-shell">
-          <a class="logo" href="index.html" aria-label="Nexora home"><img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261106-1" alt="" width="38" height="38"><span class="logo-wordmark">nexora</span></a>
-          <nav class="nav-links" id="main-nav" aria-label="Main navigation">
-            ${links.map(function (link) {
-              const active = page === link[0] ? ' class="active" aria-current="page"' : "";
-              return `<a href="${link[1]}"${active}><span>${link[2]}</span></a>`;
-            }).join("")}
-            <button class="nav-popup-button" type="button" data-open-prebuilt>Prebuilt PCs</button>
-          </nav>
-          <div class="nav-actions"><button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="main-nav" aria-expanded="false">Menu</button></div>
+      <div class="site-header-stack">
+        <div class="sale-banner" id="sale-banner">
+          <div class="container sale-banner-inner"><span><strong>🦃 THANKSGIVING SALE — 20% OFF!</strong><small>Promotional preview — discount is not active yet.</small></span></div>
         </div>
-      </header>`;
-    if (localStorage.getItem(PROMO_DISMISSED_KEY) === "true") document.getElementById("sale-banner").hidden = true;
+        <header class="site-header">
+          <div class="container nav-shell">
+            <a class="logo" href="index.html" aria-label="Nexora home"><img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261106-1" alt="" width="38" height="38"><span class="logo-wordmark">nexora</span></a>
+            <nav class="nav-links" id="main-nav" aria-label="Main navigation">
+              ${links.map(function (link) {
+                const active = page === link[0] ? ' class="active" aria-current="page"' : "";
+                return `<a href="${link[1]}"${active}><span>${link[2]}</span></a>`;
+              }).join("")}
+              <button class="nav-popup-button" type="button" data-open-prebuilt>Prebuilt PCs</button>
+            </nav>
+            <div class="nav-actions"><button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="main-nav" aria-expanded="false">Menu</button></div>
+          </div>
+        </header>
+      </div>`;
   }
 
   function renderFooter() {
@@ -187,11 +187,6 @@
         }
       });
     }
-    const dismissSale = document.getElementById("dismiss-sale");
-    if (dismissSale) dismissSale.addEventListener("click", function () {
-      document.getElementById("sale-banner").hidden = true;
-      localStorage.setItem(PROMO_DISMISSED_KEY, "true");
-    });
   }
 
   function setupPrebuiltModal() {
