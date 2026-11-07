@@ -105,6 +105,7 @@ const mainScript = readFileSync(join(root, "assets", "js", "main.js"), "utf8");
 const assistantScript = readFileSync(join(root, "assets", "js", "assistant.js"), "utf8");
 const reviewsHtml = readFileSync(join(root, "reviews.html"), "utf8");
 const indexHtml = readFileSync(join(root, "index.html"), "utf8");
+const creditsHtml = readFileSync(join(root, "credits.html"), "utf8");
 check(shopHtml.includes("Product listings have been temporarily removed") || shopHtml.includes("temporarily removed the product listings"), "Shop needs a transparent Coming Soon inventory message.");
 check(!shopHtml.includes("assets/js/shop.js"), "The paused storefront must not render the product catalog.");
 check(mainScript.includes('const INVENTORY_PUBLIC = false'), "Public inventory must stay disabled while the store is Coming Soon.");
@@ -113,6 +114,9 @@ check(assistantScript.includes("nexora_ai_history_v2") && assistantScript.includ
 check(!mainScript.includes("nexora_ai_history_v2") && !mainScript.includes('fetch("/api/chat"'), "Assistant behavior must stay in its separate JavaScript file.");
 check(!mainScript.includes("assistant.html"), "The removed assistant page must not remain in shared navigation.");
 check(indexHtml.includes("THANKSGIVING SALE") || mainScript.includes("THANKSGIVING SALE"), "The Thanksgiving promotional preview is missing.");
+check(indexHtml.includes('class="home-mosaic"') && indexHtml.includes('id="home-title"'), "Homepage needs the hardware mosaic hero and labeled headline.");
+check((indexHtml.match(/assets\/images\/home\//g) || []).length === 7, "Homepage mosaic should use seven local hardware images.");
+check(creditsHtml.includes("Homepage photography") && creditsHtml.includes("Unsplash License"), "Homepage photos need visible attribution on the credits page.");
 check(reviewsHtml.includes('id="reviews-empty"') && reviewsHtml.includes('id="review-form"'), "Reviews need an empty state and feedback form.");
 check(!reviewsHtml.includes("★★★★★"), "Reviews must not contain a seeded five-star rating.");
 

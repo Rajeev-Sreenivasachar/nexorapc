@@ -10,39 +10,34 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261106-1">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261107-1">
 </head>
 <body data-page="home">
   <div data-site-header></div>
   <main id="main-content">
-    <section class="hero home-hero">
-      <div class="container hero-grid">
-        <div class="hero-copy reveal">
-          <span class="kicker">PC building, without the guesswork</span>
-          <h1>Build smarter.<br><em>Know every part.</em></h1>
-          <p>Nexora helps you plan compatible PCs, understand confusing hardware specs, and make informed component choices before you spend a dollar.</p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="builder.html">Start a PC build →</a>
-            <button class="button button-secondary" type="button" data-open-ai>Ask Nexora AI</button>
-          </div>
-          <p class="hero-note"><span aria-hidden="true"></span> Component and prebuilt inventory is coming soon.</p>
+    <section class="home-mosaic" aria-labelledby="home-title">
+      <div class="mosaic-grid" aria-hidden="true">
+        <figure class="mosaic-tile mosaic-tile-1"><img src="assets/images/home/gaming-pc.jpg" alt=""></figure>
+        <figure class="mosaic-tile mosaic-tile-2"><img src="assets/images/home/motherboard.jpg" alt=""></figure>
+        <figure class="mosaic-tile mosaic-tile-3"><img src="assets/images/home/graphics-card.jpg" alt=""></figure>
+        <figure class="mosaic-tile mosaic-tile-4"><img src="assets/images/home/desk-setup.jpg" alt=""></figure>
+        <figure class="mosaic-tile mosaic-tile-5"><img src="assets/images/home/motherboard-gpu.jpg" alt=""></figure>
+        <figure class="mosaic-tile mosaic-tile-6"><img src="assets/images/home/memory.jpg" alt=""></figure>
+        <figure class="mosaic-tile mosaic-tile-7"><img src="assets/images/home/pc-interior.jpg" alt=""></figure>
+      </div>
+      <div class="home-mosaic-shade" aria-hidden="true"></div>
+      <div class="container home-mosaic-content reveal">
+        <span class="mosaic-kicker">Nexora / PC hardware, explained</span>
+        <h1 id="home-title"><span>Plan it.</span><span>Check it.</span><em>Build it.</em></h1>
+        <p>Plan compatible PCs, compare the parts that matter, and understand the hardware before spending a dollar.</p>
+        <div class="mosaic-actions">
+          <a class="button button-primary" href="builder.html">Start a PC build →</a>
+          <button class="button mosaic-secondary" type="button" data-open-ai>Ask Nexora AI</button>
         </div>
-        <div class="hero-visual reveal">
-          <div class="hardware-stage" aria-label="Nexora PC planning workspace preview">
-            <div class="stage-header"><span>NEXORA / BUILD DESK</span><span class="status-dot">PLANNER ONLINE</span></div>
-            <div class="build-preview">
-              <span class="build-preview-kicker">A clearer way to build</span>
-              <h2>Pick the parts.<br><em>Understand the fit.</em></h2>
-              <div class="preview-checks">
-                <div><span>01</span><strong>Socket match</strong><small>CPU + motherboard</small></div>
-                <div><span>02</span><strong>Memory support</strong><small>RAM + motherboard</small></div>
-                <div><span>03</span><strong>Physical fit</strong><small>Board + case</small></div>
-                <div><span>04</span><strong>Power headroom</strong><small>System + PSU</small></div>
-              </div>
-            </div>
-            <div class="stage-metrics"><div><strong>Plan</strong><small>your parts</small></div><div><strong>Check</strong><small>the basics</small></div><div><strong>Save</strong><small>your build</small></div></div>
-          </div>
-        </div>
+      </div>
+      <div class="home-mosaic-meta">
+        <span><i aria-hidden="true"></i> Inventory and prebuilts are coming soon</span>
+        <a href="credits.html">Homepage photo credits</a>
       </div>
     </section>
 
