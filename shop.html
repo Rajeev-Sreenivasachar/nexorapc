@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050806">
+  <meta name="description" content="Browse Nexora's reference catalog of 100 real PC component models.">
+  <link rel="icon" href="assets/images/favicon.svg?v=20261107-2" type="image/svg+xml">
+  <title>Shop PC Parts | Nexora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261107-9">
+</head>
+<body data-page="shop">
+  <div data-site-header></div>
+  <main id="main-content">
+    <header class="shop-header">
+      <div class="container">
+        <span class="eyebrow">PC hardware catalog</span>
+        <h1>Find the part that fits.</h1>
+        <p>Browse 100 real component models across ten categories. Observed retailer prices are dated references, not Nexora selling prices; exact variants and availability still require verification.</p>
+        <div class="catalog-stats" aria-label="Catalog summary">
+          <div><strong>100</strong><span>Products</span></div>
+          <div><strong>10</strong><span>Categories</span></div>
+          <div><strong>3</strong><span>Performance tiers</span></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="shop-section" aria-labelledby="catalog-title">
+      <div class="container">
+        <div class="shop-toolbar">
+          <div>
+            <span class="eyebrow">Reference catalog</span>
+            <h2 id="catalog-title">PC components</h2>
+          </div>
+          <p><strong id="product-count">100</strong> matching products</p>
+        </div>
+
+        <div class="shop-layout">
+          <aside class="shop-filters" aria-label="Product filters">
+            <div class="filter-heading"><h3>Filter products</h3><button id="clear-filters" type="button">Clear</button></div>
+            <label>Search<input id="product-search" type="search" placeholder="Product or brand" autocomplete="off"></label>
+            <label>Category<select id="category-filter"><option value="all">All categories</option></select></label>
+            <label>Brand<select id="brand-filter"><option value="all">All brands</option></select></label>
+            <label>Tier<select id="tier-filter"><option value="all">All tiers</option></select></label>
+            <label>Sort<select id="sort-products"><option value="name-asc">Name: A–Z</option><option value="name-desc">Name: Z–A</option><option value="price-asc">Reference price: Low–High</option><option value="price-desc">Reference price: High–Low</option><option value="category">Category</option><option value="tier">Tier</option></select></label>
+            <div class="verification-note"><strong>Reference data</strong><p>Observed prices were checked November 7, 2026. They are not guaranteed Nexora prices or proof of local stock.</p></div>
+          </aside>
+
+          <div class="shop-results">
+            <div class="product-grid" id="product-grid" aria-live="polite"></div>
+            <div class="empty-products" id="empty-products" hidden><h3>No matching parts</h3><p>Try clearing a filter or searching for a broader product name.</p></div>
+            <button class="load-more-products" id="load-more-products" type="button">Load more products</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div data-site-footer></div>
+  <script src="assets/js/main.js?v=20261107-7"></script>
+  <script src="assets/js/products.js?v=20261107-2"></script>
+  <script src="assets/js/shop.js?v=20261107-2"></script>
+  <script src="assets/js/assistant.js?v=20261107-6"></script>
+  <script src="assets/js/accessibility.js?v=20261107-1"></script>
+</body>
+</html>

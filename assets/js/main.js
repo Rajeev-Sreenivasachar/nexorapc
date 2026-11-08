@@ -8,6 +8,7 @@
     const page = document.body.dataset.page || "";
     const links = [
       ["home", "index.html", "Home"],
+      ["shop", "shop.html", "Shop"],
       ["about", "about.html", "About Nexora"]
     ];
 
@@ -53,6 +54,7 @@
           </div>
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
             <a href="about.html">About Nexora</a>
           </nav>
         </div>

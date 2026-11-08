@@ -1,19 +1,23 @@
 # Nexora JavaScript guide
 
-Nexora uses three focused frontend JavaScript files and one server-side API route.
+Nexora uses five focused frontend JavaScript files and one server-side API route.
 
 ## What it does
 
 `assets/js/main.js` has four jobs:
 
-1. Insert the shared header on both pages.
-2. Insert the shared footer on both pages.
+1. Insert the shared header on every page.
+2. Insert the shared footer on every page.
 3. Open and close the mobile navigation menu.
 4. Reveal page sections as they enter the viewport.
 
 `assets/js/assistant.js` creates the Ask Nexora drawer, stores a short conversation history in the visitor's browser, and sends questions to `/api/chat`.
 
 `assets/js/accessibility.js` creates the accessibility panel, applies each preference to the page, and saves those preferences in `localStorage`.
+
+`assets/js/products.js` builds the shared catalog of 100 products. Each object stores the product's identity, description, category, tier, image path, verification state, and any supplied dated reference price. The separate `price` and inventory fields remain empty until Nexora's own local listing is defined.
+
+`assets/js/shop.js` reads the shared catalog, builds the product cards, and handles search, category, brand, tier, sorting, clearing filters, and loading more results.
 
 `api/chat.js` runs on Vercel. It validates requests, applies basic rate limiting, reads the private `GEMINI_API_KEY` environment variable, and sends the question to Gemini. The key never appears in the browser.
 
@@ -25,7 +29,17 @@ Nexora uses three focused frontend JavaScript files and one server-side API rout
 <body data-page="home">
 ```
 
-It compares that value with the Home and About navigation records, then adds `aria-current="page"` to the active link.
+It compares that value with the Home, Shop, and About navigation records, then adds `aria-current="page"` to the active link.
+
+## Shop catalog flow
+
+1. `products.js` creates `window.NEXORA_PRODUCTS`.
+2. `shop.js` reads that array and fills the filter menus.
+3. `filteredProducts()` applies the visitor's search and selected filters.
+4. `renderProducts()` creates only the cards that should currently be visible.
+5. Load More increases the visible count without manually writing more HTML.
+
+Product images start hidden. A clean category placeholder remains visible unless the correct file loads successfully, so missing files never show broken-image icons.
 
 ## Shared footer
 

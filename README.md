@@ -5,25 +5,31 @@ Nexora is a concept hardware parts shop created for FBLA Introduction to Program
 ## Current pages
 
 - `index.html` — homepage
+- `shop.html` — searchable catalog of 100 real component models
 - `about.html` — project mission and development team
 
-All previous store, product, cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant and accessibility settings are available from compact controls on both current pages.
+Cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant and accessibility settings are available from compact controls on every current page.
 
 ## Project structure
 
 ```text
 ├── index.html
+├── shop.html
 ├── about.html
+├── IMAGE_GUIDE.md
 ├── assets/
 │   ├── css/style.css
 │   ├── images/
 │   │   ├── favicon.svg
 │   │   ├── nexora-mark.svg
-│   │   └── home/
+│   │   ├── home/
+│   │   └── products/
 │   └── js/
 │       ├── main.js
 │       ├── assistant.js
-│       └── accessibility.js
+│       ├── accessibility.js
+│       ├── products.js
+│       └── shop.js
 ├── api/chat.js
 ├── tests/smoke-test.mjs
 ├── package.json
@@ -46,7 +52,13 @@ Then open `http://localhost:8000`.
 npm test
 ```
 
-The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, and the two-page-only project boundary.
+The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, and the 100-product catalog boundary.
+
+## Product catalog
+
+`assets/js/products.js` contains 100 real PC component model names and descriptions across 10 categories. The supplied dataset includes 69 dated retailer price observations, 31 products without a confirmed price, and four direct retailer listing links. Reference prices are not treated as Nexora selling prices. Exact SKUs, local inventory, and availability still require verification, so every item remains non-orderable. Products without an observed reference display `Price unavailable`.
+
+Each product already has a unique image path such as `assets/images/products/amd-ryzen-5-5600.png`. The Shop page shows a clean category placeholder when that file does not exist.
 
 ## Gemini assistant
 
