@@ -49,7 +49,7 @@
               <img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261107-2" alt="" width="38" height="38">
               <span class="logo-wordmark">nexora</span>
             </a>
-            <p>Clearer PC hardware decisions, built by students.</p>
+            <p>A hardware parts shop experience built for FBLA.</p>
           </div>
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="index.html">Home</a>
@@ -58,7 +58,7 @@
         </div>
         <div class="container footer-bottom">
           <span>© <span data-current-year></span> Nexora</span>
-          <span>Student-built PC technology project</span>
+          <span>FBLA Introduction to Programming</span>
         </div>
       </footer>`;
   }

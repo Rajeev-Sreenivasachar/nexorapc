@@ -1,13 +1,13 @@
 # Nexora
 
-Nexora is a student-built PC technology project that makes hardware decisions easier to understand.
+Nexora is a concept hardware parts shop created for FBLA Introduction to Programming that makes hardware decisions easier to understand.
 
 ## Current pages
 
 - `index.html` — homepage
 - `about.html` — project mission and development team
 
-All previous store, product, cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant is available from a compact drawer on both current pages.
+All previous store, product, cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant and accessibility settings are available from compact controls on both current pages.
 
 ## Project structure
 
@@ -22,7 +22,8 @@ All previous store, product, cart, builder, review, support, policy, credits, an
 │   │   └── home/
 │   └── js/
 │       ├── main.js
-│       └── assistant.js
+│       ├── assistant.js
+│       └── accessibility.js
 ├── api/chat.js
 ├── tests/smoke-test.mjs
 ├── package.json
@@ -56,6 +57,10 @@ Optional environment variable:
 - `GEMINI_MODEL` — overrides the default `gemini-3.8-flash` model.
 
 The assistant provides general PC hardware guidance. It does not represent live Nexora inventory or verified prices.
+
+## Accessibility settings
+
+The bottom-left accessibility button opens controls for contrast, reduced motion, link underlines, text size, color filters, font choice, keyboard focus, spacing, simplified reading, cursor highlighting, and text to speech. Preferences are stored locally in the visitor's browser and can be reset from the panel.
 
 ## Deployment
 

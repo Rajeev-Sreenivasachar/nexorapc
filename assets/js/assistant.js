@@ -3,6 +3,7 @@
 
   const HISTORY_KEY = "nexora_ai_history_v3";
   const wrapper = document.createElement("div");
+  wrapper.className = "ai-root";
 
   wrapper.innerHTML = `
     <button class="ai-launcher" id="ai-launcher" type="button" aria-label="Open Nexora AI assistant" aria-controls="ai-panel" aria-expanded="false">
