@@ -15,6 +15,7 @@
   const tierFilter = document.getElementById("tier-filter");
   const sort = document.getElementById("sort-products");
   const clear = document.getElementById("clear-filters");
+  const categoryShortcuts = document.getElementById("category-shortcuts");
 
   if (!grid) return;
 
@@ -35,10 +36,38 @@
 
   addOptions(categoryFilter, uniqueValues("category"));
   addOptions(brandFilter, uniqueValues("brand"));
-  addOptions(tierFilter, ["Budget", "Midrange", "High-end"]);
+  addOptions(tierFilter, ["Budget", "Midrange", "Premium"]);
+
+  function categoryCount(category) {
+    return products.filter(function (product) { return product.category === category; }).length;
+  }
+
+  function renderCategoryShortcuts() {
+    if (!categoryShortcuts) return;
+    const fragment = document.createDocumentFragment();
+    const allButton = document.createElement("button");
+    allButton.type = "button";
+    allButton.dataset.category = "all";
+    allButton.innerHTML = "<span>All parts</span><strong>" + products.length + "</strong>";
+    fragment.appendChild(allButton);
+    uniqueValues("category").forEach(function (category) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.category = category;
+      const label = document.createElement("span");
+      label.textContent = category;
+      const total = document.createElement("strong");
+      total.textContent = categoryCount(category);
+      button.append(label, total);
+      fragment.appendChild(button);
+    });
+    categoryShortcuts.replaceChildren(fragment);
+  }
+
+  renderCategoryShortcuts();
 
   function tierOrder(tier) {
-    return { Budget: 1, Midrange: 2, "High-end": 3 }[tier] || 4;
+    return { Budget: 1, Midrange: 2, Premium: 3 }[tier] || 4;
   }
 
   function filteredProducts() {
@@ -48,7 +77,8 @@
     const tier = tierFilter.value;
 
     const matches = products.filter(function (product) {
-      const matchesQuery = !query || (product.name + " " + product.brand + " " + product.category).toLowerCase().includes(query);
+      const searchable = [product.name, product.originalName, product.brand, product.category, product.tier, product.description].join(" ").toLowerCase();
+      const matchesQuery = !query || searchable.includes(query);
       return matchesQuery &&
         (category === "all" || product.category === category) &&
         (brand === "all" || product.brand === brand) &&
@@ -57,8 +87,8 @@
 
     return matches.sort(function (a, b) {
       if (sort.value === "name-desc") return b.name.localeCompare(a.name);
-      if (sort.value === "price-asc") return (a.referencePrice === null ? Infinity : a.referencePrice) - (b.referencePrice === null ? Infinity : b.referencePrice) || a.name.localeCompare(b.name);
-      if (sort.value === "price-desc") return (b.referencePrice === null ? -Infinity : b.referencePrice) - (a.referencePrice === null ? -Infinity : a.referencePrice) || a.name.localeCompare(b.name);
+      if (sort.value === "price-asc") return a.price - b.price || a.name.localeCompare(b.name);
+      if (sort.value === "price-desc") return b.price - a.price || a.name.localeCompare(b.name);
       if (sort.value === "category") return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
       if (sort.value === "tier") return tierOrder(a.tier) - tierOrder(b.tier) || a.name.localeCompare(b.name);
       return a.name.localeCompare(b.name);
@@ -110,28 +140,19 @@
     description.textContent = product.description;
 
     const price = document.createElement("strong");
-    price.className = "product-price" + (product.referencePrice === null ? " unavailable" : "");
-    price.textContent = product.referencePrice === null ? "Price unavailable" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.referencePrice);
+    price.className = "product-price";
+    price.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price);
     const note = document.createElement("p");
     note.className = "product-status";
-    note.textContent = product.referencePrice === null ? "Exact SKU, price, and local stock require verification." : "Observed at " + product.referencePriceSource + " on Nov. 7, 2026 — reference only.";
-    const source = product.referencePriceUrl ? document.createElement("a") : null;
-    if (source) {
-      source.className = "product-source-link";
-      source.href = product.referencePriceUrl;
-      source.target = "_blank";
-      source.rel = "noopener noreferrer";
-      source.textContent = "View supplied retailer listing ↗";
-    }
+    note.textContent = "Demo estimate — not a verified retailer price or live inventory status.";
     const button = document.createElement("button");
     button.className = "product-order-button";
     button.type = "button";
     button.disabled = true;
-    button.textContent = "Local ordering unavailable";
-    button.setAttribute("aria-label", product.name + " is not available to order until its listing is verified");
+    button.textContent = "Catalog preview";
+    button.setAttribute("aria-label", product.name + " is currently shown as a catalog preview");
 
     copy.append(meta, name, brand, description, price, note);
-    if (source) copy.appendChild(source);
     copy.appendChild(button);
     article.append(media, copy);
     return article;
@@ -147,6 +168,13 @@
     empty.hidden = matches.length > 0;
     loadMore.hidden = shown.length >= matches.length || matches.length === 0;
     loadMore.textContent = "Load more products (" + shown.length + " of " + matches.length + ")";
+    if (categoryShortcuts) {
+      categoryShortcuts.querySelectorAll("button").forEach(function (button) {
+        const active = button.dataset.category === categoryFilter.value;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    }
   }
 
   function filtersChanged() {
@@ -167,6 +195,16 @@
     filtersChanged();
     search.focus();
   });
+
+  if (categoryShortcuts) {
+    categoryShortcuts.addEventListener("click", function (event) {
+      const button = event.target.closest("button[data-category]");
+      if (!button) return;
+      categoryFilter.value = button.dataset.category;
+      filtersChanged();
+      document.getElementById("catalog-title").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   loadMore.addEventListener("click", function () {
     visibleCount += pageSize;

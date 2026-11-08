@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050806">
-  <meta name="description" content="Browse Nexora's reference catalog of 100 real PC component models.">
+  <meta name="description" content="Search and filter Nexora's catalog of 300 real PC hardware models across ten categories.">
   <link rel="icon" href="assets/images/favicon.svg?v=20261107-2" type="image/svg+xml">
   <title>Shop PC Parts | Nexora</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261107-9">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261107-10">
 </head>
 <body data-page="shop">
   <div data-site-header></div>
@@ -19,9 +19,9 @@
       <div class="container">
         <span class="eyebrow">PC hardware catalog</span>
         <h1>Find the part that fits.</h1>
-        <p>Browse 100 real component models across ten categories. Observed retailer prices are dated references, not Nexora selling prices; exact variants and availability still require verification.</p>
+        <p>Search 300 real, exact component models across ten categories. Prices are clearly labeled demo estimates for the ordering-system prototype, not verified retailer offers.</p>
         <div class="catalog-stats" aria-label="Catalog summary">
-          <div><strong>100</strong><span>Products</span></div>
+          <div><strong>300</strong><span>Products</span></div>
           <div><strong>10</strong><span>Categories</span></div>
           <div><strong>3</strong><span>Performance tiers</span></div>
         </div>
@@ -35,8 +35,10 @@
             <span class="eyebrow">Reference catalog</span>
             <h2 id="catalog-title">PC components</h2>
           </div>
-          <p><strong id="product-count">100</strong> matching products</p>
+          <p><strong id="product-count">300</strong> matching products</p>
         </div>
+
+        <div class="category-shortcuts" id="category-shortcuts" aria-label="Browse product categories"></div>
 
         <div class="shop-layout">
           <aside class="shop-filters" aria-label="Product filters">
@@ -45,8 +47,8 @@
             <label>Category<select id="category-filter"><option value="all">All categories</option></select></label>
             <label>Brand<select id="brand-filter"><option value="all">All brands</option></select></label>
             <label>Tier<select id="tier-filter"><option value="all">All tiers</option></select></label>
-            <label>Sort<select id="sort-products"><option value="name-asc">Name: A–Z</option><option value="name-desc">Name: Z–A</option><option value="price-asc">Reference price: Low–High</option><option value="price-desc">Reference price: High–Low</option><option value="category">Category</option><option value="tier">Tier</option></select></label>
-            <div class="verification-note"><strong>Reference data</strong><p>Observed prices were checked November 7, 2026. They are not guaranteed Nexora prices or proof of local stock.</p></div>
+            <label>Sort<select id="sort-products"><option value="name-asc">Name: A–Z</option><option value="name-desc">Name: Z–A</option><option value="price-asc">Demo price: Low–High</option><option value="price-desc">Demo price: High–Low</option><option value="category">Category</option><option value="tier">Tier</option></select></label>
+            <div class="verification-note"><strong>Prototype pricing</strong><p>Every amount is a Nexora demo estimate for practicing totals and budgets. It is not a live store price or proof of stock.</p></div>
           </aside>
 
           <div class="shop-results">
@@ -60,8 +62,8 @@
   </main>
   <div data-site-footer></div>
   <script src="assets/js/main.js?v=20261107-7"></script>
-  <script src="assets/js/products.js?v=20261107-2"></script>
-  <script src="assets/js/shop.js?v=20261107-2"></script>
+  <script src="assets/js/products.js?v=20261107-3"></script>
+  <script src="assets/js/shop.js?v=20261107-3"></script>
   <script src="assets/js/assistant.js?v=20261107-6"></script>
   <script src="assets/js/accessibility.js?v=20261107-1"></script>
 </body>

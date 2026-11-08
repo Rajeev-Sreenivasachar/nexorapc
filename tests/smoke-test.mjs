@@ -24,7 +24,7 @@ removedPages.forEach(function (page) {
 });
 
 const htmlFiles = readdirSync(root).filter(function (file) { return file.endsWith(".html"); }).sort();
-check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort()), "The repository root should contain only index.html and about.html.");
+check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort()), "The repository root should contain only Home, Shop, and About pages.");
 
 const javascriptDirectory = join(root, "assets", "js");
 const javascriptFiles = readdirSync(javascriptDirectory).filter(function (file) { return file.endsWith(".js"); }).sort();
@@ -95,16 +95,21 @@ check(assistantScript.includes('fetch("/api/chat"'), "Assistant does not call th
 check(!assistantScript.includes("GEMINI_API_KEY"), "Frontend JavaScript must not reference the Gemini API key.");
 check(accessibilityScript.includes("nexora_accessibility_v1"), "Accessibility preferences are not persisted.");
 check(accessibilityScript.includes('role="dialog"') && accessibilityScript.includes("speechSynthesis"), "Accessibility dialog or text-to-speech support is missing.");
-check(products.length === 100, "Product catalog should contain exactly 100 products.");
-check(new Set(products.map(function (product) { return product.id; })).size === 100, "Product IDs must be unique.");
+check(products.length === 300, "Product catalog should contain exactly 300 products.");
+check(new Set(products.map(function (product) { return product.id; })).size === 300, "Product IDs must be unique.");
+check(new Set(products.map(function (product) { return product.name; })).size === 300, "Product names must be unique.");
 check(new Set(products.map(function (product) { return product.category; })).size === 10, "Product catalog should contain 10 categories.");
-check(products.every(function (product) { return product.price === null && product.orderable === false; }), "Unverified products must not contain invented prices or be orderable.");
+check(Array.from(new Set(products.map(function (product) { return product.category; }))).every(function (category) { return products.filter(function (product) { return product.category === category; }).length === 30; }), "Every category should contain exactly 30 products.");
+check(products.every(function (product) { return Number.isFinite(product.price) && product.price > 0 && product.priceStatus === "demo_estimate" && product.orderable === false; }), "Products must use positive, clearly labeled demo prices and remain non-orderable.");
 check(products.every(function (product) { return typeof product.description === "string" && product.description.length > 20; }), "Every catalog product needs a useful description.");
-check(products.filter(function (product) { return product.referencePrice !== null; }).length === 69, "Catalog should contain 69 supplied reference-price observations.");
-check(products.filter(function (product) { return product.referencePriceUrl; }).length === 4, "Catalog should contain four supplied direct retailer listings.");
-check(products.find(function (product) { return product.name === "NVIDIA GeForce RTX 5060 8GB"; }).referencePrice === 449, "RTX 5060 reference price is mapped incorrectly.");
-check(products.find(function (product) { return product.name === "NVIDIA GeForce RTX 5060 Ti 16GB"; }).referencePrice === 770, "RTX 5060 Ti reference price is mapped incorrectly.");
-check(products.find(function (product) { return product.name === "Seagate BarraCuda 4TB HDD"; }).referencePrice === 159.99, "Seagate reference price is mapped incorrectly.");
+check(products.every(function (product) { return existsSync(join(root, product.image)); }), "Every product must have a local image file.");
+check(products.every(function (product) { return product.imageReviewStatus === "reviewed"; }), "Every product image must be marked as visually reviewed.");
+check(products.find(function (product) { return product.name === "PNY GeForce RTX 5060 8GB Dual Fan OC"; }), "Generic RTX 5060 entry was not resolved to an exact board model.");
+check(products.find(function (product) { return product.name === "ASRock Intel Arc B580 Steel Legend 12GB OC"; }), "Generic Arc B580 entry was not resolved to an exact board model.");
+check(products.find(function (product) { return product.name === "Seagate BarraCuda 4TB HDD"; }).price === 79, "Seagate demo price is mapped incorrectly.");
+const shopPage = readFileSync(join(root, "shop.html"), "utf8");
+check(shopPage.includes('id="product-search"') && shopPage.includes('id="category-filter"') && shopPage.includes('id="category-shortcuts"'), "Shop search or category controls are missing.");
+check(shopPage.includes("300 real, exact component models") && shopPage.includes("demo estimates"), "Shop catalog size or price disclosure is missing.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");
 check(sharedStyles.includes("[data-site-header]") && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The shared header should remain sticky.");
 
@@ -113,4 +118,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Smoke test passed: Nexora contains Home, Shop, About, 100 catalog products, accessibility settings, and a server-side Gemini assistant.");
+console.log("Smoke test passed: Nexora contains Home, Shop, About, 300 catalog products with reviewed local images, accessibility settings, and a server-side Gemini assistant.");

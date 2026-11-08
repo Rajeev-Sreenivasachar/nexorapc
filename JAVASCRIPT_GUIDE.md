@@ -15,7 +15,7 @@ Nexora uses five focused frontend JavaScript files and one server-side API route
 
 `assets/js/accessibility.js` creates the accessibility panel, applies each preference to the page, and saves those preferences in `localStorage`.
 
-`assets/js/products.js` builds the shared catalog of 100 products. Each object stores the product's identity, description, category, tier, image path, verification state, and any supplied dated reference price. The separate `price` and inventory fields remain empty until Nexora's own local listing is defined.
+`assets/js/products.js` exposes the generated 300-product catalog to the browser. Each object stores the exact model, original supplied name, brand, category, tier, demo price, image path, image audit link, and availability state. `scripts/build-catalog.mjs` creates this file from `data/catalog-source.json`, so the Shop never contains 300 hand-written cards.
 
 `assets/js/shop.js` reads the shared catalog, builds the product cards, and handles search, category, brand, tier, sorting, clearing filters, and loading more results.
 
@@ -34,12 +34,12 @@ It compares that value with the Home, Shop, and About navigation records, then a
 ## Shop catalog flow
 
 1. `products.js` creates `window.NEXORA_PRODUCTS`.
-2. `shop.js` reads that array and fills the filter menus.
-3. `filteredProducts()` applies the visitor's search and selected filters.
+2. `shop.js` reads that array and fills the category, brand, and tier controls.
+3. `filteredProducts()` searches names, original names, brands, categories, tiers, and descriptions before applying the selected filters and sort order.
 4. `renderProducts()` creates only the cards that should currently be visible.
 5. Load More increases the visible count without manually writing more HTML.
 
-Product images start hidden. A clean category placeholder remains visible unless the correct file loads successfully, so missing files never show broken-image icons.
+The category shortcut rail and the category dropdown stay synchronized. Product images start hidden, and a clean category placeholder remains visible unless the correct local file loads successfully, so missing files never show broken-image icons.
 
 ## Shared footer
 

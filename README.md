@@ -5,7 +5,7 @@ Nexora is a concept hardware parts shop created for FBLA Introduction to Program
 ## Current pages
 
 - `index.html` — homepage
-- `shop.html` — searchable catalog of 100 real component models
+- `shop.html` — searchable catalog of 300 real component models
 - `about.html` — project mission and development team
 
 Cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant and accessibility settings are available from compact controls on every current page.
@@ -52,13 +52,15 @@ Then open `http://localhost:8000`.
 npm test
 ```
 
-The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, and the 100-product catalog boundary.
+The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, the 300-product catalog boundary, exact-model GPU replacements, and all local product images.
 
 ## Product catalog
 
-`assets/js/products.js` contains 100 real PC component model names and descriptions across 10 categories. The supplied dataset includes 69 dated retailer price observations, 31 products without a confirmed price, and four direct retailer listing links. Reference prices are not treated as Nexora selling prices. Exact SKUs, local inventory, and availability still require verification, so every item remains non-orderable. Products without an observed reference display `Price unavailable`.
+`assets/js/products.js` contains 300 unique component models across 10 categories. The original dataset is preserved in `data/catalog-source.json`, while `scripts/build-catalog.mjs` converts it into the browser-ready catalog. Generic GPU families were replaced with exact board-partner models so the displayed names and images refer to specific products.
 
-Each product already has a unique image path such as `assets/images/products/amd-ryzen-5-5600.png`. The Shop page shows a clean category placeholder when that file does not exist.
+The supplied USD amounts are demo estimates for the ordering-system prototype. They are not verified retailer prices, live offers, or stock claims. Every product remains non-orderable until inventory and retailer data are added.
+
+All 300 products have a local image path such as `assets/images/products/nx-0001.jpg`. Images were reviewed in ten category contact sheets. `IMAGE_CREDITS.md` keeps an audit search link for every image, and `IMAGE_GUIDE.md` explains how to replace one without changing the Shop code.
 
 ## Gemini assistant
 

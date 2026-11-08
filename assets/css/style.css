@@ -285,6 +285,12 @@ body.a11y-custom-spacing > [data-site-header] *, body.a11y-custom-spacing > main
 .shop-toolbar h2 { margin: 8px 0 0; font-size: clamp(34px, 4vw, 52px); letter-spacing: -2.5px; }
 .shop-toolbar > p { margin: 0; color: #929b94; font-size: 12px; }
 .shop-toolbar > p strong { color: #fff; }
+.category-shortcuts { display: flex; gap: 9px; margin: 0 0 24px; padding: 2px 0 8px; overflow-x: auto; scrollbar-width: thin; }
+.category-shortcuts button { flex: 0 0 auto; min-width: 116px; min-height: 52px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #090b0a; color: #d9dfda; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; font: 700 10px var(--font); transition: border-color .2s ease, background .2s ease, color .2s ease, transform .2s ease; }
+.category-shortcuts button strong { color: #7f8981; font: 700 10px var(--display); }
+.category-shortcuts button:hover { transform: translateY(-2px); border-color: #3f7650; color: #fff; }
+.category-shortcuts button.active { border-color: var(--accent); background: #102016; color: var(--accent); }
+.category-shortcuts button.active strong { color: var(--accent); }
 .shop-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); align-items: start; gap: 28px; }
 .shop-filters { position: sticky; top: 136px; padding: 18px; border: 1px solid var(--border); border-radius: 10px; background: #0c0f0d; display: grid; gap: 16px; }
 .filter-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
