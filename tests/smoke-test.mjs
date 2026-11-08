@@ -60,8 +60,10 @@ check(!/coming soon|next version is planned|future tools/i.test(allSource), "Sit
 
 const homepage = readFileSync(join(root, "index.html"), "utf8");
 check(homepage.includes('class="trust-strip"'), "Homepage is missing the checkmark strip.");
+check(homepage.includes("Understand every component") && homepage.includes("Check what works together") && homepage.includes("Build with confidence"), "Homepage checkmark goals are incomplete.");
 check(homepage.includes('class="hardware-story section-alt"'), "Homepage is missing the hardware story section.");
 check(!homepage.includes("editorial-intro") && !homepage.includes("principles-section"), "Homepage still contains the removed oversized sections.");
+check(homepage.includes('class="about-callout section-alt"') && !homepage.includes("student-callout"), "Homepage About Nexora callout is missing or the team callout remains.");
 
 const mainScript = readFileSync(join(javascriptDirectory, "main.js"), "utf8");
 const assistantScript = readFileSync(join(javascriptDirectory, "assistant.js"), "utf8");
@@ -75,7 +77,7 @@ if (existsSync(chatRoutePath)) {
 const sharedStyles = readFileSync(join(root, "assets", "css", "style.css"), "utf8");
 check(mainScript.includes('["home", "index.html", "Home"]'), "Shared navigation is missing Home.");
 check(mainScript.includes('["about", "about.html", "About Nexora"]'), "Shared navigation is missing About.");
-check(mainScript.includes("data-open-ai"), "Shared navigation is missing the Ask Nexora control.");
+check(!mainScript.includes("data-open-ai") && !mainScript.includes("nav-ai-button"), "Shared navigation still contains the removed Ask Nexora control.");
 check(assistantScript.includes('fetch("/api/chat"'), "Assistant does not call the server-side chat route.");
 check(!assistantScript.includes("GEMINI_API_KEY"), "Frontend JavaScript must not reference the Gemini API key.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");

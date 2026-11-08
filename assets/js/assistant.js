@@ -108,9 +108,6 @@
     if (panel.hidden) openPanel(); else closePanel();
   });
   closeButton.addEventListener("click", closePanel);
-  document.querySelectorAll("[data-open-ai]").forEach(function (button) {
-    button.addEventListener("click", openPanel);
-  });
   document.querySelectorAll("[data-ai-prompt]").forEach(function (button) {
     button.addEventListener("click", function () {
       input.value = button.dataset.aiPrompt;

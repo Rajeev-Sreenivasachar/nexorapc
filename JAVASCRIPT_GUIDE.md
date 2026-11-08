@@ -39,7 +39,7 @@ It compares that value with the Home and About navigation records, then adds `ar
 
 ## Gemini assistant flow
 
-1. A visitor opens the drawer from the navbar or floating Ask AI button.
+1. A visitor opens the drawer from the floating Ask AI button.
 2. `assistant.js` sends the message and recent conversation history to `/api/chat`.
 3. `chat.js` validates the message and asks Gemini for a response.
 4. The server returns only the generated reply.
