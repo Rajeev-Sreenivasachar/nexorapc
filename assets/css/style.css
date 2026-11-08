@@ -21,6 +21,7 @@ body {
   font-family: var(--font);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
 }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; }
@@ -69,6 +70,9 @@ p { color: var(--muted); }
 .nav-links a { padding: 9px 15px; border-radius: 7px; color: #b9c0bb; font-size: 12px; font-weight: 700; transition: color .2s, background .2s; }
 .nav-links a:hover { background: #131814; color: #fff; }
 .nav-links a.active { background: #122818; color: var(--accent); }
+.nav-actions { display: flex; align-items: center; gap: 9px; }
+.app-install-button { min-height: 40px; padding: 0 14px; border: 1px solid #4b8f5d; border-radius: 7px; background: #102016; color: var(--accent); cursor: pointer; font-size: 11px; font-weight: 800; }
+.app-install-button:hover { background: var(--accent); color: #06140a; }
 .menu-toggle { display: none; min-height: 40px; padding: 0 13px; border: 1px solid var(--border); border-radius: 7px; background: #0b0d0b; color: #fff; font-size: 12px; font-weight: 700; }
 
 /* Shared controls */
@@ -76,7 +80,20 @@ p { color: var(--muted); }
 .button:hover { transform: translateY(-2px); }
 .button-primary { background: var(--accent); color: #041709; }
 .button-primary:hover { background: #82efa1; box-shadow: 0 10px 28px rgb(53 189 99 / 18%); }
+.button-secondary { border-color: #738078; background: rgb(7 11 8 / 70%); color: #fff; cursor: pointer; }
+.button-secondary:hover { border-color: var(--accent); background: #111713; }
 .text-link { color: var(--accent); font-size: 13px; font-weight: 700; }
+
+/* Installable app shell */
+.mobile-app-bar { display: none; }
+.install-help-backdrop { position: fixed; inset: 0; z-index: 1200; padding: 18px; background: rgb(0 0 0 / 78%); backdrop-filter: blur(7px); display: grid; place-items: center; }
+.install-help { position: relative; width: min(430px, 100%); padding: 34px; border: 1px solid #39453d; border-radius: 18px; background: #0a0e0b; box-shadow: 0 30px 100px rgb(0 0 0 / 72%); }
+.install-help > img { width: 72px; height: 72px; margin-bottom: 24px; border-radius: 18px; box-shadow: 0 12px 34px rgb(0 0 0 / 45%); }
+.install-help h2 { margin: 8px 0 12px; font-size: 34px; letter-spacing: -1.7px; }
+.install-help p { margin: 0 0 24px; font-size: 13px; }
+.install-help .dialog-close { position: absolute; top: 14px; right: 14px; }
+.standalone-app .site-header-stack { padding-top: env(safe-area-inset-top); background: #050705; }
+.standalone-app .app-install-button, .standalone-app [data-install-app] { display: none !important; }
 
 /* Homepage */
 .home-mosaic { position: relative; min-height: max(680px, calc(100svh - 118px)); overflow: hidden; border-bottom: 1px solid var(--border); background: #050605; display: grid; place-items: center; isolation: isolate; }
@@ -499,7 +516,10 @@ body.app-dialog-open { overflow: hidden; }
 
 @media (max-width: 820px) {
   .container, .narrow { width: min(100% - 32px, 1200px); }
-  .menu-toggle { display: inline-flex; margin-left: auto; align-items: center; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .nav-actions { margin-left: auto; }
+  .nav-actions .app-install-button { display: none; }
+  .menu-toggle { display: inline-flex; align-items: center; }
   .nav-links { display: none; position: absolute; top: 76px; left: 0; right: 0; margin: 0; padding: 16px; border-bottom: 1px solid var(--border); background: #050705; flex-direction: column; align-items: stretch; }
   .nav-links.open { display: flex; }
   .nav-links a { width: 100%; }
@@ -526,6 +546,14 @@ body.app-dialog-open { overflow: hidden; }
   .product-dialog-layout { grid-template-columns: 1fr; min-height: 0; }
   .product-dialog-media { min-height: 320px; max-height: 360px; padding: 26px; }
   .product-dialog-media img { max-height: 308px; }
+  .mobile-app-bar { position: fixed; z-index: 320; left: 12px; right: 12px; bottom: max(10px, env(safe-area-inset-bottom)); min-height: 62px; padding: 5px; border: 1px solid #313a33; border-radius: 17px; background: rgb(8 11 9 / 94%); box-shadow: 0 18px 48px rgb(0 0 0 / 58%); backdrop-filter: blur(18px); display: flex; align-items: stretch; }
+  .mobile-app-bar a, .mobile-app-bar button { min-width: 0; flex: 1 1 0; padding: 7px 4px 5px; border: 0; border-radius: 12px; background: transparent; color: #8d978f; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2px; font: 700 9px var(--font); }
+  .mobile-app-bar a.active { background: #122818; color: var(--accent); }
+  .mobile-app-bar svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-app-bar [hidden] { display: none; }
+  .ai-launcher, .a11y-launcher { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .ai-panel { bottom: calc(146px + env(safe-area-inset-bottom)); height: min(600px, calc(100dvh - 170px)); }
+  .a11y-panel { bottom: calc(78px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 94px - env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 580px) {
@@ -583,12 +611,12 @@ body.app-dialog-open { overflow: hidden; }
   .build-checklist ul { grid-template-columns: 1fr; }
   .saved-order > header { align-items: flex-start; flex-direction: column; gap: 9px; }
   .saved-order footer { flex-wrap: wrap; }
-  .ai-launcher { right: 16px; bottom: 16px; }
-  .ai-panel { right: 16px; bottom: 78px; height: min(600px, calc(100vh - 102px)); }
+  .ai-launcher { right: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .ai-panel { right: 16px; bottom: calc(146px + env(safe-area-inset-bottom)); height: min(600px, calc(100dvh - 170px)); }
   .ai-form { grid-template-columns: 1fr; }
   .ai-form .button { width: 100%; }
-  .a11y-launcher { left: 16px; bottom: 16px; width: 50px; height: 50px; }
-  .a11y-panel { left: 8px; bottom: 8px; width: calc(100vw - 16px); max-height: calc(100dvh - 16px); border-radius: 16px; }
+  .a11y-launcher { left: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); width: 50px; height: 50px; }
+  .a11y-panel { left: 8px; bottom: calc(78px + env(safe-area-inset-bottom)); width: calc(100vw - 16px); max-height: calc(100dvh - 94px - env(safe-area-inset-bottom)); border-radius: 16px; }
   .a11y-panel-header { min-height: 74px; padding: 13px 14px 13px 17px; }
   .a11y-panel-scroll { padding: 12px; }
   .a11y-toggle strong, .a11y-range strong, .a11y-select strong { font-size: 13px; }

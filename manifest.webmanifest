@@ -1,0 +1,42 @@
+{
+  "id": "/",
+  "name": "Nexora PC Parts",
+  "short_name": "Nexora",
+  "description": "Browse PC components, build a cart, check a budget, and manage prototype hardware orders.",
+  "start_url": "/index.html?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#050806",
+  "categories": ["shopping", "utilities", "education"],
+  "icons": [
+    {
+      "src": "assets/images/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/images/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop PC Parts",
+      "short_name": "Shop",
+      "url": "/shop.html?source=shortcut",
+      "icons": [{ "src": "assets/images/app-icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "About Nexora",
+      "short_name": "About",
+      "url": "/about.html?source=shortcut",
+      "icons": [{ "src": "assets/images/app-icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

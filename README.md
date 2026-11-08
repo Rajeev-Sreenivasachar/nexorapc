@@ -1,6 +1,6 @@
 # Nexora
 
-Nexora is a PC hardware ordering web app created for FBLA Introduction to Programming. Customers can browse real component models, inspect product details, manage a cart, check a budget, place a local demo order, and review or cancel that order.
+Nexora is an installable PC hardware ordering web app created for FBLA Introduction to Programming. Customers can browse real component models, inspect product details, manage a cart, check a budget, place a local demo order, and review or cancel that order.
 
 ## Current pages
 
@@ -16,18 +16,23 @@ The ordering experience is built directly into the Shop instead of spreading one
 ├── index.html
 ├── shop.html
 ├── about.html
+├── manifest.webmanifest
+├── service-worker.js
 ├── IMAGE_GUIDE.md
 ├── assets/
 │   ├── css/style.css
 │   ├── images/
 │   │   ├── favicon.svg
 │   │   ├── nexora-mark.svg
+│   │   ├── app-icon-192.png
+│   │   ├── app-icon-512.png
 │   │   ├── home/
 │   │   └── products/
 │   └── js/
 │       ├── main.js
 │       ├── assistant.js
 │       ├── accessibility.js
+│       ├── install.js
 │       ├── ordering.js
 │       ├── products.js
 │       └── shop.js
@@ -53,7 +58,15 @@ Then open `http://localhost:8000`.
 npm test
 ```
 
-The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, the 300-product catalog boundary, demo inventory, full-PC category coverage, ordering logic, exact-model GPU replacements, and all local product images.
+The smoke test checks JavaScript syntax, required files, internal links, asset references, the PWA manifest, service worker, app icons, page titles, the 300-product catalog boundary, demo inventory, full-PC category coverage, ordering logic, exact-model GPU replacements, and all local product images.
+
+## Installable app
+
+Nexora is a Progressive Web App (PWA). On a supported browser, use **Install app** in the desktop header or **Install** in the mobile bottom navigation. The installed version opens in its own standalone window and keeps Nexora's black-and-green app interface.
+
+The service worker caches the three main pages and essential local assets. Previously opened same-origin product images are cached as they are requested. Gemini questions still require a network connection because `/api/chat` is intentionally never cached.
+
+Local installation testing requires a web server at `localhost`; opening the HTML files directly with `file://` cannot register a service worker. Production installation requires HTTPS, which Vercel provides.
 
 ## Product catalog
 

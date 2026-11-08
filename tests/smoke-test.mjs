@@ -28,7 +28,7 @@ check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort())
 
 const javascriptDirectory = join(root, "assets", "js");
 const javascriptFiles = readdirSync(javascriptDirectory).filter(function (file) { return file.endsWith(".js"); }).sort();
-check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "main.js", "ordering.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
+check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "install.js", "main.js", "ordering.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
 
 javascriptFiles.forEach(function (file) {
   const result = spawnSync(process.execPath, ["--check", join(javascriptDirectory, file)], { encoding: "utf8" });
@@ -42,8 +42,11 @@ requiredPages.forEach(function (page) {
   check(html.includes('id="main-content"'), page + " is missing the main-content landmark.");
   check(html.includes("assets/css/style.css"), page + " is missing the shared stylesheet.");
   check(html.includes("assets/js/main.js"), page + " is missing the shared script.");
+  check(html.includes("assets/js/install.js"), page + " is missing the app installation script.");
   check(html.includes("assets/js/assistant.js"), page + " is missing the assistant script.");
   check(html.includes("assets/js/accessibility.js"), page + " is missing the accessibility script.");
+  check(html.includes('rel="manifest"') && html.includes("manifest.webmanifest"), page + " is missing the web app manifest.");
+  check(html.includes('rel="apple-touch-icon"'), page + " is missing its Apple touch icon.");
   if (page === "shop.html") {
     check(html.includes("assets/js/products.js") && html.includes("assets/js/ordering.js") && html.includes("assets/js/shop.js"), "Shop is missing its product data, ordering, or display logic.");
   }
@@ -72,6 +75,7 @@ check(homepage.includes('class="about-callout section-alt"') && !homepage.includ
 check(homepage.includes("FBLA Introduction to Programming") && homepage.includes("hardware parts shop experience"), "Homepage FBLA or hardware shop labeling is missing.");
 
 const mainScript = readFileSync(join(javascriptDirectory, "main.js"), "utf8");
+const installScript = readFileSync(join(javascriptDirectory, "install.js"), "utf8");
 const assistantScript = readFileSync(join(javascriptDirectory, "assistant.js"), "utf8");
 const accessibilityScript = readFileSync(join(javascriptDirectory, "accessibility.js"), "utf8");
 const orderingScript = readFileSync(join(javascriptDirectory, "ordering.js"), "utf8");
@@ -87,11 +91,26 @@ if (existsSync(chatRoutePath)) {
   check(routeSyntax.status === 0, "Gemini route syntax failed: " + routeSyntax.stderr.trim());
 }
 const sharedStyles = readFileSync(join(root, "assets", "css", "style.css"), "utf8");
+const manifestPath = join(root, "manifest.webmanifest");
+const serviceWorkerPath = join(root, "service-worker.js");
+check(existsSync(manifestPath), "Missing web app manifest.");
+check(existsSync(serviceWorkerPath), "Missing service worker.");
+const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : {};
+check(manifest.name === "Nexora PC Parts" && manifest.short_name === "Nexora", "Manifest app identity is incorrect.");
+check(manifest.display === "standalone" && manifest.start_url, "Manifest is missing standalone display or a start URL.");
+check(Array.isArray(manifest.icons) && manifest.icons.some(function (icon) { return icon.sizes === "192x192"; }) && manifest.icons.some(function (icon) { return icon.sizes === "512x512" && icon.purpose.includes("maskable"); }), "Manifest needs 192px and maskable 512px app icons.");
+if (existsSync(serviceWorkerPath)) {
+  const serviceWorkerSyntax = spawnSync(process.execPath, ["--check", serviceWorkerPath], { encoding: "utf8" });
+  check(serviceWorkerSyntax.status === 0, "Service worker syntax failed: " + serviceWorkerSyntax.stderr.trim());
+}
+check(existsSync(join(root, "assets", "images", "app-icon-192.png")) && existsSync(join(root, "assets", "images", "app-icon-512.png")), "PWA app icons are missing.");
 check(mainScript.includes('["home", "index.html", "Home"]'), "Shared navigation is missing Home.");
 check(mainScript.includes('["shop", "shop.html", "Shop"]'), "Shared navigation is missing Shop.");
 check(mainScript.includes('["about", "about.html", "About Nexora"]'), "Shared navigation is missing About.");
 check(mainScript.includes("FBLA Introduction to Programming") && mainScript.includes("hardware parts shop experience"), "Footer FBLA or hardware shop labeling is missing.");
 check(!mainScript.includes("data-open-ai") && !mainScript.includes("nav-ai-button"), "Shared navigation still contains the removed Ask Nexora control.");
+check(mainScript.includes("mobile-app-bar") && mainScript.includes("data-install-app"), "Shared app navigation or install control is missing.");
+check(installScript.includes("beforeinstallprompt") && installScript.includes("appinstalled") && installScript.includes('serviceWorker.register("/service-worker.js")'), "Install prompt or service-worker registration is incomplete.");
 check(assistantScript.includes('fetch("/api/chat"'), "Assistant does not call the server-side chat route.");
 check(!assistantScript.includes("GEMINI_API_KEY"), "Frontend JavaScript must not reference the Gemini API key.");
 check(accessibilityScript.includes("nexora_accessibility_v1"), "Accessibility preferences are not persisted.");
@@ -122,10 +141,11 @@ check(orderingScript.includes("remainingInventory") && orderingScript.includes("
 check(orderingScript.includes("checkoutForm.checkValidity()") && orderingScript.includes("summary.total > budget"), "Checkout input validation or budget enforcement is missing.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");
 check(sharedStyles.includes("[data-site-header]") && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The shared header should remain sticky.");
+check(sharedStyles.includes(".mobile-app-bar") && sharedStyles.includes(".standalone-app"), "App-like mobile navigation or standalone styling is missing.");
 
 if (failures.length) {
   console.error("Smoke test failed:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("Smoke test passed: Nexora contains Home, Shop, About, 300 catalog products, a persistent demo ordering app, full-build category coverage, reviewed local images, accessibility settings, and a server-side Gemini assistant.");
+console.log("Smoke test passed: Nexora is an installable PWA with standalone styling, offline app shell, mobile app navigation, 300 catalog products, ordering, accessibility, and Gemini support.");

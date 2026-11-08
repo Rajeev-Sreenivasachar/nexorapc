@@ -32,10 +32,30 @@
                 return `<a href="${link[1]}"${active}><span>${link[2]}</span></a>`;
               }).join("")}
             </nav>
-            <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="main-nav" aria-expanded="false">Menu</button>
+            <div class="nav-actions">
+              <button class="app-install-button" type="button" data-install-app hidden>Install app</button>
+              <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="main-nav" aria-expanded="false">Menu</button>
+            </div>
           </div>
         </header>
       </div>`;
+  }
+
+  function renderMobileAppBar() {
+    const page = document.body.dataset.page || "";
+    const tabs = [
+      ["home", "index.html", "Home", '<path d="M4 11.5 12 5l8 6.5V20h-5v-6H9v6H4z"/>'],
+      ["shop", "shop.html", "Shop", '<path d="M5 8h14l-1 12H6zM8 8V7a4 4 0 0 1 8 0v1"/>'],
+      ["about", "about.html", "About", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/>']
+    ];
+    const bar = document.createElement("nav");
+    bar.className = "mobile-app-bar";
+    bar.setAttribute("aria-label", "App navigation");
+    bar.innerHTML = tabs.map(function (tab) {
+      const active = page === tab[0] ? ' class="active" aria-current="page"' : "";
+      return `<a href="${tab[1]}"${active}><svg viewBox="0 0 24 24" aria-hidden="true">${tab[3]}</svg><span>${tab[2]}</span></a>`;
+    }).join("") + `<button type="button" data-install-app hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14"/></svg><span>Install</span></button>`;
+    document.body.appendChild(bar);
   }
 
   function renderFooter() {
@@ -107,6 +127,7 @@
 
   renderHeader();
   renderFooter();
+  renderMobileAppBar();
   setupNavigation();
   setupRevealAnimations();
 

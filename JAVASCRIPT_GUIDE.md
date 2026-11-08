@@ -1,19 +1,23 @@
 # Nexora JavaScript guide
 
-Nexora uses six focused frontend JavaScript files and one server-side API route.
+Nexora uses seven focused frontend JavaScript files, one service worker, and one server-side API route.
 
 ## What it does
 
-`assets/js/main.js` has four jobs:
+`assets/js/main.js` has six jobs:
 
 1. Insert the shared header on every page.
 2. Insert the shared footer on every page.
 3. Open and close the mobile navigation menu.
 4. Reveal page sections as they enter the viewport.
+5. Insert the app-style mobile bottom navigation.
+6. Add shared install controls for the PWA.
 
 `assets/js/assistant.js` creates the Ask Nexora drawer, stores a short conversation history in the visitor's browser, and sends questions to `/api/chat`.
 
 `assets/js/accessibility.js` creates the accessibility panel, applies each preference to the page, and saves those preferences in `localStorage`.
+
+`assets/js/install.js` handles the browser install prompt, iPhone/iPad instructions, installed-app state, and service-worker registration.
 
 `assets/js/products.js` exposes the generated 300-product catalog to the browser. Each object stores the exact model, original supplied name, brand, category, tier, demo price, demo inventory, image path, product role, and compatibility checks. `scripts/build-catalog.mjs` creates this file from `data/catalog-source.json`, so the Shop never contains 300 hand-written cards.
 
@@ -23,15 +27,28 @@ Nexora uses six focused frontend JavaScript files and one server-side API route.
 
 `api/chat.js` runs on Vercel. It validates requests, applies basic rate limiting, reads the private `GEMINI_API_KEY` environment variable, and sends the question to Gemini. The key never appears in the browser.
 
+`service-worker.js` caches the app shell for offline loading. It uses network-first behavior for page navigation, cache-first behavior for same-origin assets, and skips `/api/` requests so AI answers are never stored as static files.
+
 ## Shared header
 
-`renderHeader()` reads the current page from the body:
+`renderHeader()` and `renderMobileAppBar()` read the current page from the body:
 
 ```html
 <body data-page="home">
 ```
 
-It compares that value with the Home, Shop, and About navigation records, then adds `aria-current="page"` to the active link.
+They compare that value with the Home, Shop, and About navigation records, then add `aria-current="page"` to the active desktop and mobile links. The mobile app bar stays at the bottom of smaller screens, similar to a native shopping app.
+
+## App installation flow
+
+1. Every page links to `manifest.webmanifest` and loads `install.js`.
+2. `install.js` registers `service-worker.js` after the page finishes loading.
+3. A supported browser fires `beforeinstallprompt` when Nexora meets its PWA requirements.
+4. Nexora saves that event and reveals its Install buttons.
+5. Clicking Install opens the browser's real installation prompt.
+6. After installation, `appinstalled` hides the buttons and standalone CSS adjusts the app shell.
+
+iOS does not provide `beforeinstallprompt`, so the same button explains how to use Safari's **Add to Home Screen** option instead.
 
 ## Shop catalog flow
 
