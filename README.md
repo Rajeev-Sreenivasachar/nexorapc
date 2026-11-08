@@ -1,6 +1,6 @@
 # Nexora
 
-Nexora is a student-built PC technology project currently being rebuilt from a clean, two-page foundation.
+Nexora is a student-built PC technology project that makes hardware decisions easier to understand.
 
 ## Current pages
 

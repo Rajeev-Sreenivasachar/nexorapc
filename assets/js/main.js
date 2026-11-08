@@ -49,7 +49,7 @@
               <img class="logo-mark" src="assets/images/nexora-mark.svg?v=20261107-2" alt="" width="38" height="38">
               <span class="logo-wordmark">nexora</span>
             </a>
-            <p>A clean foundation for the next version of Nexora.</p>
+            <p>Clearer PC hardware decisions, built by students.</p>
           </div>
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="index.html">Home</a>

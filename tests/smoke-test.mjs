@@ -55,6 +55,12 @@ const allSource = requiredPages.map(function (page) { return readFileSync(join(r
 removedPages.forEach(function (page) {
   check(!allSource.includes(page), "Retained pages or shared JavaScript still link to " + page + ".");
 });
+check(!/coming soon|next version is planned|future tools/i.test(allSource), "Site copy contains unfinished placeholder language.");
+
+const homepage = readFileSync(join(root, "index.html"), "utf8");
+check(homepage.includes("editorial-intro"), "Homepage is missing the editorial introduction.");
+check(homepage.includes('class="hardware-story section-alt"'), "Homepage is missing the hardware story section.");
+check(homepage.includes('class="principle-rows"'), "Homepage is missing the decision principles.");
 
 const mainScript = readFileSync(join(javascriptDirectory, "main.js"), "utf8");
 const sharedStyles = readFileSync(join(root, "assets", "css", "style.css"), "utf8");
