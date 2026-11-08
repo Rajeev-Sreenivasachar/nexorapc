@@ -2,6 +2,7 @@
   "use strict";
 
   const products = Array.isArray(window.NEXORA_PRODUCTS) ? window.NEXORA_PRODUCTS : [];
+  const ordering = window.NEXORA_ORDERING;
   const pageSize = 24;
   let visibleCount = pageSize;
 
@@ -102,6 +103,12 @@
   function createCard(product) {
     const article = document.createElement("article");
     article.className = "product-card";
+    article.tabIndex = 0;
+    article.dataset.productId = product.id;
+    article.setAttribute("aria-label", "View details for " + product.name);
+
+    const remaining = ordering ? ordering.remainingInventory(product) : Number(product.inventory || 0);
+    if (remaining === 0) article.classList.add("unavailable");
 
     const media = document.createElement("div");
     media.className = "product-media";
@@ -118,7 +125,10 @@
       placeholder.hidden = true;
     });
     image.addEventListener("error", function () { image.remove(); });
-    media.append(placeholder, image);
+    const stock = document.createElement("span");
+    stock.className = "stock-badge " + (remaining > 0 ? "available" : "unavailable");
+    stock.textContent = remaining > 0 ? remaining + " available" : "Unavailable";
+    media.append(placeholder, image, stock);
 
     const copy = document.createElement("div");
     copy.className = "product-card-copy";
@@ -144,17 +154,31 @@
     price.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price);
     const note = document.createElement("p");
     note.className = "product-status";
-    note.textContent = "Demo estimate — not a verified retailer price or live inventory status.";
+    note.textContent = remaining > 0 ? "Demo inventory · click the card for details" : "Unavailable in demo inventory · click for details";
     const button = document.createElement("button");
     button.className = "product-order-button";
     button.type = "button";
-    button.disabled = true;
-    button.textContent = "Catalog preview";
-    button.setAttribute("aria-label", product.name + " is currently shown as a catalog preview");
+    const cartQuantity = ordering ? ordering.cartQuantity(product.id) : 0;
+    button.disabled = remaining <= cartQuantity;
+    button.textContent = remaining === 0 ? "Unavailable" : remaining <= cartQuantity ? "Inventory limit reached" : "Add to cart";
+    button.setAttribute("aria-label", button.textContent + ": " + product.name);
+    button.addEventListener("click", function (event) {
+      event.stopPropagation();
+      if (ordering && ordering.addToCart(product.id)) renderProducts();
+    });
 
     copy.append(meta, name, brand, description, price, note);
     copy.appendChild(button);
     article.append(media, copy);
+    article.addEventListener("click", function (event) {
+      if (event.target.closest("button, a, input, select, textarea")) return;
+      if (ordering) ordering.openProduct(product.id);
+    });
+    article.addEventListener("keydown", function (event) {
+      if (event.target !== article || (event.key !== "Enter" && event.key !== " ")) return;
+      event.preventDefault();
+      if (ordering) ordering.openProduct(product.id);
+    });
     return article;
   }
 
@@ -210,6 +234,9 @@
     visibleCount += pageSize;
     renderProducts();
   });
+
+  window.addEventListener("nexora:cart-changed", renderProducts);
+  window.addEventListener("nexora:inventory-changed", renderProducts);
 
   renderProducts();
 })();

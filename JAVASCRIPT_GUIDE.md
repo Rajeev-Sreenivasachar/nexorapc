@@ -1,6 +1,6 @@
 # Nexora JavaScript guide
 
-Nexora uses five focused frontend JavaScript files and one server-side API route.
+Nexora uses six focused frontend JavaScript files and one server-side API route.
 
 ## What it does
 
@@ -15,9 +15,11 @@ Nexora uses five focused frontend JavaScript files and one server-side API route
 
 `assets/js/accessibility.js` creates the accessibility panel, applies each preference to the page, and saves those preferences in `localStorage`.
 
-`assets/js/products.js` exposes the generated 300-product catalog to the browser. Each object stores the exact model, original supplied name, brand, category, tier, demo price, image path, image audit link, and availability state. `scripts/build-catalog.mjs` creates this file from `data/catalog-source.json`, so the Shop never contains 300 hand-written cards.
+`assets/js/products.js` exposes the generated 300-product catalog to the browser. Each object stores the exact model, original supplied name, brand, category, tier, demo price, demo inventory, image path, product role, and compatibility checks. `scripts/build-catalog.mjs` creates this file from `data/catalog-source.json`, so the Shop never contains 300 hand-written cards.
 
-`assets/js/shop.js` reads the shared catalog, builds the product cards, and handles search, category, brand, tier, sorting, clearing filters, and loading more results.
+`assets/js/ordering.js` manages product details, cart quantities, demo inventory, customer budgets, checkout validation, totals, saved orders, cancellation, and receipt downloads. Cart and order data stay in the browser with `localStorage`.
+
+`assets/js/shop.js` reads the shared catalog, builds the product cards, opens product details, adds products to the cart, and handles search, category, brand, tier, sorting, clearing filters, and loading more results.
 
 `api/chat.js` runs on Vercel. It validates requests, applies basic rate limiting, reads the private `GEMINI_API_KEY` environment variable, and sends the question to Gemini. The key never appears in the browser.
 
@@ -37,13 +39,28 @@ It compares that value with the Home, Shop, and About navigation records, then a
 2. `shop.js` reads that array and fills the category, brand, and tier controls.
 3. `filteredProducts()` searches names, original names, brands, categories, tiers, and descriptions before applying the selected filters and sort order.
 4. `renderProducts()` creates only the cards that should currently be visible.
-5. Load More increases the visible count without manually writing more HTML.
+5. Clicking a card calls `ordering.openProduct()` to display the detailed product dialog.
+6. Clicking Add to cart calls `ordering.addToCart()` and respects the current inventory limit.
+7. Load More increases the visible count without manually writing more HTML.
 
-The category shortcut rail and the category dropdown stay synchronized. Product images start hidden, and a clean category placeholder remains visible unless the correct local file loads successfully, so missing files never show broken-image icons.
+The category shortcut rail and the category dropdown stay synchronized. Product images use `object-fit: contain`, so the whole component stays visible instead of being cropped. Images start hidden, and a clean category placeholder remains visible unless the correct local file loads successfully, so missing files never show broken-image icons.
+
+## Ordering flow
+
+1. A customer opens a card to review the product role, demo inventory, price, and compatibility checks.
+2. `addToCart()` checks the inventory limit before changing the cart.
+3. `renderCart()` recalculates line totals, subtotal, demo tax, total, and the eight-part build checklist.
+4. A customer can enter a budget. Checkout is disabled while the total is over that budget.
+5. `placeOrder()` validates the name and email, checks inventory again, and saves the order with a unique ID.
+6. Received orders reduce the remaining demo inventory.
+7. Cancelling an order changes its status and restores that inventory.
+8. The Order Center can generate a plain-text receipt for review.
+
+The main arrays are `cart` and `orders`. Loops such as `map()`, `filter()`, and `reduce()` create the visible rows and calculate totals. Conditionals handle empty carts, unavailable inventory, invalid input, and over-budget orders. This covers the FBLA programming requirements without adding another language just to make the project look more complicated.
 
 ## Shared footer
 
-`renderFooter()` keeps the footer identical across both pages. The current year is added with JavaScript so it stays up to date.
+`renderFooter()` keeps the footer identical across all three pages. The current year is added with JavaScript so it stays up to date.
 
 ## Mobile navigation
 

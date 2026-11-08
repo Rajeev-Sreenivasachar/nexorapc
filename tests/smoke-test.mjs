@@ -28,7 +28,7 @@ check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort())
 
 const javascriptDirectory = join(root, "assets", "js");
 const javascriptFiles = readdirSync(javascriptDirectory).filter(function (file) { return file.endsWith(".js"); }).sort();
-check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "main.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
+check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "main.js", "ordering.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
 
 javascriptFiles.forEach(function (file) {
   const result = spawnSync(process.execPath, ["--check", join(javascriptDirectory, file)], { encoding: "utf8" });
@@ -45,7 +45,7 @@ requiredPages.forEach(function (page) {
   check(html.includes("assets/js/assistant.js"), page + " is missing the assistant script.");
   check(html.includes("assets/js/accessibility.js"), page + " is missing the accessibility script.");
   if (page === "shop.html") {
-    check(html.includes("assets/js/products.js") && html.includes("assets/js/shop.js"), "Shop is missing its product data or display logic.");
+    check(html.includes("assets/js/products.js") && html.includes("assets/js/ordering.js") && html.includes("assets/js/shop.js"), "Shop is missing its product data, ordering, or display logic.");
   }
   check(!/onclick=|onchange=|onsubmit=/.test(html), page + " contains inline JavaScript.");
   check(!/assets\/(?:css|js)\/[^"?]+\.(?:css|js)"/.test(html), page + " has an unversioned CSS or JavaScript asset.");
@@ -74,6 +74,7 @@ check(homepage.includes("FBLA Introduction to Programming") && homepage.includes
 const mainScript = readFileSync(join(javascriptDirectory, "main.js"), "utf8");
 const assistantScript = readFileSync(join(javascriptDirectory, "assistant.js"), "utf8");
 const accessibilityScript = readFileSync(join(javascriptDirectory, "accessibility.js"), "utf8");
+const orderingScript = readFileSync(join(javascriptDirectory, "ordering.js"), "utf8");
 const productScript = readFileSync(join(javascriptDirectory, "products.js"), "utf8");
 const productContext = {};
 runInNewContext(productScript, productContext);
@@ -100,7 +101,10 @@ check(new Set(products.map(function (product) { return product.id; })).size === 
 check(new Set(products.map(function (product) { return product.name; })).size === 300, "Product names must be unique.");
 check(new Set(products.map(function (product) { return product.category; })).size === 10, "Product catalog should contain 10 categories.");
 check(Array.from(new Set(products.map(function (product) { return product.category; }))).every(function (category) { return products.filter(function (product) { return product.category === category; }).length === 30; }), "Every category should contain exactly 30 products.");
-check(products.every(function (product) { return Number.isFinite(product.price) && product.price > 0 && product.priceStatus === "demo_estimate" && product.orderable === false; }), "Products must use positive, clearly labeled demo prices and remain non-orderable.");
+check(products.every(function (product) { return Number.isFinite(product.price) && product.price > 0 && product.priceStatus === "demo_estimate"; }), "Products must use positive, clearly labeled demo prices.");
+check(products.every(function (product) { return Number.isInteger(product.inventory) && product.inventory >= 0 && product.orderable === (product.inventory > 0); }), "Every product needs valid demo inventory and a matching orderable state.");
+check(products.some(function (product) { return product.inventory === 0; }) && products.some(function (product) { return product.inventory > 0; }), "Catalog inventory should include both available and unavailable products.");
+check(products.every(function (product) { return typeof product.role === "string" && product.role.length > 20 && Array.isArray(product.compatibilityChecks) && product.compatibilityChecks.length === 4; }), "Every product needs useful detail and compatibility-check fields.");
 check(products.every(function (product) { return typeof product.description === "string" && product.description.length > 20; }), "Every catalog product needs a useful description.");
 check(products.every(function (product) { return existsSync(join(root, product.image)); }), "Every product must have a local image file.");
 check(products.every(function (product) { return product.imageReviewStatus === "reviewed"; }), "Every product image must be marked as visually reviewed.");
@@ -110,6 +114,12 @@ check(products.find(function (product) { return product.name === "Seagate BarraC
 const shopPage = readFileSync(join(root, "shop.html"), "utf8");
 check(shopPage.includes('id="product-search"') && shopPage.includes('id="category-filter"') && shopPage.includes('id="category-shortcuts"'), "Shop search or category controls are missing.");
 check(shopPage.includes("300 real, exact component models") && shopPage.includes("demo estimates"), "Shop catalog size or price disclosure is missing.");
+check(shopPage.includes('class="build-coverage"') && shopPage.includes('id="open-cart"') && shopPage.includes('id="open-orders"'), "Shop build coverage or ordering controls are missing.");
+const requiredBuildCategories = ["CPU", "GPU", "Motherboard", "RAM", "Storage", "PSU", "Case", "CPU Cooler"];
+check(requiredBuildCategories.every(function (category) { return products.some(function (product) { return product.category === category && product.inventory > 0; }); }), "The catalog cannot supply every core full-PC category.");
+check(orderingScript.includes("nexora_cart_v1") && orderingScript.includes("nexora_orders_v1") && orderingScript.includes("nexora_budget_v1"), "Cart, order, or budget persistence is missing.");
+check(orderingScript.includes("remainingInventory") && orderingScript.includes("cancelOrder") && orderingScript.includes("downloadReceipt") && orderingScript.includes("placeOrder"), "Ordering app is missing inventory, cancellation, receipt, or checkout logic.");
+check(orderingScript.includes("checkoutForm.checkValidity()") && orderingScript.includes("summary.total > budget"), "Checkout input validation or budget enforcement is missing.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");
 check(sharedStyles.includes("[data-site-header]") && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The shared header should remain sticky.");
 
@@ -118,4 +128,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Smoke test passed: Nexora contains Home, Shop, About, 300 catalog products with reviewed local images, accessibility settings, and a server-side Gemini assistant.");
+console.log("Smoke test passed: Nexora contains Home, Shop, About, 300 catalog products, a persistent demo ordering app, full-build category coverage, reviewed local images, accessibility settings, and a server-side Gemini assistant.");

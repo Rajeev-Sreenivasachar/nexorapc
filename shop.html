@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050806">
-  <meta name="description" content="Search and filter Nexora's catalog of 300 real PC hardware models across ten categories.">
+  <meta name="description" content="Browse PC parts, manage a cart, check a build budget, and place demo orders with Nexora.">
   <link rel="icon" href="assets/images/favicon.svg?v=20261107-2" type="image/svg+xml">
   <title>Shop PC Parts | Nexora</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261107-10">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261108-1">
 </head>
 <body data-page="shop">
   <div data-site-header></div>
@@ -19,23 +19,37 @@
       <div class="container">
         <span class="eyebrow">PC hardware catalog</span>
         <h1>Find the part that fits.</h1>
-        <p>Search 300 real, exact component models across ten categories. Prices are clearly labeled demo estimates for the ordering-system prototype, not verified retailer offers.</p>
+        <p>Browse 300 real, exact component models, inspect product details, build a cart, check a budget, and place a saved demo order from one practical web app.</p>
         <div class="catalog-stats" aria-label="Catalog summary">
           <div><strong>300</strong><span>Products</span></div>
           <div><strong>10</strong><span>Categories</span></div>
-          <div><strong>3</strong><span>Performance tiers</span></div>
+          <div><strong>8/8</strong><span>Core build categories</span></div>
         </div>
       </div>
     </header>
+
+    <section class="build-coverage" aria-labelledby="coverage-title">
+      <div class="container build-coverage-inner">
+        <div><span class="eyebrow">Full-build coverage</span><h2 id="coverage-title">Every core PC category is covered.</h2><p>Each category below has 30 product choices. The cart tracks which parts a customer has selected and what their build is still missing.</p></div>
+        <ul aria-label="Available full PC categories">
+          <li><span>✓</span>CPU</li><li><span>✓</span>GPU</li><li><span>✓</span>Motherboard</li><li><span>✓</span>RAM</li>
+          <li><span>✓</span>Storage</li><li><span>✓</span>PSU</li><li><span>✓</span>Case</li><li><span>✓</span>CPU Cooler</li>
+        </ul>
+      </div>
+    </section>
 
     <section class="shop-section" aria-labelledby="catalog-title">
       <div class="container">
         <div class="shop-toolbar">
           <div>
-            <span class="eyebrow">Reference catalog</span>
+            <span class="eyebrow">Digital ordering catalog</span>
             <h2 id="catalog-title">PC components</h2>
           </div>
-          <p><strong id="product-count">300</strong> matching products</p>
+          <div class="shop-toolbar-actions">
+            <p><strong id="product-count">300</strong> matching products</p>
+            <button class="shop-action-button" id="open-orders" type="button">Orders</button>
+            <button class="shop-action-button cart-action" id="open-cart" type="button">Cart <span id="cart-count" data-cart-count>0</span></button>
+          </div>
         </div>
 
         <div class="category-shortcuts" id="category-shortcuts" aria-label="Browse product categories"></div>
@@ -48,7 +62,7 @@
             <label>Brand<select id="brand-filter"><option value="all">All brands</option></select></label>
             <label>Tier<select id="tier-filter"><option value="all">All tiers</option></select></label>
             <label>Sort<select id="sort-products"><option value="name-asc">Name: A–Z</option><option value="name-desc">Name: Z–A</option><option value="price-asc">Demo price: Low–High</option><option value="price-desc">Demo price: High–Low</option><option value="category">Category</option><option value="tier">Tier</option></select></label>
-            <div class="verification-note"><strong>Prototype pricing</strong><p>Every amount is a Nexora demo estimate for practicing totals and budgets. It is not a live store price or proof of stock.</p></div>
+            <div class="verification-note"><strong>Prototype ordering</strong><p>Prices are demo estimates, and tax and inventory are demo data. Orders save only in this browser; no payment is collected.</p></div>
           </aside>
 
           <div class="shop-results">
@@ -62,8 +76,9 @@
   </main>
   <div data-site-footer></div>
   <script src="assets/js/main.js?v=20261107-7"></script>
-  <script src="assets/js/products.js?v=20261107-3"></script>
-  <script src="assets/js/shop.js?v=20261107-3"></script>
+  <script src="assets/js/products.js?v=20261108-1"></script>
+  <script src="assets/js/ordering.js?v=20261108-1"></script>
+  <script src="assets/js/shop.js?v=20261108-1"></script>
   <script src="assets/js/assistant.js?v=20261107-6"></script>
   <script src="assets/js/accessibility.js?v=20261107-1"></script>
 </body>

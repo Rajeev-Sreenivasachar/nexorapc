@@ -1,14 +1,14 @@
 # Nexora
 
-Nexora is a concept hardware parts shop created for FBLA Introduction to Programming that makes hardware decisions easier to understand.
+Nexora is a PC hardware ordering web app created for FBLA Introduction to Programming. Customers can browse real component models, inspect product details, manage a cart, check a budget, place a local demo order, and review or cancel that order.
 
 ## Current pages
 
 - `index.html` — homepage
-- `shop.html` — searchable catalog of 300 real component models
+- `shop.html` — searchable catalog and digital ordering app with 300 real component models
 - `about.html` — project mission and development team
 
-Cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant and accessibility settings are available from compact controls on every current page.
+The ordering experience is built directly into the Shop instead of spreading one task across several pages. The Gemini assistant and accessibility settings are available from compact controls on every current page.
 
 ## Project structure
 
@@ -28,6 +28,7 @@ Cart, builder, review, support, policy, credits, and standalone AI pages remain 
 │       ├── main.js
 │       ├── assistant.js
 │       ├── accessibility.js
+│       ├── ordering.js
 │       ├── products.js
 │       └── shop.js
 ├── api/chat.js
@@ -52,15 +53,30 @@ Then open `http://localhost:8000`.
 npm test
 ```
 
-The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, the 300-product catalog boundary, exact-model GPU replacements, and all local product images.
+The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, the 300-product catalog boundary, demo inventory, full-PC category coverage, ordering logic, exact-model GPU replacements, and all local product images.
 
 ## Product catalog
 
 `assets/js/products.js` contains 300 unique component models across 10 categories. The original dataset is preserved in `data/catalog-source.json`, while `scripts/build-catalog.mjs` converts it into the browser-ready catalog. Generic GPU families were replaced with exact board-partner models so the displayed names and images refer to specific products.
 
-The supplied USD amounts are demo estimates for the ordering-system prototype. They are not verified retailer prices, live offers, or stock claims. Every product remains non-orderable until inventory and retailer data are added.
+The supplied USD amounts and inventory counts are demo data for the ordering-system prototype. They are not verified retailer prices, live offers, or real stock claims. Deterministic inventory counts let the app demonstrate availability limits and unavailable-item handling without pretending Nexora has real inventory.
 
 All 300 products have a local image path such as `assets/images/products/nx-0001.jpg`. Images were reviewed in ten category contact sheets. `IMAGE_CREDITS.md` keeps an audit search link for every image, and `IMAGE_GUIDE.md` explains how to replace one without changing the Shop code.
+
+## Digital ordering app
+
+The Shop includes:
+
+- search, category, brand, tier, sort, and Load More controls
+- product detail dialogs opened from each card
+- a persistent cart with quantity and inventory limits
+- an eight-category full-PC checklist
+- subtotal, 7.5% demo tax, and total calculations
+- an optional customer budget that blocks over-budget orders
+- validated customer name, email, and fulfillment fields
+- saved local orders, cancellation, inventory restoration, and text receipts
+
+Cart, budget, and order data are stored only in the visitor's browser with `localStorage`. Placing an order does not collect payment, contact a business, reserve real stock, or ship anything.
 
 ## Gemini assistant
 

@@ -56,6 +56,49 @@ const brandPrefixes = [
   "Lian Li", "TP-Link", "EVGA", "XFX", "PNY", "WD"
 ];
 
+const categoryDetails = {
+  CPU: {
+    role: "Processes game logic, applications, and everyday system tasks.",
+    checks: ["CPU socket", "Motherboard chipset and BIOS", "Memory platform", "Cooling requirement"]
+  },
+  GPU: {
+    role: "Renders games, video, 3D scenes, and GPU-accelerated creative workloads.",
+    checks: ["Case length and slot clearance", "PSU wattage", "Power connectors", "Monitor outputs"]
+  },
+  Motherboard: {
+    role: "Connects the processor, memory, storage, expansion cards, and case controls.",
+    checks: ["CPU socket", "Case form factor", "RAM generation", "Storage and expansion slots"]
+  },
+  RAM: {
+    role: "Stores active data so programs and games can respond quickly.",
+    checks: ["DDR generation", "Motherboard capacity", "Module count", "Rated speed support"]
+  },
+  Storage: {
+    role: "Stores the operating system, programs, games, and customer files.",
+    checks: ["M.2 or SATA connection", "Available motherboard ports", "Drive size", "Capacity needs"]
+  },
+  PSU: {
+    role: "Supplies stable electrical power to every component in the computer.",
+    checks: ["Total system wattage", "GPU power connectors", "Case PSU clearance", "Efficiency rating"]
+  },
+  Case: {
+    role: "Houses and protects the build while directing airflow through the system.",
+    checks: ["Motherboard form factor", "GPU clearance", "Cooler or radiator clearance", "Fan mounting"]
+  },
+  "CPU Cooler": {
+    role: "Moves heat away from the processor to keep performance stable.",
+    checks: ["CPU socket mounting", "Case height or radiator support", "RAM clearance", "Cooling capacity"]
+  },
+  "Case Fan": {
+    role: "Moves fresh air through the case and removes heat from components.",
+    checks: ["Fan diameter", "Available headers", "Airflow direction", "Controller requirements"]
+  },
+  Accessories: {
+    role: "Adds connectivity, capture, audio, thermal, lighting, or controller features.",
+    checks: ["Required internal connection", "Available expansion slot", "Software support", "Included cables"]
+  }
+};
+
 function slugify(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -73,6 +116,11 @@ function tierFor(price, prices) {
   return "Premium";
 }
 
+function inventoryFor(productNumber) {
+  if (productNumber % 17 === 0) return 0;
+  return 3 + ((productNumber * 7) % 10);
+}
+
 const source = JSON.parse(await readFile(sourcePath, "utf8"));
 const products = [];
 
@@ -84,7 +132,10 @@ for (const [sourceCategory, group] of Object.entries(source.categories)) {
     const imageQuery = imageQueryOverrides.get(name) || `\"${name}\" ${category} PC hardware product photo`;
     const encodedImageQuery = encodeURIComponent(imageQuery);
     const id = `NX-${String(products.length + 1).padStart(4, "0")}`;
+    const productNumber = products.length + 1;
     const imageFile = `${id.toLowerCase()}.jpg`;
+    const inventory = inventoryFor(productNumber);
+    const details = categoryDetails[category];
     products.push({
       id,
       slug: slugify(name),
@@ -95,13 +146,15 @@ for (const [sourceCategory, group] of Object.entries(source.categories)) {
       category,
       tier: tierFor(price, categoryPrices),
       description: group.description,
+      role: details.role,
+      compatibilityChecks: details.checks,
       price,
       currency: source.currency,
       priceStatus: "demo_estimate",
       priceSource: "Nexora demo estimate — not a verified retailer price",
-      inventory: null,
-      availability: "catalog_only",
-      orderable: false,
+      inventory,
+      availability: inventory > 0 ? "available" : "unavailable",
+      orderable: inventory > 0,
       image: `assets/images/products/${imageFile}`,
       imageQuery,
       imageSourcePage: null,
