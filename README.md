@@ -7,7 +7,7 @@ Nexora is a student-built PC technology project that makes hardware decisions ea
 - `index.html` — homepage
 - `about.html` — project mission and development team
 
-All previous store, product, cart, builder, review, support, policy, credits, and AI pages have been removed. Their page-specific JavaScript, server routes, catalog data, and unused CSS were removed with them.
+All previous store, product, cart, builder, review, support, policy, credits, and standalone AI pages remain removed. The Gemini assistant is available from a compact drawer on both current pages.
 
 ## Project structure
 
@@ -20,7 +20,10 @@ All previous store, product, cart, builder, review, support, policy, credits, an
 │   │   ├── favicon.svg
 │   │   ├── nexora-mark.svg
 │   │   └── home/
-│   └── js/main.js
+│   └── js/
+│       ├── main.js
+│       └── assistant.js
+├── api/chat.js
 ├── tests/smoke-test.mjs
 ├── package.json
 └── vercel.json
@@ -43,6 +46,16 @@ npm test
 ```
 
 The smoke test checks JavaScript syntax, required files, internal links, asset references, page titles, and the two-page-only project boundary.
+
+## Gemini assistant
+
+The browser sends questions to `/api/chat`. That server-side route reads `GEMINI_API_KEY` from the Vercel environment and calls Gemini without exposing the key in frontend code.
+
+Optional environment variable:
+
+- `GEMINI_MODEL` — overrides the default `gemini-3.8-flash` model.
+
+The assistant provides general PC hardware guidance. It does not represent live Nexora inventory or verified prices.
 
 ## Deployment
 

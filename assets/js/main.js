@@ -30,6 +30,7 @@
                 const active = page === link[0] ? ' class="active" aria-current="page"' : "";
                 return `<a href="${link[1]}"${active}><span>${link[2]}</span></a>`;
               }).join("")}
+              <button class="nav-ai-button" type="button" data-open-ai>Ask Nexora</button>
             </nav>
             <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="main-nav" aria-expanded="false">Menu</button>
           </div>
