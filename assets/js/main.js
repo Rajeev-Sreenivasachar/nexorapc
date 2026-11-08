@@ -16,7 +16,7 @@
       <div class="site-header-stack">
         <div class="sale-banner">
           <div class="container sale-banner-inner">
-            <span><strong>NEXORA REBUILD IN PROGRESS</strong><small>Home and About are the new foundation.</small></span>
+            <span><strong>THANKSGIVING SALE</strong><small>Holiday PC deals are coming soon.</small></span>
           </div>
         </div>
         <header class="site-header">
