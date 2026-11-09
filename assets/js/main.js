@@ -10,8 +10,6 @@
       ["home", "index.html", "Home"],
       ["shop", "shop.html", "Shop"],
       ["about", "about.html", "About Nexora"]
-      ["fps", "fps.html", "FPS Test"]
-
     ];
 
     mount.innerHTML = `
@@ -19,7 +17,7 @@
       <div class="site-header-stack">
         <div class="sale-banner">
           <div class="container sale-banner-inner">
-            <span><strong>THANKSGIVING SALE!</strong><small>20% OFF ALL ITEMS!.</small></span>
+            <span><strong>THANKSGIVING SALE!</strong><small>15% OFF ALL ITEMS!!</small></span>
           </div>
         </div>
         <header class="site-header">
@@ -49,8 +47,7 @@
       ["home", "index.html", "Home", '<path d="M4 11.5 12 5l8 6.5V20h-5v-6H9v6H4z"/>'],
       ["shop", "shop.html", "Shop", '<path d="M5 8h14l-1 12H6zM8 8V7a4 4 0 0 1 8 0v1"/>'],
       ["about", "about.html", "About", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/>']
-          ["fps", "fps.html", "FPS", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/>']
-];
+    ];
     const bar = document.createElement("nav");
     bar.className = "mobile-app-bar";
     bar.setAttribute("aria-label", "App navigation");
