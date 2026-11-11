@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261109-1">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261111-2">
 </head>
 <body data-page="shop">
   <div data-site-header></div>
@@ -36,7 +36,7 @@
 
     <section class="build-coverage" aria-labelledby="coverage-title">
       <div class="container build-coverage-inner">
-        <div><span class="eyebrow">Full-build coverage</span><h2 id="coverage-title">Every core PC category is covered.</h2><p>Each category below has 30 product choices. The cart tracks which parts a customer has selected and what their build is still missing.</p></div>
+        <div><span class="eyebrow">Compatibility engine</span><h2 id="coverage-title">Check the parts before the order.</h2><p>The cart checks sockets, memory generation, physical fit, cooler mounting, and available power data. Missing specifications stay clearly marked for review.</p></div>
         <ul aria-label="Available full PC categories">
           <li><span>✓</span>CPU</li><li><span>✓</span>GPU</li><li><span>✓</span>Motherboard</li><li><span>✓</span>RAM</li>
           <li><span>✓</span>Storage</li><li><span>✓</span>PSU</li><li><span>✓</span>Case</li><li><span>✓</span>CPU Cooler</li>
@@ -53,6 +53,7 @@
           </div>
           <div class="shop-toolbar-actions">
             <p><strong id="product-count">300</strong> matching products</p>
+            <button class="shop-action-button" id="open-admin" type="button">Demo admin</button>
             <button class="shop-action-button" id="open-orders" type="button">Orders</button>
             <button class="shop-action-button cart-action" id="open-cart" type="button">Cart <span id="cart-count" data-cart-count>0</span></button>
           </div>
@@ -67,8 +68,8 @@
             <label>Category<select id="category-filter"><option value="all">All categories</option></select></label>
             <label>Brand<select id="brand-filter"><option value="all">All brands</option></select></label>
             <label>Tier<select id="tier-filter"><option value="all">All tiers</option></select></label>
-            <label>Sort<select id="sort-products"><option value="name-asc">Name: A–Z</option><option value="name-desc">Name: Z–A</option><option value="price-asc">Demo price: Low–High</option><option value="price-desc">Demo price: High–Low</option><option value="category">Category</option><option value="tier">Tier</option></select></label>
-            <div class="verification-note"><strong>Prototype ordering</strong><p>Prices are demo estimates, and tax and inventory are demo data. Orders save only in this browser; no payment is collected.</p></div>
+            <label>Sort<select id="sort-products"><option value="name-asc">Name: A–Z</option><option value="name-desc">Name: Z–A</option><option value="price-asc">Price: Low–High</option><option value="price-desc">Price: High–Low</option><option value="category">Category</option><option value="tier">Tier</option></select></label>
+            <div class="verification-note"><strong>Reference pricing</strong><p>Verified items show their retailer and check date. Everything else says “Check retailer.” Demo inventory and orders exist only in this browser.</p></div>
           </aside>
 
           <div class="shop-results">
@@ -84,9 +85,14 @@
   <script src="assets/js/main.js?v=20261109-1"></script>
   <script src="assets/js/install.js?v=20261109-1"></script>
   <script src="assets/js/products.js?v=20261108-1"></script>
-  <script src="assets/js/ordering.js?v=20261108-1"></script>
-  <script src="assets/js/shop.js?v=20261108-1"></script>
-  <script src="assets/js/assistant.js?v=20261107-6"></script>
+  <script src="assets/js/pricing-data.js?v=20261111-1"></script>
+  <script src="assets/js/compatibility-data.js?v=20261111-1"></script>
+  <script src="assets/js/compatibility.js?v=20261111-1"></script>
+  <script src="assets/js/catalog-core.js?v=20261111-1"></script>
+  <script src="assets/js/ordering-core.js?v=20261111-1"></script>
+  <script src="assets/js/ordering.js?v=20261111-1"></script>
+  <script src="assets/js/shop.js?v=20261111-1"></script>
+  <script src="assets/js/assistant.js?v=20261111-1"></script>
   <script src="assets/js/accessibility.js?v=20261107-1"></script>
 </body>
 </html>

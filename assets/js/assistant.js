@@ -40,6 +40,30 @@
   const status = document.getElementById("ai-status");
   let closeTimer = 0;
 
+  function catalogContextFor(message) {
+    const products = Array.isArray(window.NEXORA_PRODUCTS) ? window.NEXORA_PRODUCTS : [];
+    const compatibility = window.NEXORA_COMPATIBILITY;
+    const words = message.toLowerCase().split(/[^a-z0-9]+/).filter(function (word) { return word.length > 2; });
+    const budgetMatch = message.replace(/,/g, "").match(/(?:\$|budget(?:\s+of|\s+is|\s+around)?\s*)\s*(\d{2,5})/i);
+    const budget = budgetMatch ? Number(budgetMatch[1]) : null;
+    return products.map(function (product) {
+      const text = [product.name, product.brand, product.category, product.tier].join(" ").toLowerCase();
+      let score = words.reduce(function (total, word) { return total + (text.includes(word) ? 3 : 0); }, 0);
+      if (product.priceStatus === "verified_reference") score += 2;
+      if (budget !== null && typeof product.price === "number" && product.price <= budget) score += 2;
+      return { product: product, score: score };
+    }).sort(function (a, b) { return b.score - a.score || (a.product.name.localeCompare(b.product.name)); }).slice(0, 18).map(function (entry) {
+      const product = entry.product;
+      return {
+        id: product.id, name: product.name, brand: product.brand, category: product.category,
+        price: product.price, priceStatus: product.priceStatus, priceSource: product.priceSource,
+        lastPriceChecked: product.lastPriceChecked, inventory: Number(product.inventory || 0),
+        retailAvailability: product.retailAvailability,
+        technicalSpecs: compatibility ? compatibility.specsFor(product) : product.technicalSpecs || {}
+      };
+    });
+  }
+
   function readHistory() {
     try {
       const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
@@ -139,7 +163,7 @@
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: message, history: priorHistory }),
+        body: JSON.stringify({ message: message, history: priorHistory, catalogContext: catalogContextFor(message) }),
         signal: controller.signal
       });
       const data = await response.json().catch(function () { return {}; });

@@ -1,6 +1,6 @@
 # Nexora
 
-Nexora is an installable PC hardware ordering web app created for FBLA Introduction to Programming. Customers can browse real component models, inspect product details, manage a cart, check a budget, place a local demo order, and review or cancel that order.
+Nexora is an installable PC hardware ordering web app created for FBLA Introduction to Programming. Customers can browse real component models, inspect product details, manage a cart, check a budget, place a local demo order, and review or cancel that order. A Python desktop shell can also package the live app as a Windows executable.
 
 ## Current pages
 
@@ -18,6 +18,11 @@ The ordering experience is built directly into the Shop instead of spreading one
 ├── about.html
 ├── manifest.webmanifest
 ├── service-worker.js
+├── desktop/
+│   ├── nexora_desktop.py
+│   ├── build-windows.ps1
+│   ├── requirements.txt
+│   └── README.md
 ├── IMAGE_GUIDE.md
 ├── assets/
 │   ├── css/style.css
@@ -33,11 +38,20 @@ The ordering experience is built directly into the Shop instead of spreading one
 │       ├── assistant.js
 │       ├── accessibility.js
 │       ├── install.js
+│       ├── pricing-data.js
+│       ├── compatibility-data.js
+│       ├── compatibility.js
+│       ├── catalog-core.js
+│       ├── ordering-core.js
 │       ├── ordering.js
 │       ├── products.js
 │       └── shop.js
-├── api/chat.js
-├── tests/smoke-test.mjs
+├── api/
+│   ├── chat.js
+│   └── chat-utils.js
+├── tests/
+│   ├── smoke-test.mjs
+│   └── logic-test.mjs
 ├── package.json
 └── vercel.json
 ```
@@ -58,7 +72,7 @@ Then open `http://localhost:8000`.
 npm test
 ```
 
-The smoke test checks JavaScript syntax, required files, internal links, asset references, the PWA manifest, service worker, app icons, page titles, the 300-product catalog boundary, demo inventory, full-PC category coverage, ordering logic, exact-model GPU replacements, and all local product images.
+The smoke test checks JavaScript syntax, required files, internal links, asset references, the PWA manifest, service worker, app icons, page titles, the 300-product catalog boundary, demo inventory, full-PC category coverage, exact-model GPU replacements, and all local product images. The logic test executes pricing overlays, filters, totals, invalid and valid customer data, inventory commitment, admin filtering, order statistics, AI context sanitization, and compatibility scenarios.
 
 ## Installable app
 
@@ -68,13 +82,54 @@ The service worker caches the three main pages and essential local assets. Previ
 
 Local installation testing requires a web server at `localhost`; opening the HTML files directly with `file://` cannot register a service worker. Production installation requires HTTPS, which Vercel provides.
 
+## Windows download
+
+Nexora also includes a small Python and PyWebView desktop shell. It opens the secure production app in a dedicated Windows window, while Gemini requests continue through the server-side Vercel route. No API key is bundled into the executable.
+
+Build it with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File desktop\build-windows.ps1
+```
+
+The build produces:
+
+- `desktop/release/Nexora.exe`
+- `desktop/release/Nexora-Windows.zip`
+
+The build output is ignored by Git so large generated binaries do not bloat the repository. Publish the zip as a GitHub Release asset when a public download is needed. The student build is unsigned, so Windows may show a publisher warning.
+
+## Languages
+
+- HTML structures the three web pages.
+- CSS creates the responsive black-and-green interface.
+- JavaScript powers the catalog, ordering, accessibility, Gemini interface, and PWA.
+- Python provides the native Windows desktop shell and executable build.
+
+Each language has a specific job. More languages should only be added when they solve a real project need.
+
 ## Product catalog
 
 `assets/js/products.js` contains 300 unique component models across 10 categories. The original dataset is preserved in `data/catalog-source.json`, while `scripts/build-catalog.mjs` converts it into the browser-ready catalog. Generic GPU families were replaced with exact board-partner models so the displayed names and images refer to specific products.
 
-The supplied USD amounts and inventory counts are demo data for the ordering-system prototype. They are not verified retailer prices, live offers, or real stock claims. Deterministic inventory counts let the app demonstrate availability limits and unavailable-item handling without pretending Nexora has real inventory.
+`assets/js/pricing-data.js` replaces the generated demo amounts at runtime. Ten products currently have retailer-checked reference prices dated November 11, 2026. The other 290 products display **Check retailer** and cannot be submitted through prototype checkout. This prevents an old demo estimate from being presented as a real market price.
+
+Reference prices are not guaranteed live offers. The product dialog shows the retailer, listing link, check date, and observed availability. Inventory counts remain deterministic demo data used only to demonstrate availability limits; Nexora does not claim retailer stock or ownership of the products. See `PRODUCT_GUIDE.md` for the update process.
 
 All 300 products have a local image path such as `assets/images/products/nx-0001.jpg`. Images were reviewed in ten category contact sheets. `IMAGE_CREDITS.md` keeps an audit search link for every image, and `IMAGE_GUIDE.md` explains how to replace one without changing the Shop code.
+
+## Compatibility engine
+
+`assets/js/compatibility-data.js` stores structured compatibility specifications separately from the generated catalog. Every stored fact is tied either to the exact model name or to linked manufacturer documentation. Missing dimensions and socket lists remain missing; the app does not fill them with guesses.
+
+`assets/js/compatibility.js` evaluates eight core build categories and returns one of four outcomes:
+
+- **Compatible** — all available checks passed and no required information is missing.
+- **Incompatible** — at least one verified rule failed.
+- **Incomplete** — one or more core components are missing.
+- **Needs review** — no conflict was proven, but a specification is missing or more than one core part was selected.
+
+The engine checks CPU sockets, DDR generation, motherboard/case form factor, GPU clearance, CPU-cooler mounting and height, and estimated PSU capacity. The power estimate uses verified CPU and GPU wattage, adds 100 W for the remaining system, adds 25% headroom, rounds upward to 50 W, and never runs when required power data is missing. Compatibility results appear in the cart and product specifications appear in the details dialog.
 
 ## Digital ordering app
 
@@ -88,6 +143,8 @@ The Shop includes:
 - an optional customer budget that blocks over-budget orders
 - validated customer name, email, and fulfillment fields
 - saved local orders, cancellation, inventory restoration, and text receipts
+- a browser-only demo admin dashboard with order search, status filtering, status updates, and summary counts
+- duplicate-submission protection and incomplete-total handling for products without a verified price
 
 Cart, budget, and order data are stored only in the visitor's browser with `localStorage`. Placing an order does not collect payment, contact a business, reserve real stock, or ship anything.
 
@@ -99,7 +156,9 @@ Optional environment variable:
 
 - `GEMINI_MODEL` — overrides the default `gemini-3.8-flash` model.
 
-The assistant provides general PC hardware guidance. It does not represent live Nexora inventory or verified prices.
+The browser selects a small set of relevant products from the real Nexora catalog and sends only their IDs, names, prices, price status, inventory, and structured specifications. The server sanitizes that context before Gemini sees it. Gemini is instructed to recommend only supplied catalog products, treat app data as authoritative, describe inventory as demo inventory, and say **Check retailer** when a price is unavailable.
+
+AI answers still require human review. Deterministic pricing, inventory, and compatibility calculations happen in the application instead of being delegated to Gemini.
 
 ## Accessibility settings
 

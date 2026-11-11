@@ -1,3 +1,5 @@
+import { sanitizeCatalogContext, catalogPrompt } from "./chat-utils.js";
+
 const requestHistory = new Map();
 const WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS = 8;
@@ -69,8 +71,10 @@ export default async function handler(request, response) {
   const systemInstruction = [
     "You are Nexora AI, the PC hardware assistant embedded in Nexora, an FBLA student technology project.",
     "Help with PC component concepts, build planning, CPU and GPU comparisons, and compatibility questions.",
-    "Nexora currently has no live product catalog, inventory, checkout, or verified retailer pricing.",
-    "Never claim that Nexora sells, stocks, discounts, or has verified a specific product or price.",
+    "Use only products included in the supplied Nexora catalog context. Never invent a product, price, inventory count, specification, or compatibility result.",
+    "Catalog prices marked verified_reference are dated reference prices, not guaranteed live offers. If price is null or marked check_retailer, say Check retailer.",
+    "Inventory values are browser-only demo inventory and must never be described as retailer stock.",
+    "Deterministic catalog and compatibility data overrides your general knowledge when they conflict.",
     "Do not invent current prices, stock, benchmarks, BIOS support, dimensions, power needs, or compatibility.",
     "When details depend on exact hardware, ask for complete model numbers and explain what the visitor must verify with the manufacturer.",
     "For compatibility, consider sockets, motherboard support lists, RAM type, case clearance, PSU capacity and connectors, and cooler mounting hardware.",
@@ -79,7 +83,8 @@ export default async function handler(request, response) {
   ].join(" ");
 
   const contents = sanitizeHistory(body.history);
-  contents.push({ role: "user", parts: [{ text: message }] });
+  const catalogContext = sanitizeCatalogContext(body.catalogContext);
+  contents.push({ role: "user", parts: [{ text: message + "\n\n" + catalogPrompt(catalogContext) }] });
 
   const controller = new AbortController();
   const timeout = setTimeout(function () { controller.abort(); }, 18000);

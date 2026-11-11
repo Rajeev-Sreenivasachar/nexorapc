@@ -3,6 +3,7 @@
 
   const products = Array.isArray(window.NEXORA_PRODUCTS) ? window.NEXORA_PRODUCTS : [];
   const ordering = window.NEXORA_ORDERING;
+  const catalogCore = window.NEXORA_CATALOG_CORE;
   const pageSize = 24;
   let visibleCount = pageSize;
 
@@ -67,33 +68,8 @@
 
   renderCategoryShortcuts();
 
-  function tierOrder(tier) {
-    return { Budget: 1, Midrange: 2, Premium: 3 }[tier] || 4;
-  }
-
   function filteredProducts() {
-    const query = search.value.trim().toLowerCase();
-    const category = categoryFilter.value;
-    const brand = brandFilter.value;
-    const tier = tierFilter.value;
-
-    const matches = products.filter(function (product) {
-      const searchable = [product.name, product.originalName, product.brand, product.category, product.tier, product.description].join(" ").toLowerCase();
-      const matchesQuery = !query || searchable.includes(query);
-      return matchesQuery &&
-        (category === "all" || product.category === category) &&
-        (brand === "all" || product.brand === brand) &&
-        (tier === "all" || product.tier === tier);
-    });
-
-    return matches.sort(function (a, b) {
-      if (sort.value === "name-desc") return b.name.localeCompare(a.name);
-      if (sort.value === "price-asc") return a.price - b.price || a.name.localeCompare(b.name);
-      if (sort.value === "price-desc") return b.price - a.price || a.name.localeCompare(b.name);
-      if (sort.value === "category") return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
-      if (sort.value === "tier") return tierOrder(a.tier) - tierOrder(b.tier) || a.name.localeCompare(b.name);
-      return a.name.localeCompare(b.name);
-    });
+    return catalogCore.filterAndSort(products, { query: search.value, category: categoryFilter.value, brand: brandFilter.value, tier: tierFilter.value, sort: sort.value });
   }
 
   function productInitials(category) {
@@ -151,10 +127,12 @@
 
     const price = document.createElement("strong");
     price.className = "product-price";
-    price.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price);
+    price.textContent = typeof product.price === "number" ? new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price) : "Check retailer";
     const note = document.createElement("p");
     note.className = "product-status";
-    note.textContent = remaining > 0 ? "Demo inventory · click the card for details" : "Unavailable in demo inventory · click for details";
+    note.textContent = product.priceStatus === "verified_reference"
+      ? product.priceSource + " · checked " + product.lastPriceChecked
+      : "Price unavailable · click for retailer and product details";
     const button = document.createElement("button");
     button.className = "product-order-button";
     button.type = "button";
@@ -183,11 +161,13 @@
   }
 
   function renderProducts() {
+    grid.setAttribute("aria-busy", "true");
     const matches = filteredProducts();
     const shown = matches.slice(0, visibleCount);
     const fragment = document.createDocumentFragment();
     shown.forEach(function (product) { fragment.appendChild(createCard(product)); });
     grid.replaceChildren(fragment);
+    grid.removeAttribute("aria-busy");
     count.textContent = matches.length;
     empty.hidden = matches.length > 0;
     loadMore.hidden = shown.length >= matches.length || matches.length === 0;

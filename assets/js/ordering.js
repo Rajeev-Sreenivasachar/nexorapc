@@ -3,16 +3,22 @@
 
   const products = Array.isArray(window.NEXORA_PRODUCTS) ? window.NEXORA_PRODUCTS : [];
   if (!products.length) return;
+  const compatibility = window.NEXORA_COMPATIBILITY;
+  const orderCore = window.NEXORA_ORDER_CORE;
+  if (!orderCore) return;
+  if (compatibility) products.forEach(function (product) { product.technicalSpecs = compatibility.specsFor(product); });
 
   const CART_KEY = "nexora_cart_v1";
   const ORDERS_KEY = "nexora_orders_v1";
   const BUDGET_KEY = "nexora_budget_v1";
   const TAX_RATE = 0.075;
-  const requiredBuildCategories = ["CPU", "GPU", "Motherboard", "RAM", "Storage", "PSU", "Case", "CPU Cooler"];
+  const requiredBuildCategories = compatibility ? compatibility.REQUIRED_CATEGORIES : ["CPU", "GPU", "Motherboard", "RAM", "Storage", "PSU", "Case", "CPU Cooler"];
   let cart = readArray(CART_KEY);
   let orders = readArray(ORDERS_KEY);
   let budget = readNumber(BUDGET_KEY);
   let previousFocus = null;
+  let checkoutSubmitting = false;
+  let lastSubmission = { fingerprint: "", time: 0 };
 
   function readArray(key) {
     try {
@@ -40,6 +46,7 @@
   }
 
   function money(value) {
+    if (!orderCore.hasPrice(value)) return "Check retailer";
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
   }
 
@@ -53,11 +60,7 @@
   }
 
   function committedQuantity(productId) {
-    return orders.reduce(function (total, order) {
-      if (order.status !== "Received") return total;
-      const item = order.items.find(function (entry) { return entry.productId === productId; });
-      return total + (item ? item.quantity : 0);
-    }, 0);
+    return orderCore.committedQuantity(orders, productId);
   }
 
   function remainingInventory(productOrId) {
@@ -78,12 +81,10 @@
       return {
         product,
         quantity: entry.quantity,
-        lineTotal: product.price * entry.quantity
+        lineTotal: orderCore.hasPrice(product.price) ? product.price * entry.quantity : null
       };
     }).filter(Boolean);
-    const subtotal = items.reduce(function (total, item) { return total + item.lineTotal; }, 0);
-    const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
-    return { items, subtotal, tax, total: subtotal + tax };
+    return orderCore.calculateTotals(items, TAX_RATE);
   }
 
   function orderId() {
@@ -131,6 +132,20 @@
         <div class="orders-list" id="orders-list"></div>
       </section>
     </div>
+    <div class="app-backdrop" id="admin-backdrop" hidden>
+      <section class="admin-dialog app-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+        <header class="drawer-header">
+          <div><span class="eyebrow">Browser-only prototype</span><h2 id="admin-title">Demo order dashboard</h2></div>
+          <button class="dialog-close" type="button" data-close-dialog aria-label="Close demo admin dashboard">×</button>
+        </header>
+        <div class="admin-content">
+          <p class="admin-disclosure">This is a local demo for judging. It has no login, payment system, or shared business database.</p>
+          <div class="admin-stats" id="admin-stats"></div>
+          <div class="admin-filters"><label>Search orders<input id="admin-search" type="search" placeholder="Order ID, name, or email"></label><label>Status<select id="admin-status"><option value="all">All statuses</option></select></label></div>
+          <div class="orders-list" id="admin-orders-list"></div>
+        </div>
+      </section>
+    </div>
     <div class="app-toast" id="app-toast" role="status" aria-live="polite" hidden></div>`;
   document.body.appendChild(app);
 
@@ -140,11 +155,22 @@
   const cartContent = document.getElementById("cart-content");
   const ordersBackdrop = document.getElementById("orders-backdrop");
   const ordersList = document.getElementById("orders-list");
+  const adminBackdrop = document.getElementById("admin-backdrop");
+  const adminStats = document.getElementById("admin-stats");
+  const adminOrdersList = document.getElementById("admin-orders-list");
+  const adminSearch = document.getElementById("admin-search");
+  const adminStatus = document.getElementById("admin-status");
   const checkoutForm = document.getElementById("checkout-form");
   const checkoutError = document.getElementById("checkout-error");
   const cartCount = document.getElementById("cart-count");
   const toast = document.getElementById("app-toast");
   let toastTimer;
+  orderCore.ORDER_STATUSES.forEach(function (status) {
+    const option = document.createElement("option");
+    option.value = status;
+    option.textContent = status;
+    adminStatus.appendChild(option);
+  });
 
   function showToast(message) {
     toast.textContent = message;
@@ -154,19 +180,19 @@
   }
 
   function activeBackdrop() {
-    return [productBackdrop, cartBackdrop, ordersBackdrop].find(function (backdrop) { return !backdrop.hidden; });
+    return [productBackdrop, cartBackdrop, ordersBackdrop, adminBackdrop].find(function (backdrop) { return !backdrop.hidden; });
   }
 
   function openDialog(backdrop) {
     previousFocus = document.activeElement;
-    [productBackdrop, cartBackdrop, ordersBackdrop].forEach(function (item) { item.hidden = item !== backdrop; });
+    [productBackdrop, cartBackdrop, ordersBackdrop, adminBackdrop].forEach(function (item) { item.hidden = item !== backdrop; });
     document.body.classList.add("app-dialog-open");
     const focusTarget = backdrop.querySelector("button, input, select, textarea, [tabindex]");
     if (focusTarget) focusTarget.focus();
   }
 
   function closeDialogs() {
-    [productBackdrop, cartBackdrop, ordersBackdrop].forEach(function (backdrop) { backdrop.hidden = true; });
+    [productBackdrop, cartBackdrop, ordersBackdrop, adminBackdrop].forEach(function (backdrop) { backdrop.hidden = true; });
     document.body.classList.remove("app-dialog-open");
     if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
   }
@@ -182,6 +208,26 @@
     if (!product) return;
     const remaining = remainingInventory(product);
     const checks = product.compatibilityChecks.map(function (check) { return `<li>${escapeHtml(check)}</li>`; }).join("");
+    const technicalSpecs = compatibility ? compatibility.specsFor(product) : {};
+    const specLabels = {
+      cpuSocket: "CPU socket", cpuPowerWatts: "CPU power", gpuLengthMm: "GPU length",
+      gpuPowerWatts: "GPU board power", recommendedPsuWatts: "Recommended PSU", ramType: "Memory type",
+      formFactor: "Form factor", psuWatts: "PSU wattage", maxGpuLengthMm: "Maximum GPU length",
+      maxCoolerHeightMm: "Maximum cooler height", coolerHeightMm: "Cooler height"
+    };
+    const unitKeys = { cpuPowerWatts: " W", gpuLengthMm: " mm", gpuPowerWatts: " W", recommendedPsuWatts: " W", psuWatts: " W", maxGpuLengthMm: " mm", maxCoolerHeightMm: " mm", coolerHeightMm: " mm" };
+    const specRows = Object.keys(specLabels).filter(function (key) { return technicalSpecs[key] !== undefined; }).map(function (key) {
+      return `<div><dt>${escapeHtml(specLabels[key])}</dt><dd>${escapeHtml(technicalSpecs[key])}${unitKeys[key] || ""}</dd></div>`;
+    }).join("");
+    const arrayRows = [["supportedMotherboardFormFactors", "Supported boards"], ["coolerSockets", "Cooler sockets"]]
+      .filter(function (entry) { return Array.isArray(technicalSpecs[entry[0]]); })
+      .map(function (entry) { return `<div><dt>${escapeHtml(entry[1])}</dt><dd>${escapeHtml(technicalSpecs[entry[0]].join(", "))}</dd></div>`; }).join("");
+    const evidence = Array.isArray(technicalSpecs.evidence) ? technicalSpecs.evidence.map(function (source) {
+      return `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a></li>`;
+    }).join("") : "";
+    const priceSource = product.priceSourceUrl
+      ? `<a href="${escapeHtml(product.priceSourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(product.priceSource)}</a>`
+      : escapeHtml(product.priceSource || "Price unavailable — check retailer");
     productDialogContent.innerHTML = `
       <div class="product-dialog-layout">
         <div class="product-dialog-media"><span class="product-dialog-placeholder" hidden>${escapeHtml(product.category)}</span><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}"></div>
@@ -190,12 +236,14 @@
           <h2 id="product-dialog-title">${escapeHtml(product.name)}</h2>
           <p class="product-dialog-model">${escapeHtml(product.brand)} · ${escapeHtml(product.id)}</p>
           <p>${escapeHtml(product.role)}</p>
-          <div class="detail-price-row"><strong>${money(product.price)}</strong><span>Demo estimate</span></div>
+          <div class="detail-price-row"><strong>${money(product.price)}</strong><span>${product.priceStatus === "verified_reference" ? "Verified reference price" : "Price unavailable"}</span></div>
+          <p class="price-evidence">${priceSource}${product.lastPriceChecked ? ` · checked ${escapeHtml(product.lastPriceChecked)}` : ""}${product.retailAvailability ? ` · ${escapeHtml(product.retailAvailability)}` : ""}</p>
           <div class="inventory-status ${remaining > 0 ? "available" : "unavailable"}">${remaining > 0 ? remaining + " available in demo inventory" : "Currently unavailable"}</div>
           <div class="detail-panel"><h3>Check before ordering</h3><ul>${checks}</ul></div>
+          <div class="detail-panel"><h3>Structured specifications</h3>${specRows || arrayRows ? `<dl>${specRows}${arrayRows}</dl>` : `<p>Detailed compatibility specifications have not been verified for this exact model.</p>`}${evidence ? `<p class="spec-date">Last checked ${escapeHtml(technicalSpecs.lastVerified)}.</p><ul class="spec-sources">${evidence}</ul>` : ""}</div>
           <div class="detail-panel"><h3>Catalog details</h3><dl><div><dt>Brand</dt><dd>${escapeHtml(product.brand)}</dd></div><div><dt>Category</dt><dd>${escapeHtml(product.category)}</dd></div><div><dt>Performance tier</dt><dd>${escapeHtml(product.tier)}</dd></div><div><dt>Model ID</dt><dd>${escapeHtml(product.id)}</dd></div></dl></div>
           <button class="button button-primary detail-add-button" type="button" data-add-product="${escapeHtml(product.id)}" ${remaining <= cartQuantity(product.id) ? "disabled" : ""}>${remaining === 0 ? "Unavailable" : "Add to cart"}</button>
-          <p class="product-status">Prototype price and inventory only. Verify compatibility and current retail information before a real purchase.</p>
+          <p class="product-status">Retail prices can change. Demo inventory is local to this browser and does not claim retailer stock.</p>
         </div>
       </div>`;
     const detailImage = productDialogContent.querySelector(".product-dialog-media img");
@@ -258,6 +306,26 @@
     }).join("");
   }
 
+  function renderCompatibility(items) {
+    if (!compatibility) return "";
+    const report = compatibility.evaluateBuild(items);
+    const headings = { compatible: "Verified checks passed", incompatible: "Incompatible parts found", incomplete: "Build is missing core parts", "needs-review": "Compatibility needs review" };
+    const descriptions = {
+      compatible: "Every available compatibility check passed for this selection.",
+      incompatible: "Fix the failed checks before treating these parts as one PC build.",
+      incomplete: "Add the missing core parts to complete the build check.",
+      "needs-review": "No conflict was proven, but missing specifications prevent a compatibility claim."
+    };
+    const icons = { pass: "✓", fail: "×", unknown: "?", missing: "○" };
+    const rows = report.checks.map(function (check) {
+      return `<li class="compatibility-${check.status}"><span aria-hidden="true">${icons[check.status]}</span><div><strong>${escapeHtml(check.label)}</strong><p>${escapeHtml(check.message)}</p></div></li>`;
+    }).join("");
+    return `<section class="compatibility-panel compatibility-${report.status}">
+      <div class="section-mini-heading"><div><span class="eyebrow">Compatibility engine</span><h3>${escapeHtml(headings[report.status])}</h3></div><strong>${report.counts.pass} passed</strong></div>
+      <p>${escapeHtml(descriptions[report.status])}</p><ul>${rows}</ul>
+    </section>`;
+  }
+
   function renderCart() {
     const summary = cartSummary();
     const itemRows = summary.items.map(function (item) {
@@ -269,14 +337,20 @@
       </article>`;
     }).join("");
     const completedCategories = requiredBuildCategories.filter(function (category) { return summary.items.some(function (item) { return item.product.category === category; }); }).length;
-    const overBudget = budget !== null && summary.total > budget;
+    const overBudget = budget !== null && summary.total !== null && summary.total > budget;
+    const budgetMessage = summary.hasIncompletePricing
+      ? "Budget check is unavailable until every selected item has a verified price."
+      : budget === null ? "Add a budget to check whether this order stays within it."
+        : overBudget ? "Over budget by " + money(summary.total - budget) + "."
+          : "Within budget by " + money(budget - summary.total) + ".";
     cartContent.innerHTML = `
       ${summary.items.length ? `<div class="cart-items">${itemRows}</div>` : `<div class="empty-cart"><strong>Your cart is empty.</strong><p>Choose a product card to view details, then add it to your order.</p></div>`}
       <section class="build-checklist"><div class="section-mini-heading"><div><span class="eyebrow">Full PC checklist</span><h3>${completedCategories} of ${requiredBuildCategories.length} core parts</h3></div><strong>${Math.round(completedCategories / requiredBuildCategories.length * 100)}%</strong></div><ul>${buildChecklist(summary.items)}</ul></section>
-      <section class="budget-panel"><label for="budget-input">Customer budget</label><div class="budget-input"><span>$</span><input id="budget-input" type="number" min="1" step="1" inputmode="decimal" placeholder="Optional" value="${budget === null ? "" : budget}"></div><p class="budget-message ${overBudget ? "over" : ""}">${budget === null ? "Add a budget to check whether this order stays within it." : overBudget ? "Over budget by " + money(summary.total - budget) + "." : "Within budget by " + money(budget - summary.total) + "."}</p></section>
-      <section class="order-summary"><div><span>Subtotal</span><strong>${money(summary.subtotal)}</strong></div><div><span>Demo tax (${(TAX_RATE * 100).toFixed(1)}%)</span><strong>${money(summary.tax)}</strong></div><div class="order-total"><span>Total</span><strong>${money(summary.total)}</strong></div></section>`;
+      ${renderCompatibility(summary.items)}
+      <section class="budget-panel"><label for="budget-input">Customer budget</label><div class="budget-input"><span>$</span><input id="budget-input" type="number" min="1" step="1" inputmode="decimal" placeholder="Optional" value="${budget === null ? "" : budget}"></div><p class="budget-message ${overBudget || summary.hasIncompletePricing ? "over" : ""}">${budgetMessage}</p></section>
+      <section class="order-summary"><div><span>Priced items subtotal</span><strong>${money(summary.subtotal)}</strong></div><div><span>Demo tax (${(TAX_RATE * 100).toFixed(1)}%)</span><strong>${money(summary.tax)}</strong></div><div class="order-total"><span>${summary.hasIncompletePricing ? "Total incomplete" : "Total"}</span><strong>${money(summary.total)}</strong></div>${summary.hasIncompletePricing ? `<p class="incomplete-price-note">Remove items marked “Check retailer” before placing the demo order.</p>` : ""}</section>`;
     const placeOrder = document.getElementById("place-order");
-    if (placeOrder) placeOrder.disabled = !summary.items.length || overBudget;
+    if (placeOrder) placeOrder.disabled = !summary.items.length || overBudget || summary.hasIncompletePricing || checkoutSubmitting;
   }
 
   function orderReceipt(order) {
@@ -288,7 +362,7 @@
       "Customer: " + order.customer.name + " <" + order.customer.email + ">",
       "Fulfillment: " + order.fulfillment,
       "",
-      ...order.items.map(function (item) { return item.quantity + " × " + item.name + " — " + money(item.unitPrice * item.quantity); }),
+      ...order.items.map(function (item) { return item.quantity + " × " + item.name + " — " + money(orderCore.hasPrice(item.unitPrice) ? item.unitPrice * item.quantity : null); }),
       "",
       "Subtotal: " + money(order.subtotal),
       "Demo tax: " + money(order.tax),
@@ -319,30 +393,64 @@
       return;
     }
     ordersList.innerHTML = orders.map(function (order) {
-      const itemRows = order.items.map(function (item) { return `<li><span>${item.quantity} × ${escapeHtml(item.name)}</span><strong>${money(item.unitPrice * item.quantity)}</strong></li>`; }).join("");
+      const itemRows = order.items.map(function (item) { return `<li><span>${item.quantity} × ${escapeHtml(item.name)}</span><strong>${money(orderCore.hasPrice(item.unitPrice) ? item.unitPrice * item.quantity : null)}</strong></li>`; }).join("");
       return `<article class="saved-order">
         <header><div><span class="order-id">${escapeHtml(order.id)}</span><h3>${escapeHtml(order.customer.name)}</h3><p>${new Date(order.createdAt).toLocaleString()} · ${escapeHtml(order.fulfillment)}</p></div><span class="order-status ${order.status.toLowerCase()}">${escapeHtml(order.status)}</span></header>
         <details><summary>Review ${order.items.reduce(function (total, item) { return total + item.quantity; }, 0)} items</summary><ul>${itemRows}</ul><div class="saved-order-total"><span>Order total</span><strong>${money(order.total)}</strong></div>${order.notes ? `<p class="order-notes">${escapeHtml(order.notes)}</p>` : ""}</details>
-        <footer><button type="button" data-download-order="${escapeHtml(order.id)}">Download receipt</button>${order.status === "Received" ? `<button class="cancel-order" type="button" data-cancel-order="${escapeHtml(order.id)}">Cancel order</button>` : ""}</footer>
+        <footer><button type="button" data-download-order="${escapeHtml(order.id)}">Download receipt</button>${order.status !== "Cancelled" && order.status !== "Completed" ? `<button class="cancel-order" type="button" data-cancel-order="${escapeHtml(order.id)}">Cancel order</button>` : ""}</footer>
       </article>`;
     }).join("");
   }
 
+  function renderAdmin() {
+    const stats = orderCore.calculateStats(orders);
+    adminStats.innerHTML = `<article><span>Total orders</span><strong>${stats.total}</strong></article><article><span>Active</span><strong>${stats.active}</strong></article><article><span>Ready</span><strong>${stats.ready}</strong></article><article><span>Demo revenue</span><strong>${money(stats.revenue)}</strong></article>`;
+    const matches = orderCore.filterOrders(orders, adminSearch.value, adminStatus.value);
+    if (!matches.length) {
+      adminOrdersList.innerHTML = `<div class="empty-orders"><strong>No matching orders.</strong><p>Try a different order ID, customer, email, or status.</p></div>`;
+      return;
+    }
+    adminOrdersList.innerHTML = matches.map(function (order) {
+      const options = orderCore.ORDER_STATUSES.map(function (status) { return `<option value="${status}" ${status === order.status ? "selected" : ""}>${status}</option>`; }).join("");
+      return `<article class="admin-order"><div><span class="order-id">${escapeHtml(order.id)}</span><h3>${escapeHtml(order.customer.name)}</h3><p>${escapeHtml(order.customer.email)} · ${order.items.length} product lines · ${money(order.total)}</p></div><label>Status<select data-order-status="${escapeHtml(order.id)}">${options}</select></label></article>`;
+    }).join("");
+  }
+
+  function updateOrderStatus(orderIdValue, status) {
+    if (!orderCore.isValidStatus(status)) return;
+    const order = orders.find(function (entry) { return entry.id === orderIdValue; });
+    if (!order || order.status === status) return;
+    order.status = status;
+    order.updatedAt = new Date().toISOString();
+    if (status === "Cancelled") order.cancelledAt = order.updatedAt;
+    saveState();
+    renderOrders();
+    renderAdmin();
+    renderCart();
+    window.dispatchEvent(new CustomEvent("nexora:inventory-changed"));
+    showToast(order.id + " moved to " + status + ".");
+  }
+
   function placeOrder(event) {
     event.preventDefault();
+    if (checkoutSubmitting) return;
     checkoutError.hidden = true;
     const summary = cartSummary();
     if (!summary.items.length) return;
+    if (summary.hasIncompletePricing) {
+      checkoutError.textContent = "Every item needs a verified reference price before this demo order can be placed.";
+      checkoutError.hidden = false;
+      return;
+    }
     if (!checkoutForm.checkValidity()) {
       checkoutForm.reportValidity();
       checkoutError.textContent = "Enter a valid name, email, and fulfillment method.";
       checkoutError.hidden = false;
       return;
     }
-    const name = document.getElementById("customer-name").value.trim();
-    const email = document.getElementById("customer-email").value.trim();
-    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      checkoutError.textContent = "Enter a valid full name and email address.";
+    const customer = orderCore.validateCustomer({ name: document.getElementById("customer-name").value, email: document.getElementById("customer-email").value });
+    if (!customer.valid) {
+      checkoutError.textContent = customer.message;
       checkoutError.hidden = false;
       return;
     }
@@ -358,11 +466,19 @@
       checkoutError.hidden = false;
       return;
     }
+    const fingerprint = orderCore.orderFingerprint(customer, summary.items);
+    if (fingerprint === lastSubmission.fingerprint && Date.now() - lastSubmission.time < 5000) {
+      checkoutError.textContent = "That order was just submitted. Check the order center before trying again.";
+      checkoutError.hidden = false;
+      return;
+    }
+    checkoutSubmitting = true;
+    renderCart();
     const order = {
       id: orderId(),
       createdAt: new Date().toISOString(),
       status: "Received",
-      customer: { name, email },
+      customer: { name: customer.name, email: customer.email },
       fulfillment: document.getElementById("fulfillment-method").value,
       notes: document.getElementById("order-notes").value.trim(),
       budget,
@@ -371,6 +487,7 @@
       tax: summary.tax,
       total: summary.total
     };
+    lastSubmission = { fingerprint: fingerprint, time: Date.now() };
     orders.unshift(order);
     cart = [];
     saveState();
@@ -378,21 +495,17 @@
     updateCartCount();
     renderCart();
     renderOrders();
+    renderAdmin();
     window.dispatchEvent(new CustomEvent("nexora:inventory-changed"));
     openDialog(ordersBackdrop);
     showToast("Order " + order.id + " saved.");
+    checkoutSubmitting = false;
   }
 
   function cancelOrder(orderIdValue) {
     const order = orders.find(function (entry) { return entry.id === orderIdValue; });
-    if (!order || order.status !== "Received") return;
-    order.status = "Cancelled";
-    order.cancelledAt = new Date().toISOString();
-    saveState();
-    renderOrders();
-    renderCart();
-    window.dispatchEvent(new CustomEvent("nexora:inventory-changed"));
-    showToast("Order " + order.id + " cancelled and inventory restored.");
+    if (!order || order.status === "Cancelled" || order.status === "Completed") return;
+    updateOrderStatus(orderIdValue, "Cancelled");
   }
 
   app.addEventListener("click", function (event) {
@@ -416,7 +529,16 @@
       const order = orders.find(function (entry) { return entry.id === downloadButton.dataset.downloadOrder; });
       if (order) downloadReceipt(order);
     }
+    const statusSelect = event.target.closest("[data-order-status]");
+    if (statusSelect) updateOrderStatus(statusSelect.dataset.orderStatus, statusSelect.value);
   });
+
+  adminBackdrop.addEventListener("change", function (event) {
+    const statusSelect = event.target.closest("[data-order-status]");
+    if (statusSelect) updateOrderStatus(statusSelect.dataset.orderStatus, statusSelect.value);
+  });
+  adminSearch.addEventListener("input", renderAdmin);
+  adminStatus.addEventListener("change", renderAdmin);
 
   cartContent.addEventListener("change", function (event) {
     if (event.target.id !== "budget-input") return;
@@ -442,8 +564,10 @@
 
   const openCartButton = document.getElementById("open-cart");
   const openOrdersButton = document.getElementById("open-orders");
+  const openAdminButton = document.getElementById("open-admin");
   if (openCartButton) openCartButton.addEventListener("click", function () { renderCart(); openDialog(cartBackdrop); });
   if (openOrdersButton) openOrdersButton.addEventListener("click", function () { renderOrders(); openDialog(ordersBackdrop); });
+  if (openAdminButton) openAdminButton.addEventListener("click", function () { renderAdmin(); openDialog(adminBackdrop); });
 
   cart = cart.filter(function (item) {
     const product = productById(item.productId);
@@ -453,6 +577,7 @@
   updateCartCount();
   renderCart();
   renderOrders();
+  renderAdmin();
 
   window.NEXORA_ORDERING = {
     addToCart,

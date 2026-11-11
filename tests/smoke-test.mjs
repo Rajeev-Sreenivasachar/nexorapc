@@ -28,7 +28,7 @@ check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort())
 
 const javascriptDirectory = join(root, "assets", "js");
 const javascriptFiles = readdirSync(javascriptDirectory).filter(function (file) { return file.endsWith(".js"); }).sort();
-check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "install.js", "main.js", "ordering.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
+check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "catalog-core.js", "compatibility-data.js", "compatibility.js", "install.js", "main.js", "ordering-core.js", "ordering.js", "pricing-data.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
 
 javascriptFiles.forEach(function (file) {
   const result = spawnSync(process.execPath, ["--check", join(javascriptDirectory, file)], { encoding: "utf8" });
@@ -48,7 +48,7 @@ requiredPages.forEach(function (page) {
   check(html.includes('rel="manifest"') && html.includes("manifest.webmanifest"), page + " is missing the web app manifest.");
   check(html.includes('rel="apple-touch-icon"'), page + " is missing its Apple touch icon.");
   if (page === "shop.html") {
-    check(html.includes("assets/js/products.js") && html.includes("assets/js/ordering.js") && html.includes("assets/js/shop.js"), "Shop is missing its product data, ordering, or display logic.");
+    check(html.includes("assets/js/products.js") && html.includes("assets/js/pricing-data.js") && html.includes("assets/js/compatibility-data.js") && html.includes("assets/js/compatibility.js") && html.includes("assets/js/catalog-core.js") && html.includes("assets/js/ordering-core.js") && html.includes("assets/js/ordering.js") && html.includes("assets/js/shop.js"), "Shop is missing its product data, pricing, compatibility, ordering, or display logic.");
   }
   check(!/onclick=|onchange=|onsubmit=/.test(html), page + " contains inline JavaScript.");
   check(!/assets\/(?:css|js)\/[^"?]+\.(?:css|js)"/.test(html), page + " has an unversioned CSS or JavaScript asset.");
@@ -79,10 +79,15 @@ const installScript = readFileSync(join(javascriptDirectory, "install.js"), "utf
 const assistantScript = readFileSync(join(javascriptDirectory, "assistant.js"), "utf8");
 const accessibilityScript = readFileSync(join(javascriptDirectory, "accessibility.js"), "utf8");
 const orderingScript = readFileSync(join(javascriptDirectory, "ordering.js"), "utf8");
+const compatibilityDataScript = readFileSync(join(javascriptDirectory, "compatibility-data.js"), "utf8");
+const compatibilityScript = readFileSync(join(javascriptDirectory, "compatibility.js"), "utf8");
 const productScript = readFileSync(join(javascriptDirectory, "products.js"), "utf8");
 const productContext = {};
 runInNewContext(productScript, productContext);
 const products = productContext.NEXORA_PRODUCTS || [];
+runInNewContext(compatibilityDataScript, productContext);
+runInNewContext(compatibilityScript, productContext);
+const compatibility = productContext.NEXORA_COMPATIBILITY;
 const chatRoutePath = join(root, "api", "chat.js");
 check(existsSync(chatRoutePath), "Missing Gemini server route: api/chat.js.");
 const chatRoute = existsSync(chatRoutePath) ? readFileSync(chatRoutePath, "utf8") : "";
@@ -91,6 +96,9 @@ if (existsSync(chatRoutePath)) {
   check(routeSyntax.status === 0, "Gemini route syntax failed: " + routeSyntax.stderr.trim());
 }
 const sharedStyles = readFileSync(join(root, "assets", "css", "style.css"), "utf8");
+const desktopEntryPath = join(root, "desktop", "nexora_desktop.py");
+const desktopBuildPath = join(root, "desktop", "build-windows.ps1");
+const desktopRequirementsPath = join(root, "desktop", "requirements.txt");
 const manifestPath = join(root, "manifest.webmanifest");
 const serviceWorkerPath = join(root, "service-worker.js");
 check(existsSync(manifestPath), "Missing web app manifest.");
@@ -104,6 +112,16 @@ if (existsSync(serviceWorkerPath)) {
   check(serviceWorkerSyntax.status === 0, "Service worker syntax failed: " + serviceWorkerSyntax.stderr.trim());
 }
 check(existsSync(join(root, "assets", "images", "app-icon-192.png")) && existsSync(join(root, "assets", "images", "app-icon-512.png")), "PWA app icons are missing.");
+check(existsSync(desktopEntryPath) && existsSync(desktopBuildPath) && existsSync(desktopRequirementsPath), "Windows desktop source or build files are missing.");
+if (existsSync(desktopEntryPath)) {
+  const desktopEntry = readFileSync(desktopEntryPath, "utf8");
+  check(desktopEntry.includes("import webview") && desktopEntry.includes("https://nexorapc.vercel.app/"), "Desktop shell is not connected to the live Nexora app.");
+  check(!desktopEntry.includes("GEMINI_API_KEY"), "Desktop source must not contain the Gemini API key.");
+}
+if (existsSync(desktopRequirementsPath)) {
+  const desktopRequirements = readFileSync(desktopRequirementsPath, "utf8");
+  check(desktopRequirements.includes("pywebview") && desktopRequirements.includes("pyinstaller"), "Desktop runtime or packaging dependency is missing.");
+}
 check(mainScript.includes('["home", "index.html", "Home"]'), "Shared navigation is missing Home.");
 check(mainScript.includes('["shop", "shop.html", "Shop"]'), "Shared navigation is missing Shop.");
 check(mainScript.includes('["about", "about.html", "About Nexora"]'), "Shared navigation is missing About.");
@@ -132,16 +150,38 @@ check(products.find(function (product) { return product.name === "ASRock Intel A
 check(products.find(function (product) { return product.name === "Seagate BarraCuda 4TB HDD"; }).price === 79, "Seagate demo price is mapped incorrectly.");
 const shopPage = readFileSync(join(root, "shop.html"), "utf8");
 check(shopPage.includes('id="product-search"') && shopPage.includes('id="category-filter"') && shopPage.includes('id="category-shortcuts"'), "Shop search or category controls are missing.");
-check(shopPage.includes("300 real, exact component models") && shopPage.includes("demo estimates"), "Shop catalog size or price disclosure is missing.");
+check(shopPage.includes("300 real, exact component models") && shopPage.includes("Verified items show their retailer and check date"), "Shop catalog size or price disclosure is missing.");
 check(shopPage.includes('class="build-coverage"') && shopPage.includes('id="open-cart"') && shopPage.includes('id="open-orders"'), "Shop build coverage or ordering controls are missing.");
 const requiredBuildCategories = ["CPU", "GPU", "Motherboard", "RAM", "Storage", "PSU", "Case", "CPU Cooler"];
 check(requiredBuildCategories.every(function (category) { return products.some(function (product) { return product.category === category && product.inventory > 0; }); }), "The catalog cannot supply every core full-PC category.");
+check(compatibility && typeof compatibility.evaluateBuild === "function", "Compatibility engine did not load.");
+if (compatibility) {
+  const product = function (id) { return products.find(function (item) { return item.id === id; }); };
+  const knownGoodBuild = ["NX-0001", "NX-0033", "NX-0062", "NX-0091", "NX-0121", "NX-0155", "NX-0181", "NX-0214"].map(product);
+  const goodReport = compatibility.evaluateBuild(knownGoodBuild);
+  check(goodReport.status === "compatible" && goodReport.counts.fail === 0 && goodReport.counts.unknown === 0 && goodReport.estimatedPsuWatts === 550, "Known compatible build should pass all verified checks with a 550 W estimate.");
+
+  const badBuild = ["NX-0001", "NX-0033", "NX-0063", "NX-0091", "NX-0121", "NX-0155", "NX-0181", "NX-0214"].map(product);
+  const badReport = compatibility.evaluateBuild(badBuild);
+  check(badReport.status === "incompatible" && badReport.checks.some(function (item) { return item.id === "cpu-socket" && item.status === "fail"; }) && badReport.checks.some(function (item) { return item.id === "ram-type" && item.status === "fail"; }), "AM4 CPU and DDR4 RAM should fail against an AM5 DDR5 motherboard.");
+
+  const incompleteReport = compatibility.evaluateBuild([product("NX-0001")]);
+  check(incompleteReport.status === "incomplete" && incompleteReport.counts.missing === 7, "A CPU-only build should report seven missing core categories.");
+
+  const unknownReport = compatibility.evaluateBuild(["NX-0001", "NX-0031", "NX-0061", "NX-0091", "NX-0121", "NX-0155", "NX-0182", "NX-0211"].map(product));
+  check(unknownReport.status === "needs-review" && unknownReport.counts.unknown > 0 && unknownReport.counts.fail === 0, "Missing dimensions and cooler data should produce needs-review, not a false compatible result.");
+
+  const duplicateReport = compatibility.evaluateBuild(knownGoodBuild.concat(product("NX-0011")));
+  check(duplicateReport.status === "needs-review" && duplicateReport.checks.some(function (item) { return item.id === "multiple-cpu"; }), "Multiple CPUs should require review instead of being silently accepted.");
+}
 check(orderingScript.includes("nexora_cart_v1") && orderingScript.includes("nexora_orders_v1") && orderingScript.includes("nexora_budget_v1"), "Cart, order, or budget persistence is missing.");
+check(orderingScript.includes("evaluateBuild") && orderingScript.includes("Compatibility engine"), "Ordering workflow is not showing compatibility results.");
 check(orderingScript.includes("remainingInventory") && orderingScript.includes("cancelOrder") && orderingScript.includes("downloadReceipt") && orderingScript.includes("placeOrder"), "Ordering app is missing inventory, cancellation, receipt, or checkout logic.");
 check(orderingScript.includes("checkoutForm.checkValidity()") && orderingScript.includes("summary.total > budget"), "Checkout input validation or budget enforcement is missing.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");
 check(sharedStyles.includes("[data-site-header]") && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The shared header should remain sticky.");
 check(sharedStyles.includes(".mobile-app-bar") && sharedStyles.includes(".standalone-app"), "App-like mobile navigation or standalone styling is missing.");
+check(sharedStyles.includes("object-fit: contain") && sharedStyles.includes("grid-template-rows: 300px 1fr"), "Product images should use a taller, non-cropping media stage.");
 
 if (failures.length) {
   console.error("Smoke test failed:\n- " + failures.join("\n- "));

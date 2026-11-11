@@ -5,3 +5,9 @@
 node_modules
 .DS_Store
 Thumbs.db
+desktop/.venv/
+desktop/.build-temp/
+desktop/build/
+desktop/release/
+desktop/__pycache__/
+.tmp/

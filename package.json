@@ -5,6 +5,6 @@
   "version": "1.0.0",
   "description": "Nexora PC technology project with a server-side Gemini assistant",
   "scripts": {
-    "test": "node tests/smoke-test.mjs"
+    "test": "node tests/smoke-test.mjs && node tests/logic-test.mjs"
   }
 }
