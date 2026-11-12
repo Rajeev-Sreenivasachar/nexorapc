@@ -6,6 +6,7 @@ Nexora is an installable PC hardware ordering web app created for FBLA Introduct
 
 - `index.html` — homepage
 - `shop.html` — searchable catalog and digital ordering app with 300 real component models
+- `prebuilt.html` — six-question PC finder using researched prebuilt listings and deterministic matching rules
 - `about.html` — project mission and development team
 
 The ordering experience is built directly into the Shop instead of spreading one task across several pages. The Gemini assistant and accessibility settings are available from compact controls on every current page.
@@ -15,6 +16,7 @@ The ordering experience is built directly into the Shop instead of spreading one
 ```text
 ├── index.html
 ├── shop.html
+├── prebuilt.html
 ├── about.html
 ├── manifest.webmanifest
 ├── service-worker.js
@@ -44,6 +46,9 @@ The ordering experience is built directly into the Shop instead of spreading one
 │       ├── catalog-core.js
 │       ├── ordering-core.js
 │       ├── ordering.js
+│       ├── prebuilt-data.js
+│       ├── prebuilt-core.js
+│       ├── prebuilt.js
 │       ├── products.js
 │       └── shop.js
 ├── api/
@@ -112,7 +117,7 @@ Each language has a specific job. More languages should only be added when they 
 
 `assets/js/products.js` contains 300 unique component models across 10 categories. The original dataset is preserved in `data/catalog-source.json`, while `scripts/build-catalog.mjs` converts it into the browser-ready catalog. Generic GPU families were replaced with exact board-partner models so the displayed names and images refer to specific products.
 
-`assets/js/pricing-data.js` replaces the generated demo amounts at runtime. Ten products currently have retailer-checked reference prices dated November 11, 2026. The other 290 products display **Check retailer** and cannot be submitted through prototype checkout. This prevents an old demo estimate from being presented as a real market price.
+`assets/js/pricing-data.js` replaces the generated catalog amounts at runtime. All 300 products have a usable reference price: 45 retailer-checked prices dated November 11, 2026 and 255 clearly labeled best-effort estimates. Every product also includes Amazon and Best Buy search links so visitors can compare the estimate before buying.
 
 Reference prices are not guaranteed live offers. The product dialog shows the retailer, listing link, check date, and observed availability. Inventory counts remain deterministic demo data used only to demonstrate availability limits; Nexora does not claim retailer stock or ownership of the products. See `PRODUCT_GUIDE.md` for the update process.
 
@@ -144,9 +149,24 @@ The Shop includes:
 - validated customer name, email, and fulfillment fields
 - saved local orders, cancellation, inventory restoration, and text receipts
 - a browser-only demo admin dashboard with order search, status filtering, status updates, and summary counts
-- duplicate-submission protection and incomplete-total handling for products without a verified price
+- duplicate-submission protection and clearly labeled estimated totals
+- a Thanksgiving prototype promotion that subtracts $15 per priced cart item before demo tax
 
 Cart, budget, and order data are stored only in the visitor's browser with `localStorage`. Placing an order does not collect payment, contact a business, reserve real stock, or ship anything.
+
+## Price audit
+
+All 300 catalog entries were reviewed on November 11, 2026 using exact-name public listing searches that prioritized Amazon and Best Buy. The current audit contains **45 source-backed reference prices** and **255 best-effort estimates**. Estimates are used when the exact SKU or variant could not be matched confidently and are never presented as retailer-confirmed prices.
+
+The complete result is stored in `data/price-audit.json`. Each record includes its status, check date, price, source wording, listing URL when verified, and availability wording. RAM kits and several fan/case variants especially need fuller SKUs because capacity, speed, timings, kit count, color, and revision can change the actual product and price.
+
+Run `node scripts/sync-price-audit.mjs` after editing verified records in the audit so `assets/js/pricing-data.js` stays in sync. Prices are reference snapshots, not live guarantees.
+
+## Prebuilt PC finder
+
+The PC Finder asks about intended use, game titles, coding intensity, gaming resolution, budget, and the customer's main priority. `prebuilt-core.js` scores seven dated Best Buy listings with plain JavaScript rules and returns up to three matches inside the selected budget. If no listing fits, it clearly labels the closest option above budget.
+
+The prebuilt prices are reference listings, not Nexora inventory or guaranteed offers. Every result links back to the retailer and displays its check date.
 
 ## Gemini assistant
 

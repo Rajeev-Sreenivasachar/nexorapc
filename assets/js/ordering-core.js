@@ -11,20 +11,26 @@
     return typeof value === "number" && Number.isFinite(value) && value >= 0;
   }
 
-  function calculateTotals(items, taxRate) {
+  function calculateTotals(items, taxRate, discountPerItem) {
+    const itemDiscount = Math.max(0, Number(discountPerItem) || 0);
     const normalized = (Array.isArray(items) ? items : []).map(function (item) {
       const unitPrice = item && item.product ? item.product.price : item && item.unitPrice;
       const quantity = Number(item && item.quantity) || 0;
       return Object.assign({}, item, {
         quantity: quantity,
-        lineTotal: hasPrice(unitPrice) ? Math.round(unitPrice * quantity * 100) / 100 : null
+        lineTotal: hasPrice(unitPrice) ? Math.round(unitPrice * quantity * 100) / 100 : null,
+        discount: hasPrice(unitPrice) ? Math.round(Math.min(unitPrice, itemDiscount) * quantity * 100) / 100 : null
       });
     });
     const hasIncompletePricing = normalized.some(function (item) { return item.lineTotal === null; });
-    const subtotal = Math.round(normalized.reduce(function (total, item) { return total + (item.lineTotal || 0); }, 0) * 100) / 100;
+    const grossSubtotal = Math.round(normalized.reduce(function (total, item) { return total + (item.lineTotal || 0); }, 0) * 100) / 100;
+    const discount = Math.round(normalized.reduce(function (total, item) { return total + (item.discount || 0); }, 0) * 100) / 100;
+    const subtotal = Math.max(0, Math.round((grossSubtotal - discount) * 100) / 100);
     const tax = hasIncompletePricing ? null : Math.round(subtotal * Number(taxRate || 0) * 100) / 100;
     return {
       items: normalized,
+      grossSubtotal: grossSubtotal,
+      discount: discount,
       subtotal: subtotal,
       tax: tax,
       total: tax === null ? null : Math.round((subtotal + tax) * 100) / 100,

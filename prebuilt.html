@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050806">
+  <meta name="description" content="Answer a few practical questions and compare verified prebuilt PC listings matched to your games, coding workload, and budget.">
+  <meta name="application-name" content="Nexora">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nexora">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/images/favicon.svg?v=20261107-2" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/images/app-icon-192.png">
+  <title>Prebuilt PC Finder | Nexora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261111-4">
+</head>
+<body data-page="prebuilt">
+  <div data-site-header></div>
+  <main id="main-content">
+    <header class="finder-hero">
+      <div class="container finder-hero-grid">
+        <div><span class="eyebrow">Prebuilt PC finder</span><h1>Tell us what you do.<br><em>Get a PC that fits.</em></h1><p>Answer a few useful questions about games, coding, creative work, resolution, and budget. Nexora compares real prebuilt listings with transparent scoring and dated retailer prices.</p></div>
+        <div class="finder-hero-card" aria-label="How the finder works"><span>01</span><strong>Answer six questions</strong><span>02</span><strong>Compare the closest matches</strong><span>03</span><strong>Verify the current retailer listing</strong></div>
+      </div>
+    </header>
+
+    <section class="finder-section section" aria-labelledby="finder-title">
+      <div class="container finder-layout">
+        <aside class="finder-intro"><span class="eyebrow">No random picks</span><h2 id="finder-title">Build your profile.</h2><p>The recommendation engine uses consistent rules. It weighs task type, game demand, coding intensity, target resolution, budget, and your main priority.</p><p>Retail prices are references checked on November 11, 2026. Always confirm the current listing before buying.</p></aside>
+
+        <form class="finder-form" id="pc-finder-form" novalidate>
+          <fieldset><legend><span>01</span>What will you use the PC for?</legend><div class="finder-choices multi"><label><input type="checkbox" name="task" value="gaming"><span>Gaming<small>Competitive, AAA, and simulation</small></span></label><label><input type="checkbox" name="task" value="coding"><span>Coding<small>Web apps, compiling, VMs, and AI</small></span></label><label><input type="checkbox" name="task" value="creation"><span>Content creation<small>Video, design, and 3D work</small></span></label><label><input type="checkbox" name="task" value="school"><span>School and everyday use<small>Research, documents, and multitasking</small></span></label></div></fieldset>
+          <fieldset><legend><span>02</span>What games do you play?</legend><label class="finder-text-label">Game names<input type="text" name="games" maxlength="120" placeholder="Example: Fortnite, Minecraft, Cyberpunk 2077"></label></fieldset>
+          <fieldset><legend><span>03</span>How heavy is your coding workload?</legend><div class="finder-choices"><label><input type="radio" name="coding" value="light" checked><span>Light<small>Learning, web, and school projects</small></span></label><label><input type="radio" name="coding" value="medium"><span>Medium<small>Large apps and regular compiling</small></span></label><label><input type="radio" name="coding" value="heavy"><span>Heavy<small>VMs, AI tools, and long compiles</small></span></label></div></fieldset>
+          <fieldset><legend><span>04</span>What gaming resolution are you targeting?</legend><div class="finder-choices"><label><input type="radio" name="resolution" value="1080p" checked><span>1080p<small>High frame rate and value</small></span></label><label><input type="radio" name="resolution" value="1440p"><span>1440p<small>Sharper image and stronger GPU</small></span></label><label><input type="radio" name="resolution" value="4k"><span>4K<small>Maximum detail and premium hardware</small></span></label></div></fieldset>
+          <fieldset><legend><span>05</span>What is your maximum budget?</legend><label class="finder-text-label">Budget range<select name="budget"><option value="1000">Up to $1,000</option><option value="1250">Up to $1,250</option><option value="1500" selected>Up to $1,500</option><option value="1800">Up to $1,800</option><option value="2200">Up to $2,200</option><option value="2800">Up to $2,800</option><option value="3500">Up to $3,500</option></select></label></fieldset>
+          <fieldset><legend><span>06</span>What matters most?</legend><div class="finder-choices"><label><input type="radio" name="priority" value="value" checked><span>Best value<small>Spend less while meeting the goal</small></span></label><label><input type="radio" name="priority" value="performance"><span>Maximum performance<small>Prioritize speed inside the budget</small></span></label><label><input type="radio" name="priority" value="upgradeability"><span>Upgradeability<small>Leave room for future changes</small></span></label></div></fieldset>
+          <p class="finder-error" role="alert" hidden>Choose at least one main use before finding a match.</p>
+          <button class="button button-primary finder-submit" type="submit">Find my PC →</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="finder-output section-alt" id="finder-output" hidden aria-live="polite">
+      <div class="container"><div class="finder-summary" id="finder-summary"></div><div class="prebuilt-results" id="finder-results"></div><div class="finder-output-footer"><p>These are retailer reference listings, not Nexora inventory. Prices and availability can change after the check date.</p><button class="button button-secondary" id="finder-reset" type="button">Start over</button></div></div>
+    </section>
+  </main>
+  <div data-site-footer></div>
+  <script src="assets/js/main.js?v=20261111-2"></script>
+  <script src="assets/js/install.js?v=20261109-1"></script>
+  <script src="assets/js/products.js?v=20261108-1"></script>
+  <script src="assets/js/pricing-data.js?v=20261111-2"></script>
+  <script src="assets/js/compatibility-data.js?v=20261111-1"></script>
+  <script src="assets/js/compatibility.js?v=20261111-1"></script>
+  <script src="assets/js/prebuilt-data.js?v=20261111-2"></script>
+  <script src="assets/js/prebuilt-core.js?v=20261111-1"></script>
+  <script src="assets/js/prebuilt.js?v=20261111-1"></script>
+  <script src="assets/js/assistant.js?v=20261111-1"></script>
+  <script src="assets/js/accessibility.js?v=20261107-1"></script>
+</body>
+</html>

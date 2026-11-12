@@ -9,6 +9,7 @@
     const links = [
       ["home", "index.html", "Home"],
       ["shop", "shop.html", "Shop"],
+      ["prebuilt", "prebuilt.html", "PC Finder"],
       ["about", "about.html", "About Nexora"]
     ];
 
@@ -17,7 +18,7 @@
       <div class="site-header-stack">
         <div class="sale-banner">
           <div class="container sale-banner-inner">
-            <span><strong>THANKSGIVING SALE</strong><small>Build Better. Game Bigger.</small></span>
+            <span><strong>THANKSGIVING SALE</strong><small>$15 off every item in your demo cart.</small></span>
           </div>
         </div>
         <header class="site-header">
@@ -33,6 +34,7 @@
               }).join("")}
             </nav>
             <div class="nav-actions">
+              <a class="nav-cart" href="shop.html?cart=open" data-nav-cart aria-label="Open cart">Cart <span data-cart-count>0</span></a>
               <button class="app-install-button" type="button" data-install-app hidden>Install app</button>
               <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="main-nav" aria-expanded="false">Menu</button>
             </div>
@@ -46,6 +48,7 @@
     const tabs = [
       ["home", "index.html", "Home", '<path d="M4 11.5 12 5l8 6.5V20h-5v-6H9v6H4z"/>'],
       ["shop", "shop.html", "Shop", '<path d="M5 8h14l-1 12H6zM8 8V7a4 4 0 0 1 8 0v1"/>'],
+      ["prebuilt", "prebuilt.html", "Finder", '<path d="M4 7h16v11H4zM8 4v3m8-3v3M8 12h8m-8 3h5"/>'],
       ["about", "about.html", "About", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/>']
     ];
     const bar = document.createElement("nav");
@@ -75,6 +78,7 @@
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="index.html">Home</a>
             <a href="shop.html">Shop</a>
+            <a href="prebuilt.html">PC Finder</a>
             <a href="about.html">About Nexora</a>
           </nav>
         </div>
@@ -125,11 +129,33 @@
     elements.forEach(function (element) { observer.observe(element); });
   }
 
+  function updateSharedCartCount() {
+    let cart = [];
+    try {
+      const saved = JSON.parse(localStorage.getItem("nexora_cart_v1") || "[]");
+      if (Array.isArray(saved)) cart = saved;
+    } catch (error) { /* Cart count can safely fall back to zero. */ }
+    const quantity = cart.reduce(function (total, item) { return total + (Number(item.quantity) || 0); }, 0);
+    document.querySelectorAll("[data-cart-count]").forEach(function (element) { element.textContent = quantity; });
+  }
+
+  function setupSharedCart() {
+    updateSharedCartCount();
+    window.addEventListener("nexora:cart-changed", updateSharedCartCount);
+    document.addEventListener("click", function (event) {
+      const cartLink = event.target.closest("[data-nav-cart]");
+      if (!cartLink || document.body.dataset.page !== "shop" || !window.NEXORA_ORDERING) return;
+      event.preventDefault();
+      window.NEXORA_ORDERING.openCart();
+    });
+  }
+
   renderHeader();
   renderFooter();
   renderMobileAppBar();
   setupNavigation();
   setupRevealAnimations();
+  setupSharedCart();
 
   document.querySelectorAll("[data-current-year]").forEach(function (element) {
     element.textContent = new Date().getFullYear();

@@ -1,23 +1,27 @@
 "use strict";
 
-const CACHE_VERSION = "nexora-app-v4";
+const CACHE_VERSION = "nexora-app-v6";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/shop.html",
+  "/prebuilt.html",
   "/about.html",
   "/manifest.webmanifest",
-  "/assets/css/style.css?v=20261111-2",
-  "/assets/js/main.js?v=20261109-1",
+  "/assets/css/style.css?v=20261111-4",
+  "/assets/js/main.js?v=20261111-2",
   "/assets/js/install.js?v=20261109-1",
   "/assets/js/products.js?v=20261108-1",
-  "/assets/js/pricing-data.js?v=20261111-1",
+  "/assets/js/pricing-data.js?v=20261111-2",
   "/assets/js/compatibility-data.js?v=20261111-1",
   "/assets/js/compatibility.js?v=20261111-1",
   "/assets/js/catalog-core.js?v=20261111-1",
   "/assets/js/ordering-core.js?v=20261111-1",
-  "/assets/js/ordering.js?v=20261111-1",
-  "/assets/js/shop.js?v=20261111-1",
+  "/assets/js/ordering.js?v=20261111-2",
+  "/assets/js/shop.js?v=20261111-2",
+  "/assets/js/prebuilt-data.js?v=20261111-2",
+  "/assets/js/prebuilt-core.js?v=20261111-1",
+  "/assets/js/prebuilt.js?v=20261111-1",
   "/assets/js/assistant.js?v=20261111-1",
   "/assets/js/accessibility.js?v=20261107-1",
   "/assets/images/nexora-mark.svg?v=20261107-2",

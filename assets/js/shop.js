@@ -50,12 +50,14 @@
     const allButton = document.createElement("button");
     allButton.type = "button";
     allButton.dataset.category = "all";
+    allButton.setAttribute("role", "radio");
     allButton.innerHTML = "<span>All parts</span><strong>" + products.length + "</strong>";
     fragment.appendChild(allButton);
     uniqueValues("category").forEach(function (category) {
       const button = document.createElement("button");
       button.type = "button";
       button.dataset.category = category;
+      button.setAttribute("role", "radio");
       const label = document.createElement("span");
       label.textContent = category;
       const total = document.createElement("strong");
@@ -125,14 +127,20 @@
     description.className = "product-description";
     description.textContent = product.description;
 
-    const price = document.createElement("strong");
+    const price = document.createElement("div");
     price.className = "product-price";
-    price.textContent = typeof product.price === "number" ? new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price) : "Check retailer";
-    const note = document.createElement("p");
-    note.className = "product-status";
-    note.textContent = product.priceStatus === "verified_reference"
-      ? product.priceSource + " · checked " + product.lastPriceChecked
-      : "Price unavailable · click for retailer and product details";
+    if (typeof product.price === "number") {
+      const originalPrice = document.createElement("s");
+      originalPrice.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price);
+      const salePrice = document.createElement("strong");
+      salePrice.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(Math.max(0, product.price - 15));
+      price.append(originalPrice, salePrice);
+    } else {
+      price.textContent = "Price unavailable";
+    }
+    const saleNote = document.createElement("span");
+    saleNote.className = "product-sale-note";
+    saleNote.textContent = "$15 off in demo cart";
     const button = document.createElement("button");
     button.className = "product-order-button";
     button.type = "button";
@@ -145,7 +153,7 @@
       if (ordering && ordering.addToCart(product.id)) renderProducts();
     });
 
-    copy.append(meta, name, brand, description, price, note);
+    copy.append(meta, name, brand, description, saleNote, price);
     copy.appendChild(button);
     article.append(media, copy);
     article.addEventListener("click", function (event) {
@@ -176,7 +184,7 @@
       categoryShortcuts.querySelectorAll("button").forEach(function (button) {
         const active = button.dataset.category === categoryFilter.value;
         button.classList.toggle("active", active);
-        button.setAttribute("aria-pressed", String(active));
+        button.setAttribute("aria-checked", String(active));
       });
     }
   }

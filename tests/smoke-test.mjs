@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { runInNewContext } from "node:vm";
 
 const root = resolve(import.meta.dirname, "..");
-const requiredPages = ["index.html", "about.html", "shop.html"];
+const requiredPages = ["index.html", "about.html", "prebuilt.html", "shop.html"];
 const removedPages = [
   "product.html", "cart.html", "builder.html", "reviews.html",
   "support.html", "privacy.html", "terms.html", "credits.html", "assistant.html"
@@ -24,11 +24,11 @@ removedPages.forEach(function (page) {
 });
 
 const htmlFiles = readdirSync(root).filter(function (file) { return file.endsWith(".html"); }).sort();
-check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort()), "The repository root should contain only Home, Shop, and About pages.");
+check(JSON.stringify(htmlFiles) === JSON.stringify(requiredPages.slice().sort()), "The repository root should contain only Home, Shop, PC Finder, and About pages.");
 
 const javascriptDirectory = join(root, "assets", "js");
 const javascriptFiles = readdirSync(javascriptDirectory).filter(function (file) { return file.endsWith(".js"); }).sort();
-check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "catalog-core.js", "compatibility-data.js", "compatibility.js", "install.js", "main.js", "ordering-core.js", "ordering.js", "pricing-data.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
+check(JSON.stringify(javascriptFiles) === JSON.stringify(["accessibility.js", "assistant.js", "catalog-core.js", "compatibility-data.js", "compatibility.js", "install.js", "main.js", "ordering-core.js", "ordering.js", "prebuilt-core.js", "prebuilt-data.js", "prebuilt.js", "pricing-data.js", "products.js", "shop.js"]), "assets/js contains unexpected or missing scripts.");
 
 javascriptFiles.forEach(function (file) {
   const result = spawnSync(process.execPath, ["--check", join(javascriptDirectory, file)], { encoding: "utf8" });
@@ -49,6 +49,9 @@ requiredPages.forEach(function (page) {
   check(html.includes('rel="apple-touch-icon"'), page + " is missing its Apple touch icon.");
   if (page === "shop.html") {
     check(html.includes("assets/js/products.js") && html.includes("assets/js/pricing-data.js") && html.includes("assets/js/compatibility-data.js") && html.includes("assets/js/compatibility.js") && html.includes("assets/js/catalog-core.js") && html.includes("assets/js/ordering-core.js") && html.includes("assets/js/ordering.js") && html.includes("assets/js/shop.js"), "Shop is missing its product data, pricing, compatibility, ordering, or display logic.");
+  }
+  if (page === "prebuilt.html") {
+    check(html.includes("assets/js/prebuilt-data.js") && html.includes("assets/js/prebuilt-core.js") && html.includes("assets/js/prebuilt.js"), "PC Finder is missing its listing data, rules engine, or display logic.");
   }
   check(!/onclick=|onchange=|onsubmit=/.test(html), page + " contains inline JavaScript.");
   check(!/assets\/(?:css|js)\/[^"?]+\.(?:css|js)"/.test(html), page + " has an unversioned CSS or JavaScript asset.");
@@ -124,7 +127,9 @@ if (existsSync(desktopRequirementsPath)) {
 }
 check(mainScript.includes('["home", "index.html", "Home"]'), "Shared navigation is missing Home.");
 check(mainScript.includes('["shop", "shop.html", "Shop"]'), "Shared navigation is missing Shop.");
+check(mainScript.includes('["prebuilt", "prebuilt.html", "PC Finder"]'), "Shared navigation is missing PC Finder.");
 check(mainScript.includes('["about", "about.html", "About Nexora"]'), "Shared navigation is missing About.");
+check(mainScript.includes("data-nav-cart") && mainScript.includes("nexora_cart_v1"), "Shared navigation is missing the persistent cart control.");
 check(mainScript.includes("FBLA Introduction to Programming") && mainScript.includes("hardware parts shop experience"), "Footer FBLA or hardware shop labeling is missing.");
 check(!mainScript.includes("data-open-ai") && !mainScript.includes("nav-ai-button"), "Shared navigation still contains the removed Ask Nexora control.");
 check(mainScript.includes("mobile-app-bar") && mainScript.includes("data-install-app"), "Shared app navigation or install control is missing.");
@@ -150,7 +155,8 @@ check(products.find(function (product) { return product.name === "ASRock Intel A
 check(products.find(function (product) { return product.name === "Seagate BarraCuda 4TB HDD"; }).price === 79, "Seagate demo price is mapped incorrectly.");
 const shopPage = readFileSync(join(root, "shop.html"), "utf8");
 check(shopPage.includes('id="product-search"') && shopPage.includes('id="category-filter"') && shopPage.includes('id="category-shortcuts"'), "Shop search or category controls are missing.");
-check(shopPage.includes("300 real, exact component models") && shopPage.includes("Verified items show their retailer and check date"), "Shop catalog size or price disclosure is missing.");
+check(shopPage.includes("300 real, exact component models") && !shopPage.includes("verification-note"), "Shop catalog size is missing or price labels are still visible.");
+check(sharedStyles.includes(".category-shortcuts { display: grid;") && !/\.category-shortcuts\s*\{[^}]*overflow-x/.test(sharedStyles), "Category controls should wrap without a horizontal scrollbar.");
 check(shopPage.includes('class="build-coverage"') && shopPage.includes('id="open-cart"') && shopPage.includes('id="open-orders"'), "Shop build coverage or ordering controls are missing.");
 const requiredBuildCategories = ["CPU", "GPU", "Motherboard", "RAM", "Storage", "PSU", "Case", "CPU Cooler"];
 check(requiredBuildCategories.every(function (category) { return products.some(function (product) { return product.category === category && product.inventory > 0; }); }), "The catalog cannot supply every core full-PC category.");
@@ -178,10 +184,14 @@ check(orderingScript.includes("nexora_cart_v1") && orderingScript.includes("nexo
 check(orderingScript.includes("evaluateBuild") && orderingScript.includes("Compatibility engine"), "Ordering workflow is not showing compatibility results.");
 check(orderingScript.includes("remainingInventory") && orderingScript.includes("cancelOrder") && orderingScript.includes("downloadReceipt") && orderingScript.includes("placeOrder"), "Ordering app is missing inventory, cancellation, receipt, or checkout logic.");
 check(orderingScript.includes("checkoutForm.checkValidity()") && orderingScript.includes("summary.total > budget"), "Checkout input validation or budget enforcement is missing.");
+check(allSource.includes("$15 off in demo cart") && sharedStyles.includes(".product-sale-note"), "Shop cards do not clearly show the per-item sale discount.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");
 check(sharedStyles.includes("[data-site-header]") && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The shared header should remain sticky.");
 check(sharedStyles.includes(".mobile-app-bar") && sharedStyles.includes(".standalone-app"), "App-like mobile navigation or standalone styling is missing.");
 check(sharedStyles.includes("object-fit: contain") && sharedStyles.includes("grid-template-rows: 300px 1fr"), "Product images should use a taller, non-cropping media stage.");
+check(/\.ai-launcher\s*\{[^}]*position:\s*fixed\s*!important/s.test(sharedStyles) && sharedStyles.includes("z-index: 840"), "AI launcher should stay fixed in the bottom-right corner.");
+const prebuiltPage = readFileSync(join(root, "prebuilt.html"), "utf8");
+check(prebuiltPage.includes('id="pc-finder-form"') && prebuiltPage.includes('name="games"') && prebuiltPage.includes('name="budget"'), "PC Finder questions are incomplete.");
 
 if (failures.length) {
   console.error("Smoke test failed:\n- " + failures.join("\n- "));

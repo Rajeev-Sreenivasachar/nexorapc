@@ -15,20 +15,39 @@ Do not manually write a product card in `shop.html`. `shop.js` generates every c
 
 ## Update a verified reference price
 
-Edit the matching record inside `assets/js/pricing-data.js`:
+Edit the matching record in `data/price-audit.json`. A verified record needs this shape:
 
-```javascript
-"NX-0005": {
-  price: 339.00,
-  retailer: "Newegg",
-  url: "https://www.newegg.com/...",
-  availabilityStatus: "listed"
+```json
+{
+  "id": "NX-0005",
+  "status": "verified_reference",
+  "priceUSD": 341,
+  "retailer": "Best Buy",
+  "listingUrl": "https://www.bestbuy.com/product/...",
+  "checkedDate": "2026-11-11",
+  "availability": "listed"
 }
 ```
 
-Also update `checkedDate` at the top of the file. Use a direct public listing from a reliable retailer or manufacturer. Confirm the exact model, capacity, generation, and condition before recording the price. Marketplace, used, refurbished, bundle, membership, rebate, and in-store-only listings must be labeled honestly.
+Use a direct public listing from a reliable retailer or manufacturer. Confirm the exact model, capacity, generation, condition, kit count, color, and revision before recording the price. Marketplace, used, refurbished, bundle, membership, rebate, and in-store-only listings must be labeled honestly.
 
-If the exact price cannot be confirmed, remove that product from the `verified` object. The app will display **Check retailer** automatically. Never copy the old generated demo estimate into the verified price overlay.
+If the exact price cannot be confirmed, use `"status": "estimated_reference"`, enter a reasonable positive `priceUSD`, use `"retailer": "Nexora best-effort estimate"`, keep `listingUrl` as `null`, and explain the uncertainty in `note`. Estimated prices must never be described as retailer-confirmed.
+
+Every product automatically receives Amazon and Best Buy search links. Those links help visitors compare estimates but do not count as verification by themselves. Only `verified_reference` records may name a retailer as the confirmed source.
+
+After editing the audit, run:
+
+```powershell
+node scripts/sync-price-audit.mjs
+node tests/smoke-test.mjs
+node tests/logic-test.mjs
+```
+
+The sync script regenerates `assets/js/pricing-data.js`. Do not hand-edit that generated overlay.
+
+## Update a prebuilt listing
+
+Edit `assets/js/prebuilt-data.js`. Confirm the exact CPU, GPU, memory, storage, system name or model, price, retailer URL, and check date. Update its 1–5 task scores only when the hardware changes. Then run the logic test to confirm the finder still returns sensible in-budget choices.
 
 ## Add compatibility specifications
 
