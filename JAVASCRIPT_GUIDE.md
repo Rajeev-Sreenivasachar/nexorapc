@@ -21,7 +21,7 @@ Nexora uses fifteen focused frontend JavaScript files, one service worker, and t
 
 `assets/js/products.js` exposes the generated 300-product catalog to the browser. Each object stores the exact model, original supplied name, brand, category, tier, demo inventory, image path, product role, and compatibility checks. `scripts/build-catalog.mjs` creates this file from `data/catalog-source.json`, so the Shop never contains 300 hand-written cards.
 
-`assets/js/pricing-data.js` overlays the audited price records after the generated catalog loads. Products use either `verified_reference` for a source-backed retailer price or `estimated_reference` for a clearly labeled best-effort estimate. Every product still links to Amazon and Best Buy searches for comparison.
+`assets/js/pricing-data.js` overlays the audited price records after the generated catalog loads. Products use either `verified_reference` for a source-backed retailer price or `estimated_reference` for a best-effort estimate. Retailer links stay in the internal audit and are not shown as customer shopping links.
 
 `assets/js/compatibility-data.js` stores verified technical fields by product ID. Keeping this overlay separate prevents catalog rebuilds from deleting researched specifications. Empty fields stay empty instead of being guessed.
 
@@ -35,7 +35,7 @@ Nexora uses fifteen focused frontend JavaScript files, one service worker, and t
 
 `assets/js/shop.js` reads the shared catalog, builds the product cards, opens product details, adds products to the cart, and handles search, category, brand, tier, sorting, clearing filters, and loading more results.
 
-`assets/js/prebuilt-data.js` stores seven real prebuilt listing snapshots with their model, specifications, retailer URL, reference price, and check date.
+`assets/js/prebuilt-data.js` stores seven PC profiles with their model, specifications, estimated complete-system price, and intended uses.
 
 `assets/js/prebuilt-core.js` contains the pure scoring rules for games, coding, creative work, resolution, budget, and priorities. `assets/js/prebuilt.js` reads the form, ranks the listings, and renders the best three matches.
 
@@ -80,10 +80,10 @@ The card stage now has a 300-pixel media row with reduced padding and `object-fi
 
 ## Ordering flow
 
-1. A customer opens a card to review the product role, demo inventory, retailer price evidence, and compatibility checks.
+1. A customer opens a card to review the product role, demo inventory, sale price, and compatibility checks.
 2. `addToCart()` checks the inventory limit before changing the cart.
 3. `renderCart()` recalculates line totals, subtotal, demo tax, total, and the eight-part build checklist.
-4. A $15 Thanksgiving demo discount is applied to every priced item before tax.
+4. A 15% Thanksgiving demo discount is applied to every priced item before tax.
 5. `evaluateBuild()` checks the selected parts and explains passes, failures, missing parts, and specifications that still need verification.
 6. A customer can enter a budget. Checkout is disabled while the total is over that budget or a selected product lacks any reference price.
 7. `data/price-audit.json` tracks the audit result for all 300 products. `scripts/sync-price-audit.mjs` turns its 45 confirmed retailer prices and 255 clearly labeled estimates into the browser-ready pricing overlay.
@@ -101,7 +101,7 @@ The main arrays are `cart` and `orders`. Loops such as `map()`, `filter()`, and 
 2. `gameDemand()` recognizes examples of light, demanding, and high-end games.
 3. `scoreSystem()` weighs the customer's tasks, coding intensity, resolution, budget, and priority.
 4. `rankSystems()` prefers systems inside the budget and returns three choices.
-5. Each result explains the match and links to the dated Best Buy listing.
+5. Each result explains the match and links back to the Nexora Shop for parts.
 
 This is deterministic recommendation logic. The same answers produce the same ranking, making it easier to test and explain to judges.
 

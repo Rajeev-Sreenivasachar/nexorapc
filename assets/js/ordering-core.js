@@ -11,15 +11,15 @@
     return typeof value === "number" && Number.isFinite(value) && value >= 0;
   }
 
-  function calculateTotals(items, taxRate, discountPerItem) {
-    const itemDiscount = Math.max(0, Number(discountPerItem) || 0);
+  function calculateTotals(items, taxRate, discountRate) {
+    const saleRate = Math.min(1, Math.max(0, Number(discountRate) || 0));
     const normalized = (Array.isArray(items) ? items : []).map(function (item) {
       const unitPrice = item && item.product ? item.product.price : item && item.unitPrice;
       const quantity = Number(item && item.quantity) || 0;
       return Object.assign({}, item, {
         quantity: quantity,
         lineTotal: hasPrice(unitPrice) ? Math.round(unitPrice * quantity * 100) / 100 : null,
-        discount: hasPrice(unitPrice) ? Math.round(Math.min(unitPrice, itemDiscount) * quantity * 100) / 100 : null
+        discount: hasPrice(unitPrice) ? Math.round(unitPrice * saleRate * quantity * 100) / 100 : null
       });
     });
     const hasIncompletePricing = normalized.some(function (item) { return item.lineTotal === null; });

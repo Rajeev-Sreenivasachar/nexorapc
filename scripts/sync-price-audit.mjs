@@ -109,8 +109,6 @@ ${entries}
   const products = Array.isArray(global.NEXORA_PRODUCTS) ? global.NEXORA_PRODUCTS : [];
   products.forEach(function (product) {
     product.originalDemoPrice = product.price;
-    product.amazonSearchUrl = "https://www.amazon.com/s?k=" + encodeURIComponent(product.name);
-    product.bestBuySearchUrl = "https://www.bestbuy.com/site/searchpage.jsp?id=pcat17071&st=" + encodeURIComponent(product.name);
     const record = priceRecords[product.id];
     if (!record) {
       product.priceStatus = "estimated_reference";

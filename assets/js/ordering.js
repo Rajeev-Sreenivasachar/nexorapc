@@ -12,7 +12,7 @@
   const ORDERS_KEY = "nexora_orders_v1";
   const BUDGET_KEY = "nexora_budget_v1";
   const TAX_RATE = 0.075;
-  const ITEM_DISCOUNT = 15;
+  const SALE_DISCOUNT_RATE = 0.15;
   const requiredBuildCategories = compatibility ? compatibility.REQUIRED_CATEGORIES : ["CPU", "GPU", "Motherboard", "RAM", "Storage", "PSU", "Case", "CPU Cooler"];
   let cart = readArray(CART_KEY);
   let orders = readArray(ORDERS_KEY);
@@ -47,7 +47,7 @@
   }
 
   function money(value) {
-    if (!orderCore.hasPrice(value)) return "Check retailer";
+    if (!orderCore.hasPrice(value)) return "Price unavailable";
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
   }
 
@@ -85,7 +85,7 @@
         lineTotal: orderCore.hasPrice(product.price) ? product.price * entry.quantity : null
       };
     }).filter(Boolean);
-    return orderCore.calculateTotals(items, TAX_RATE, ITEM_DISCOUNT);
+    return orderCore.calculateTotals(items, TAX_RATE, SALE_DISCOUNT_RATE);
   }
 
   function orderId() {
@@ -226,7 +226,7 @@
     const evidence = Array.isArray(technicalSpecs.evidence) ? technicalSpecs.evidence.map(function (source) {
       return `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a></li>`;
     }).join("") : "";
-    const salePrice = orderCore.hasPrice(product.price) ? Math.max(0, product.price - ITEM_DISCOUNT) : null;
+    const salePrice = orderCore.hasPrice(product.price) ? product.price * (1 - SALE_DISCOUNT_RATE) : null;
     productDialogContent.innerHTML = `
       <div class="product-dialog-layout">
         <div class="product-dialog-media"><span class="product-dialog-placeholder" hidden>${escapeHtml(product.category)}</span><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}"></div>
@@ -235,7 +235,7 @@
           <h2 id="product-dialog-title">${escapeHtml(product.name)}</h2>
           <p class="product-dialog-model">${escapeHtml(product.brand)} · ${escapeHtml(product.id)}</p>
           <p>${escapeHtml(product.role)}</p>
-          <div class="detail-price-row"><strong>${salePrice === null ? money(product.price) : `<s>${money(product.price)}</s> ${money(salePrice)}`}</strong><span>${salePrice === null ? "Exact price not confirmed" : "$15 demo discount applied in cart"}</span></div>
+          <div class="detail-price-row"><strong>${salePrice === null ? money(product.price) : `<s>${money(product.price)}</s><span class="detail-sale-price">${money(salePrice)}</span>`}</strong><span>${salePrice === null ? "Exact price not confirmed" : "15% sale price"}</span></div>
           <div class="inventory-status ${remaining > 0 ? "available" : "unavailable"}">${remaining > 0 ? remaining + " available in demo inventory" : "Currently unavailable"}</div>
           <div class="detail-panel"><h3>Check before ordering</h3><ul>${checks}</ul></div>
           <div class="detail-panel"><h3>Structured specifications</h3>${specRows || arrayRows ? `<dl>${specRows}${arrayRows}</dl>` : `<p>Detailed compatibility specifications have not been verified for this exact model.</p>`}${evidence ? `<p class="spec-date">Last checked ${escapeHtml(technicalSpecs.lastVerified)}.</p><ul class="spec-sources">${evidence}</ul>` : ""}</div>
@@ -345,7 +345,7 @@
       <section class="build-checklist"><div class="section-mini-heading"><div><span class="eyebrow">Full PC checklist</span><h3>${completedCategories} of ${requiredBuildCategories.length} core parts</h3></div><strong>${Math.round(completedCategories / requiredBuildCategories.length * 100)}%</strong></div><ul>${buildChecklist(summary.items)}</ul></section>
       ${renderCompatibility(summary.items)}
       <section class="budget-panel"><label for="budget-input">Customer budget</label><div class="budget-input"><span>$</span><input id="budget-input" type="number" min="1" step="1" inputmode="decimal" placeholder="Optional" value="${budget === null ? "" : budget}"></div><p class="budget-message ${overBudget || summary.hasIncompletePricing ? "over" : ""}">${budgetMessage}</p></section>
-      <section class="order-summary"><div><span>Reference subtotal</span><strong>${money(summary.grossSubtotal)}</strong></div><div class="sale-discount"><span>Thanksgiving demo discount</span><strong>−${money(summary.discount)}</strong></div><div><span>Discounted subtotal</span><strong>${money(summary.subtotal)}</strong></div><div><span>Demo tax (${(TAX_RATE * 100).toFixed(1)}%)</span><strong>${money(summary.tax)}</strong></div><div class="order-total"><span>${summary.hasIncompletePricing ? "Total incomplete" : "Total"}</span><strong>${money(summary.total)}</strong></div>${summary.hasIncompletePricing ? `<p class="incomplete-price-note">A selected product is missing reference pricing.</p>` : ""}</section>`;
+      <section class="order-summary"><div><span>Reference subtotal</span><strong>${money(summary.grossSubtotal)}</strong></div><div class="sale-discount"><span>Thanksgiving sale (15%)</span><strong>−${money(summary.discount)}</strong></div><div><span>Discounted subtotal</span><strong>${money(summary.subtotal)}</strong></div><div><span>Demo tax (${(TAX_RATE * 100).toFixed(1)}%)</span><strong>${money(summary.tax)}</strong></div><div class="order-total"><span>${summary.hasIncompletePricing ? "Total incomplete" : "Total"}</span><strong>${money(summary.total)}</strong></div>${summary.hasIncompletePricing ? `<p class="incomplete-price-note">A selected product is missing reference pricing.</p>` : ""}</section>`;
     const placeOrder = document.getElementById("place-order");
     if (placeOrder) placeOrder.disabled = !summary.items.length || overBudget || summary.hasIncompletePricing || checkoutSubmitting;
   }

@@ -184,14 +184,15 @@ check(orderingScript.includes("nexora_cart_v1") && orderingScript.includes("nexo
 check(orderingScript.includes("evaluateBuild") && orderingScript.includes("Compatibility engine"), "Ordering workflow is not showing compatibility results.");
 check(orderingScript.includes("remainingInventory") && orderingScript.includes("cancelOrder") && orderingScript.includes("downloadReceipt") && orderingScript.includes("placeOrder"), "Ordering app is missing inventory, cancellation, receipt, or checkout logic.");
 check(orderingScript.includes("checkoutForm.checkValidity()") && orderingScript.includes("summary.total > budget"), "Checkout input validation or budget enforcement is missing.");
-check(allSource.includes("$15 off in demo cart") && sharedStyles.includes(".product-sale-note"), "Shop cards do not clearly show the per-item sale discount.");
+check(allSource.includes("15% off") && sharedStyles.includes(".product-sale-note"), "Shop cards do not clearly show the percentage sale discount.");
 check(chatRoute.includes("process.env.GEMINI_API_KEY") && chatRoute.includes('"x-goog-api-key"'), "Gemini route is not using the server-side API key.");
 check(sharedStyles.includes("[data-site-header]") && /\[data-site-header\]\s*\{[^}]*position:\s*sticky/s.test(sharedStyles), "The shared header should remain sticky.");
 check(sharedStyles.includes(".mobile-app-bar") && sharedStyles.includes(".standalone-app"), "App-like mobile navigation or standalone styling is missing.");
 check(sharedStyles.includes("object-fit: contain") && sharedStyles.includes("grid-template-rows: 300px 1fr"), "Product images should use a taller, non-cropping media stage.");
-check(/\.ai-launcher\s*\{[^}]*position:\s*fixed\s*!important/s.test(sharedStyles) && sharedStyles.includes("z-index: 840"), "AI launcher should stay fixed in the bottom-right corner.");
+check(/\.ai-root\s*\{[^}]*position:\s*fixed/s.test(sharedStyles) && /\.ai-launcher\s*\{[^}]*position:\s*fixed\s*!important/s.test(sharedStyles) && sharedStyles.includes("z-index: 840"), "AI launcher should stay fixed in the bottom-right corner.");
 const prebuiltPage = readFileSync(join(root, "prebuilt.html"), "utf8");
 check(prebuiltPage.includes('id="pc-finder-form"') && prebuiltPage.includes('name="games"') && prebuiltPage.includes('name="budget"'), "PC Finder questions are incomplete.");
+check(!prebuiltPage.includes("Best Buy") && !readFileSync(join(root, "assets/js/prebuilt.js"), "utf8").includes("Best Buy"), "PC Finder should not send users to Best Buy.");
 
 if (failures.length) {
   console.error("Smoke test failed:\n- " + failures.join("\n- "));

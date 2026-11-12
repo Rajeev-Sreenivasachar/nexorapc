@@ -33,7 +33,7 @@ Use a direct public listing from a reliable retailer or manufacturer. Confirm th
 
 If the exact price cannot be confirmed, use `"status": "estimated_reference"`, enter a reasonable positive `priceUSD`, use `"retailer": "Nexora best-effort estimate"`, keep `listingUrl` as `null`, and explain the uncertainty in `note`. Estimated prices must never be described as retailer-confirmed.
 
-Every product automatically receives Amazon and Best Buy search links. Those links help visitors compare estimates but do not count as verification by themselves. Only `verified_reference` records may name a retailer as the confirmed source.
+Retailer URLs are kept only as internal audit evidence. The Shop and PC Finder do not show Amazon or Best Buy shopping links. Only `verified_reference` records may name a retailer as the confirmed source.
 
 After editing the audit, run:
 

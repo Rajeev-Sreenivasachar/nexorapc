@@ -28,8 +28,8 @@
       <p class="prebuilt-budget-note ${overBudget ? "over" : ""}">${overBudget ? "Closest match above your budget" : "Fits your selected budget"}</p>
       <dl><div><dt>CPU</dt><dd>${system.cpu}</dd></div><div><dt>GPU</dt><dd>${system.gpu}</dd></div><div><dt>Memory</dt><dd>${system.ram}</dd></div><div><dt>Storage</dt><dd>${system.storage}</dd></div></dl>
       <ul>${result.reasons.map(function (reason) { return `<li>${reason}</li>`; }).join("")}</ul>
-      <p class="prebuilt-source">${system.source} · checked ${system.checkedDate}. Price and availability can change.</p>
-      <a class="button ${index === 0 ? "button-primary" : "button-secondary"}" href="${system.sourceUrl}" target="_blank" rel="noopener noreferrer">Check at Best Buy →</a>
+      <p class="prebuilt-source">${system.pricingNote}. Final part choices and totals may vary.</p>
+      <a class="button ${index === 0 ? "button-primary" : "button-secondary"}" href="shop.html">Browse matching parts →</a>
     </article>`;
   }
 

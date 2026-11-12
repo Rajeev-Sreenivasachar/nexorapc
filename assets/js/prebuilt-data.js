@@ -6,50 +6,43 @@
       id: "PB-001", name: "CyberPowerPC Gaming Desktop", model: "GMA5600BSTV5",
       cpu: "AMD Ryzen 5 8400F", gpu: "NVIDIA GeForce RTX 3050 6GB", ram: "16GB DDR5", storage: "1TB SSD",
       price: 1179.99, gaming: 2, coding: 3, creation: 2, upgradeability: 3,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/cyberpowerpc-gaming-desktop-amd-ryzen-5-8400f-nvidia-geforce-rtx-3050-6gb-16gb-ddr5-1tb-pcie-4-0-ssd-black/J3L7GQWRT5",
-      checkedDate: "2026-11-11", bestFor: ["school", "starter gaming", "coding"], accent: "budget"
+      pricingNote: "Estimated complete-system price", bestFor: ["school", "starter gaming", "coding"], accent: "budget"
     },
     {
       id: "PB-002", name: "iBUYPOWER Slate", model: "SBI5I5701",
       cpu: "Intel Core Ultra 5 225F", gpu: "Intel Arc B570 10GB", ram: "16GB DDR5", storage: "1TB NVMe SSD",
       price: 1199.99, gaming: 3, coding: 3, creation: 2, upgradeability: 4,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/ibuypower-slate-gaming-desktop-pc-intel-core-ultra-5-225f-intel-arc-b570-10gb-16gb-ddr5-rgb-1tb-nvme-ssd-black/J3R75JYSJL",
-      checkedDate: "2026-11-11", bestFor: ["1080p gaming", "general coding", "school"], accent: "value"
+      pricingNote: "Estimated complete-system price", bestFor: ["1080p gaming", "general coding", "school"], accent: "value"
     },
     {
       id: "PB-003", name: "CyberPowerPC Gaming Desktop", model: "GMA6200BSTV3",
       cpu: "AMD Ryzen 7 8700F", gpu: "NVIDIA GeForce RTX 5060 8GB", ram: "16GB DDR5", storage: "1TB SSD",
       price: 1424.99, gaming: 3, coding: 4, creation: 3, upgradeability: 4,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/cyberpowerpc-gamer-master-gaming-desktop-amd-ryzen-7-8700f-2024-nvidia-geforce-rtx-5060-8gb-16gb-ddr5-memory-1tb-ssd-black/J3L7GQWRK2",
-      checkedDate: "2026-11-11", bestFor: ["1080p high settings", "streaming", "heavy coding"], accent: "balanced"
+      pricingNote: "Estimated complete-system price", bestFor: ["1080p high settings", "streaming", "heavy coding"], accent: "balanced"
     },
     {
       id: "PB-004", name: "Acer Nitro 65", model: "N65-100-UB12",
       cpu: "AMD Ryzen 7 8700F", gpu: "NVIDIA GeForce RTX 5060", ram: "16GB DDR5", storage: "1TB SSD",
       price: 1549.99, gaming: 3, coding: 4, creation: 3, upgradeability: 3,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/acer-nitro-65-gaming-desktop-amd-ryzen-7-8700f-2024-nvidia-geforce-rtx-5060-16gb-ddr5-memory-1tb-storage-black/JX5V2XGXK9",
-      checkedDate: "2026-11-11", bestFor: ["1080p gaming", "productivity", "coding"], accent: "balanced"
+      pricingNote: "Estimated complete-system price", bestFor: ["1080p gaming", "productivity", "coding"], accent: "balanced"
     },
     {
       id: "PB-005", name: "CyberPowerPC Gaming Desktop", model: "SLC8800BSTV11",
       cpu: "Intel Core Ultra 7 265F", gpu: "NVIDIA GeForce RTX 5070 12GB", ram: "16GB DDR5", storage: "1TB SSD",
       price: 1649.99, gaming: 4, coding: 5, creation: 4, upgradeability: 4,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/cyberpowerpc-gaming-desktop-intel-core-ultra-7-265f-2025-nvidia-geforce-rtx-5070-12gb-16gb-ddr5-memory-1tb-ssd-storage-black/J3L7GQWRKP/sku/6668825",
-      checkedDate: "2026-11-11", bestFor: ["1440p gaming", "heavy compiling", "content creation"], accent: "performance"
+      pricingNote: "Estimated complete-system price", bestFor: ["1440p gaming", "heavy compiling", "content creation"], accent: "performance"
     },
     {
       id: "PB-006", name: "Lenovo Legion Tower 5", model: "Ryzen 7 7800X3D / RTX 5070",
       cpu: "AMD Ryzen 7 7800X3D", gpu: "NVIDIA GeForce RTX 5070", ram: "32GB DDR5", storage: "1TB SSD",
       price: 2099.99, gaming: 5, coding: 4, creation: 4, upgradeability: 4,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/lenovo-legion-tower-5-gaming-desktop-amd-ryzen-7-7800x3d-32gb-memory-nvidia-geforce-rtx-5070-1tb-ssd-eclipse-black/JJGSHGYZ32/sku/6629098",
-      checkedDate: "2026-11-11", bestFor: ["high-refresh 1440p", "AAA games", "multitasking"], accent: "performance"
+      pricingNote: "Estimated complete-system price", bestFor: ["high-refresh 1440p", "AAA games", "multitasking"], accent: "performance"
     },
     {
       id: "PB-007", name: "ASUS ROG G700", model: "Core Ultra 7 270K / RTX 5080",
       cpu: "Intel Core Ultra 7 270K", gpu: "NVIDIA GeForce RTX 5080", ram: "32GB DDR5", storage: "2TB SSD",
       price: 3299.99, gaming: 5, coding: 5, creation: 5, upgradeability: 4,
-      source: "Best Buy", sourceUrl: "https://www.bestbuy.com/product/asus-rog-g700-gaming-desktop-intel-core-ultra-7-270k-2026-32gb-memory-nvidia-geforce-rtx-5080-2tb-storage-black/JJGHGSHW55",
-      checkedDate: "2026-11-11", bestFor: ["4K gaming", "AI workloads", "professional creation"], accent: "ultimate"
+      pricingNote: "Estimated complete-system price", bestFor: ["4K gaming", "AI workloads", "professional creation"], accent: "ultimate"
     }
   ];
 })(typeof window !== "undefined" ? window : this);

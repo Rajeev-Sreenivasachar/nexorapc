@@ -133,14 +133,14 @@
       const originalPrice = document.createElement("s");
       originalPrice.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price);
       const salePrice = document.createElement("strong");
-      salePrice.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(Math.max(0, product.price - 15));
+      salePrice.textContent = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency || "USD" }).format(product.price * 0.85);
       price.append(originalPrice, salePrice);
     } else {
       price.textContent = "Price unavailable";
     }
     const saleNote = document.createElement("span");
     saleNote.className = "product-sale-note";
-    saleNote.textContent = "$15 off in demo cart";
+    saleNote.textContent = "15% off";
     const button = document.createElement("button");
     button.className = "product-order-button";
     button.type = "button";

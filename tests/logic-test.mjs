@@ -37,7 +37,7 @@ const orderCore = cores.NEXORA_ORDER_CORE;
 const catalogCore = cores.NEXORA_CATALOG_CORE;
 const pricedTotals = orderCore.calculateTotals([{ product: { price: 100 }, quantity: 2 }], 0.075);
 check(pricedTotals.subtotal === 200 && pricedTotals.tax === 15 && pricedTotals.total === 215, "Order totals are incorrect.");
-const saleTotals = orderCore.calculateTotals([{ product: { price: 100 }, quantity: 2 }], 0.075, 15);
+const saleTotals = orderCore.calculateTotals([{ product: { price: 100 }, quantity: 2 }], 0.075, 0.15);
 check(saleTotals.grossSubtotal === 200 && saleTotals.discount === 30 && saleTotals.subtotal === 170 && saleTotals.total === 182.75, "Thanksgiving per-item discount is incorrect.");
 const incompleteTotals = orderCore.calculateTotals([{ product: { price: null }, quantity: 1 }], 0.075);
 check(incompleteTotals.hasIncompletePricing && incompleteTotals.total === null, "Unverified prices must make the order total incomplete.");
@@ -56,7 +56,7 @@ check(catalogPrompt(cleanContext).includes("NX-1"), "AI catalog prompt omitted t
 
 const finder = browserContext(["assets/js/prebuilt-data.js", "assets/js/prebuilt-core.js"]);
 check(finder.NEXORA_PREBUILTS.length === 7, "PC Finder should contain seven researched prebuilt listings.");
-check(finder.NEXORA_PREBUILTS.every(function (system) { return system.source === "Best Buy" && system.sourceUrl.startsWith("https://www.bestbuy.com/product/") && system.checkedDate === "2026-11-11"; }), "Every PC Finder result should use a dated direct Best Buy listing.");
+check(finder.NEXORA_PREBUILTS.every(function (system) { return system.pricingNote === "Estimated complete-system price" && !system.sourceUrl && !system.source; }), "PC Finder results should stay inside Nexora instead of linking to a retailer.");
 check(finder.NEXORA_PREBUILTS.find(function (system) { return system.id === "PB-002"; }).price === 1199.99, "iBUYPOWER Slate current reference price is incorrect.");
 check(finder.NEXORA_PREBUILTS.find(function (system) { return system.id === "PB-007"; }).price === 3299.99, "ASUS ROG G700 current reference price is incorrect.");
 const finderAnswers = { tasks: ["gaming", "coding"], games: "Cyberpunk 2077", coding: "heavy", resolution: "1440p", priority: "performance", budget: 2200 };

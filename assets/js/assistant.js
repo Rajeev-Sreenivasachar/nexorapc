@@ -7,11 +7,11 @@
 
   wrapper.innerHTML = `
     <button class="ai-launcher" id="ai-launcher" type="button" aria-label="Open Nexora AI assistant" aria-controls="ai-panel" aria-expanded="false">
-      <span aria-hidden="true">N</span><strong>Ask AI</strong>
+      <span aria-hidden="true">N</span><strong>Free AI</strong>
     </button>
     <section class="ai-panel" id="ai-panel" role="dialog" aria-modal="false" aria-label="Nexora AI assistant" hidden>
       <header class="ai-panel-header">
-        <div><span class="ai-status-dot" aria-hidden="true"></span><strong>Nexora AI</strong><small>PC hardware guidance</small></div>
+        <div><span class="ai-status-dot" aria-hidden="true"></span><strong>Nexora AI</strong><small>Free PC hardware guidance</small></div>
         <button type="button" id="ai-close" aria-label="Close AI assistant">×</button>
       </header>
       <div class="ai-quick-prompts" aria-label="Suggested questions">

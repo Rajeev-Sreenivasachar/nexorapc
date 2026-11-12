@@ -117,7 +117,7 @@ Each language has a specific job. More languages should only be added when they 
 
 `assets/js/products.js` contains 300 unique component models across 10 categories. The original dataset is preserved in `data/catalog-source.json`, while `scripts/build-catalog.mjs` converts it into the browser-ready catalog. Generic GPU families were replaced with exact board-partner models so the displayed names and images refer to specific products.
 
-`assets/js/pricing-data.js` replaces the generated catalog amounts at runtime. All 300 products have a usable reference price: 45 retailer-checked prices dated November 11, 2026 and 255 clearly labeled best-effort estimates. Every product also includes Amazon and Best Buy search links so visitors can compare the estimate before buying.
+`assets/js/pricing-data.js` replaces the generated catalog amounts at runtime. All 300 products have a usable reference price: 45 retailer-checked prices dated November 11, 2026 and 255 best-effort estimates. Retailer evidence stays in the internal price audit instead of adding shopping links to the customer interface.
 
 Reference prices are not guaranteed live offers. The product dialog shows the retailer, listing link, check date, and observed availability. Inventory counts remain deterministic demo data used only to demonstrate availability limits; Nexora does not claim retailer stock or ownership of the products. See `PRODUCT_GUIDE.md` for the update process.
 
@@ -150,7 +150,7 @@ The Shop includes:
 - saved local orders, cancellation, inventory restoration, and text receipts
 - a browser-only demo admin dashboard with order search, status filtering, status updates, and summary counts
 - duplicate-submission protection and clearly labeled estimated totals
-- a Thanksgiving prototype promotion that subtracts $15 per priced cart item before demo tax
+- a Thanksgiving prototype promotion that applies 15% off each priced cart item before demo tax
 
 Cart, budget, and order data are stored only in the visitor's browser with `localStorage`. Placing an order does not collect payment, contact a business, reserve real stock, or ship anything.
 
@@ -164,9 +164,9 @@ Run `node scripts/sync-price-audit.mjs` after editing verified records in the au
 
 ## Prebuilt PC finder
 
-The PC Finder asks about intended use, game titles, coding intensity, gaming resolution, budget, and the customer's main priority. `prebuilt-core.js` scores seven dated Best Buy listings with plain JavaScript rules and returns up to three matches inside the selected budget. If no listing fits, it clearly labels the closest option above budget.
+The PC Finder asks about intended use, game titles, coding intensity, gaming resolution, budget, and the customer's main priority. `prebuilt-core.js` scores seven PC profiles with plain JavaScript rules and returns up to three matches inside the selected budget. If no profile fits, it clearly labels the closest option above budget.
 
-The prebuilt prices are reference listings, not Nexora inventory or guaranteed offers. Every result links back to the retailer and displays its check date.
+The displayed totals are planning estimates, not retailer offers. Results direct customers to Nexora's Shop to choose parts instead of sending them to Best Buy or another retailer.
 
 ## Gemini assistant
 

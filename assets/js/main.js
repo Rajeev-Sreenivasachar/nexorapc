@@ -18,7 +18,7 @@
       <div class="site-header-stack">
         <div class="sale-banner">
           <div class="container sale-banner-inner">
-            <span><strong>THANKSGIVING SALE</strong><small>$15 off every item in your demo cart.</small></span>
+            <span><strong>THANKSGIVING SALE</strong><small>15% off every item in your demo cart.</small></span>
           </div>
         </div>
         <header class="site-header">
